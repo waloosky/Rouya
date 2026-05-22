@@ -2,318 +2,342 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Cairo',sans-serif;direction:rtl;min-height:100vh;background:linear-gradient(135deg,#0a1628 0%,#0d2137 40%,#0a1f1a 70%,#091420 100%)}
-
-.bg-scene{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none}
-.orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.25;animation:drift 8s ease-in-out infinite alternate}
-.orb1{width:400px;height:400px;background:#1D9E75;top:-10%;right:-5%;animation-delay:0s}
-.orb2{width:300px;height:300px;background:#7F77DD;bottom:-10%;left:-5%;animation-delay:-3s}
-.orb3{width:250px;height:250px;background:#5DCAA5;top:40%;left:30%;animation-delay:-5s;opacity:0.15}
-@keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(30px,20px) scale(1.1)}}
-
-.particles{position:fixed;inset:0;z-index:0;pointer-events:none}
-.dot{position:absolute;width:2px;height:2px;background:#5DCAA5;border-radius:50%;opacity:0;animation:twinkle 3s ease-in-out infinite}
-@keyframes twinkle{0%,100%{opacity:0;transform:scale(1)}50%{opacity:0.6;transform:scale(1.5)}}
-
-.app{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:1.25rem 1rem 2.5rem}
-
-.glass{
-  background:rgba(255,255,255,0.05);
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px);
-  border:1px solid rgba(93,202,165,0.2);
-  border-radius:20px;
-  box-shadow:0 8px 32px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.08);
+.phy-root{
+  font-family:'Cairo',sans-serif;direction:rtl;
+  background:#0d1117;
+  min-height:100vh;padding:0;overflow-x:hidden;
+  color:#e0f7fa;
+  position:relative;
 }
+.canvas-bg{position:absolute;inset:0;z-index:0;pointer-events:none}
+.phy-wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:18px 16px 40px}
 
-.nav{
+.phy-header{
   display:flex;align-items:center;justify-content:space-between;
-  padding:0.75rem 1.25rem;margin-bottom:1.5rem;
+  background:rgba(0,229,255,0.04);
+  border:1px solid rgba(0,229,255,0.15);
+  border-radius:16px;padding:12px 20px;margin-bottom:20px;
 }
-.nav-logo{display:flex;align-items:center;gap:10px}
-.nav-logo-icon{
-  width:38px;height:38px;border-radius:10px;
-  background:linear-gradient(135deg,#1D9E75,#5DCAA5);
+.phy-logo{display:flex;align-items:center;gap:10px}
+.phy-logo-ring{
+  width:36px;height:36px;border-radius:50%;
+  border:2px solid #00e5ff;
   display:flex;align-items:center;justify-content:center;
-  box-shadow:0 0 16px rgba(29,158,117,0.5);
+  position:relative;
 }
-.nav-logo-text{font-size:16px;font-weight:700;color:#fff;letter-spacing:1px}
-.nav-links{display:flex;gap:4px}
-.nav-btn{
-  font-family:'Cairo',sans-serif;font-size:12px;font-weight:600;
-  color:rgba(255,255,255,0.65);
-  background:rgba(255,255,255,0.05);
-  border:1px solid rgba(255,255,255,0.1);
-  border-radius:50px;
-  padding:6px 14px;cursor:pointer;
+.phy-logo-ring::after{
+  content:'';position:absolute;inset:-5px;border-radius:50%;
+  border:1px solid rgba(0,229,255,0.2);
+  animation:spin 6s linear infinite;
+  border-top-color:rgba(0,229,255,0.6);
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.phy-logo-dot{width:10px;height:10px;border-radius:50%;background:#00e5ff}
+.phy-logo-text{font-size:15px;font-weight:700;color:#e0f7fa;letter-spacing:1px}
+.phy-logo-sub{font-size:10px;color:rgba(0,229,255,0.5);letter-spacing:2px}
+
+.nav-pills{display:flex;gap:6px}
+.npill{
+  font-family:'Cairo',sans-serif;font-size:11px;font-weight:600;
+  color:rgba(224,247,250,0.55);
+  background:rgba(0,229,255,0.05);
+  border:1px solid rgba(0,229,255,0.12);
+  border-radius:50px;padding:5px 13px;cursor:pointer;
   transition:all 0.2s;
-  display:inline-flex;align-items:center;gap:5px;
-  text-decoration:none;
 }
-.nav-btn:hover{background:rgba(93,202,165,0.15);border-color:rgba(93,202,165,0.4);color:#fff;box-shadow:0 0 12px rgba(93,202,165,0.2)}
-.nav-btn.logout:hover{background:rgba(226,75,74,0.15);border-color:rgba(226,75,74,0.4);color:#F09595;box-shadow:0 0 12px rgba(226,75,74,0.2)}
-
-.hero{padding:2rem 1.5rem;margin-bottom:1.25rem;text-align:center;position:relative;overflow:hidden}
-.hero-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:300px;height:150px;background:rgba(29,158,117,0.1);filter:blur(40px);border-radius:50%;pointer-events:none}
-.hero-badge{
-  display:inline-flex;align-items:center;gap:6px;
-  background:rgba(29,158,117,0.15);
-  border:1px solid rgba(93,202,165,0.35);
-  color:#5DCAA5;
-  font-size:11px;font-weight:700;letter-spacing:1px;
-  padding:4px 14px;border-radius:50px;
-  margin-bottom:1rem;
-  box-shadow:0 0 12px rgba(93,202,165,0.15);
-  position:relative;z-index:1;
+.npill:hover,.npill.act{
+  background:rgba(0,229,255,0.12);
+  border-color:rgba(0,229,255,0.4);
+  color:#00e5ff;
 }
-.hero-title{font-size:clamp(18px,4vw,28px);font-weight:900;color:#fff;line-height:1.35;margin-bottom:0.6rem;position:relative;z-index:1}
-.hero-title span{background:linear-gradient(90deg,#1D9E75,#5DCAA5);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero-sub{font-size:13px;color:rgba(255,255,255,0.5);max-width:500px;margin:0 auto 1.5rem;line-height:1.7;position:relative;z-index:1}
-.hero-stats{display:flex;justify-content:center;gap:2.5rem;position:relative;z-index:1}
-.stat-num{font-size:22px;font-weight:900;background:linear-gradient(90deg,#1D9E75,#5DCAA5);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.stat-label{font-size:11px;color:rgba(255,255,255,0.4);margin-top:1px}
 
-.section-title{font-size:13px;font-weight:600;color:rgba(255,255,255,0.4);margin-bottom:0.75rem;display:flex;align-items:center;gap:6px;letter-spacing:0.5px}
-.section-title i{font-size:15px;color:#1D9E75}
-
-.grade-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem}
-
-.grade-card{
-  background:rgba(255,255,255,0.04);
-  backdrop-filter:blur(16px);
-  -webkit-backdrop-filter:blur(16px);
-  border:1px solid rgba(255,255,255,0.08);
-  border-radius:16px;
-  padding:1rem 0.875rem;
-  cursor:pointer;
-  transition:all 0.25s ease;
-  position:relative;overflow:hidden;
+.hero-section{
+  background:rgba(0,10,20,0.6);
+  border:1px solid rgba(0,229,255,0.12);
+  border-radius:20px;padding:28px 24px;
+  margin-bottom:20px;text-align:center;position:relative;overflow:hidden;
 }
-.grade-card::before{
-  content:'';position:absolute;inset:0;border-radius:16px;
-  background:linear-gradient(135deg,rgba(93,202,165,0.08) 0%,transparent 60%);
-  opacity:0;transition:opacity 0.25s;
-}
-.grade-card .glow-ring{
-  position:absolute;inset:-1px;border-radius:16px;
-  background:transparent;
-  border:1px solid transparent;
-  transition:all 0.25s;
+.hero-orbit{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
   pointer-events:none;
 }
-.grade-card:hover{
-  transform:translateY(-3px);
-  border-color:rgba(93,202,165,0.35);
-  box-shadow:0 0 20px rgba(29,158,117,0.2),0 8px 24px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.08);
+.orbit-ring{
+  position:absolute;border-radius:50%;
+  border:1px solid rgba(0,229,255,0.08);
+  top:50%;left:50%;transform:translate(-50%,-50%);
 }
-.grade-card:hover::before{opacity:1}
-.grade-card.selected{
-  border-color:rgba(93,202,165,0.7) !important;
-  background:rgba(29,158,117,0.12) !important;
-  box-shadow:0 0 28px rgba(29,158,117,0.4),0 0 60px rgba(29,158,117,0.15),0 8px 24px rgba(0,0,0,0.3),inset 0 1px 0 rgba(93,202,165,0.2) !important;
-  transform:translateY(-3px);
+.orbit-ring.r1{width:260px;height:260px;animation:spinOrb 20s linear infinite}
+.orbit-ring.r2{width:380px;height:380px;animation:spinOrb 35s linear infinite reverse}
+.orbit-ring.r3{width:500px;height:500px;animation:spinOrb 55s linear infinite;border-color:rgba(255,171,0,0.06)}
+.orbit-dot{
+  position:absolute;width:6px;height:6px;border-radius:50%;
+  top:0;left:50%;margin-left:-3px;margin-top:-3px;
 }
-.grade-card.selected .grade-name{color:#5DCAA5}
-.grade-card.selected .grade-tag-inner{background:rgba(93,202,165,0.25);border-color:rgba(93,202,165,0.5);color:#5DCAA5;box-shadow:0 0 8px rgba(93,202,165,0.3)}
+.od-cyan{background:#00e5ff;box-shadow:0 0 8px #00e5ff}
+.od-amber{background:#ffab00;box-shadow:0 0 8px #ffab00}
+@keyframes spinOrb{to{transform:translate(-50%,-50%) rotate(360deg)}}
 
-.grade-tag-inner{
-  display:inline-block;
-  font-size:10px;font-weight:700;letter-spacing:0.5px;
-  padding:2px 10px;border-radius:50px;
-  margin-bottom:8px;
-  transition:all 0.25s;
+.hero-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(0,229,255,0.08);
+  border:1px solid rgba(0,229,255,0.25);
+  color:#00e5ff;font-size:11px;font-weight:700;letter-spacing:1.5px;
+  padding:4px 14px;border-radius:50px;margin-bottom:14px;
+  position:relative;z-index:1;
 }
-.tag-middle{background:rgba(29,158,117,0.15);border:1px solid rgba(29,158,117,0.3);color:#5DCAA5}
-.tag-prep{background:rgba(127,119,221,0.15);border:1px solid rgba(127,119,221,0.3);color:#AFA9EC}
+.hero-pulse{width:6px;height:6px;border-radius:50%;background:#00e5ff;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.7)}}
+.hero-title{font-size:clamp(20px,4vw,32px);font-weight:900;color:#fff;line-height:1.3;margin-bottom:10px;position:relative;z-index:1}
+.hero-title .cyan{color:#00e5ff}
+.hero-title .amber{color:#ffab00}
+.hero-sub{font-size:13px;color:rgba(224,247,250,0.45);max-width:500px;margin:0 auto 22px;line-height:1.8;position:relative;z-index:1}
 
-.grade-icon{font-size:26px;margin-bottom:8px;display:block;transition:transform 0.25s}
-.grade-card:hover .grade-icon,.grade-card.selected .grade-icon{transform:scale(1.15)}
-.grade-name{font-size:14px;font-weight:700;color:rgba(255,255,255,0.85);margin-bottom:2px;transition:color 0.25s}
-.grade-name-en{font-size:11px;color:rgba(255,255,255,0.3)}
+.stats-row{display:flex;justify-content:center;gap:32px;position:relative;z-index:1}
+.stat-box{text-align:center}
+.stat-n{font-size:24px;font-weight:900;color:#00e5ff}
+.stat-n.amber{color:#ffab00}
+.stat-l{font-size:11px;color:rgba(224,247,250,0.35);margin-top:2px;letter-spacing:0.5px}
 
-.selected-indicator{
-  position:absolute;top:8px;left:8px;
-  width:8px;height:8px;border-radius:50%;
-  background:#5DCAA5;
-  box-shadow:0 0 8px #5DCAA5,0 0 16px rgba(93,202,165,0.6);
+.sec-label{
+  font-size:12px;font-weight:700;color:rgba(0,229,255,0.5);
+  letter-spacing:1.5px;margin-bottom:12px;
+  display:flex;align-items:center;gap:8px;
+}
+.sec-label::before{content:'';width:20px;height:1px;background:rgba(0,229,255,0.3)}
+.sec-label::after{content:'';flex:1;height:1px;background:rgba(0,229,255,0.08)}
+
+.grade-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+@media(max-width:560px){.grade-grid{grid-template-columns:repeat(2,1fr)}}
+
+.g-card{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(0,229,255,0.1);
+  border-radius:16px;padding:16px 14px;cursor:pointer;
+  transition:all 0.25s;position:relative;overflow:hidden;
+  text-align:right;
+}
+.g-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,229,255,0.3),transparent);
   opacity:0;transition:opacity 0.25s;
 }
-.grade-card.selected .selected-indicator{opacity:1}
-
-.bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.info-card{
-  background:rgba(255,255,255,0.04);
-  backdrop-filter:blur(16px);
-  -webkit-backdrop-filter:blur(16px);
-  border:1px solid rgba(255,255,255,0.08);
-  border-radius:16px;
-  padding:1rem 1.25rem;
-  cursor:pointer;
-  transition:all 0.25s;
-  display:flex;align-items:center;gap:12px;
+.g-card:hover{
+  border-color:rgba(0,229,255,0.35);
+  background:rgba(0,229,255,0.06);
+  transform:translateY(-3px);
 }
-.info-card:hover{
-  border-color:rgba(93,202,165,0.35);
-  background:rgba(29,158,117,0.08);
-  box-shadow:0 0 20px rgba(29,158,117,0.15),0 4px 16px rgba(0,0,0,0.2);
+.g-card:hover::before{opacity:1}
+.g-card.sel{
+  border-color:#00e5ff;
+  background:rgba(0,229,255,0.1);
+}
+.g-card.sel::before{opacity:1}
+.g-card.amber-card:hover{border-color:rgba(255,171,0,0.35);background:rgba(255,171,0,0.06)}
+.g-card.amber-card.sel{border-color:#ffab00;background:rgba(255,171,0,0.1)}
+.g-card.amber-card::before{background:linear-gradient(90deg,transparent,rgba(255,171,0,0.3),transparent)}
+
+.g-tag{
+  display:inline-block;font-size:9px;font-weight:700;letter-spacing:1px;
+  padding:2px 9px;border-radius:50px;margin-bottom:10px;
+}
+.tag-mid{background:rgba(0,229,255,0.1);border:1px solid rgba(0,229,255,0.25);color:#00e5ff}
+.tag-adv{background:rgba(255,171,0,0.1);border:1px solid rgba(255,171,0,0.25);color:#ffab00}
+
+.g-icon{font-size:22px;margin-bottom:8px;display:block}
+.g-name{font-size:14px;font-weight:700;color:rgba(224,247,250,0.9)}
+.g-en{font-size:10px;color:rgba(224,247,250,0.25);margin-top:2px}
+.sel-dot{
+  position:absolute;top:10px;left:10px;width:7px;height:7px;
+  border-radius:50%;background:#00e5ff;
+  box-shadow:0 0 8px #00e5ff;opacity:0;transition:opacity 0.2s;
+}
+.g-card.sel .sel-dot{opacity:1}
+.g-card.amber-card .sel-dot{background:#ffab00;box-shadow:0 0 8px #ffab00}
+
+.info-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.i-card{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(0,229,255,0.1);
+  border-radius:16px;padding:16px 18px;cursor:pointer;
+  display:flex;align-items:center;gap:14px;
+  transition:all 0.25s;
+}
+.i-card:hover{
+  border-color:rgba(0,229,255,0.3);
+  background:rgba(0,229,255,0.05);
   transform:translateY(-2px);
 }
-.info-icon{
+.i-icon{
   width:42px;height:42px;border-radius:12px;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;font-size:18px;
 }
-.icon-about{background:rgba(186,117,23,0.15);border:1px solid rgba(186,117,23,0.25);color:#FAC775}
-.icon-contact{background:rgba(29,158,117,0.15);border:1px solid rgba(29,158,117,0.25);color:#5DCAA5}
-.info-card-title{font-size:14px;font-weight:700;color:rgba(255,255,255,0.85)}
-.info-card-sub{font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px}
+.ii-amber{background:rgba(255,171,0,0.1);border:1px solid rgba(255,171,0,0.2);color:#ffab00}
+.ii-cyan{background:rgba(0,229,255,0.1);border:1px solid rgba(0,229,255,0.2);color:#00e5ff}
+.i-title{font-size:14px;font-weight:700;color:rgba(224,247,250,0.9)}
+.i-sub{font-size:11px;color:rgba(224,247,250,0.3);margin-top:3px}
 
-@media(max-width:600px){
-  .grade-grid{grid-template-columns:repeat(2,1fr)}
-  .nav-logo-text{display:none}
-  .hero-stats{gap:1.5rem}
-  .hero-title{font-size:20px}
+.phy-footer{
+  text-align:center;padding-top:20px;
+  border-top:1px solid rgba(0,229,255,0.07);
 }
-@media(max-width:380px){
-  .grade-grid{grid-template-columns:1fr 1fr}
-  .nav-btn span{display:none}
-  .bottom-row{grid-template-columns:1fr}
+.phy-footer a{
+  display:inline-flex;align-items:center;gap:8px;
+  color:#ffab00;font-size:14px;font-family:'Cairo',sans-serif;font-weight:600;
+  text-decoration:none;
+  border:1px solid rgba(255,171,0,0.3);
+  padding:10px 22px;border-radius:10px;
+  background:rgba(255,171,0,0.05);
+  transition:all 0.2s;
 }
-@media(min-width:900px){
-  .app{padding:2rem 1.5rem 3rem}
-  .hero{padding:2.5rem 2rem}
-}
+.phy-footer a:hover{background:rgba(255,171,0,0.12);border-color:#ffab00}
 </style>
 
-<div class="bg-scene">
-  <div class="orb orb1"></div>
-  <div class="orb orb2"></div>
-  <div class="orb orb3"></div>
-</div>
-<div class="particles" id="particles"></div>
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">منصة تعليم الفيزياء - اختر صفك الدراسي</h2>
 
-<div class="app">
+<div class="phy-root">
+  <canvas class="canvas-bg" id="starCanvas"></canvas>
+  <div class="phy-wrap">
 
-  <nav class="glass nav">
-    <div class="nav-logo">
-      <div class="nav-logo-icon">
-        <i class="ti ti-school" style="font-size:18px;color:white" aria-hidden="true"></i>
+    <header class="phy-header">
+      <div class="phy-logo">
+        <div class="phy-logo-ring"><div class="phy-logo-dot"></div></div>
+        <div>
+          <div class="phy-logo-text">بوابة الفيزياء</div>
+          <div class="phy-logo-sub">PHYSICS PORTAL</div>
+        </div>
       </div>
-      <span class="nav-logo-text">تعلّم</span>
-    </div>
-    <div class="nav-links">
-      <button class="nav-btn" onclick="sendPrompt('أريد معرفة المزيد عن التطبيق')">
-        <i class="ti ti-info-circle" aria-hidden="true"></i>
-        <span>عن التطبيق</span>
-      </button>
-      <button class="nav-btn" onclick="sendPrompt('أريد التواصل مع فريق التطبيق')">
-        <i class="ti ti-message" aria-hidden="true"></i>
-        <span>تواصل معنا</span>
-      </button>
-      <button class="nav-btn logout" onclick="sendPrompt('تسجيل خروج')">
-        <i class="ti ti-logout" aria-hidden="true"></i>
-        <span>خروج</span>
-      </button>
-    </div>
-  </nav>
+      <nav class="nav-pills">
+        <button class="npill act">الرئيسية</button>
+        <button class="npill" onclick="sendPrompt('أخبرني عن التطبيق التعليمي')">عن التطبيق</button>
+        <button class="npill" onclick="sendPrompt('أريد التواصل مع فريق الدعم')">تواصل</button>
+        <button class="npill" onclick="sendPrompt('تسجيل خروج')">خروج</button>
+      </nav>
+    </header>
 
-  <div class="glass hero">
-    <div class="hero-glow"></div>
-    <div class="hero-badge">
-      <i class="ti ti-sparkles" style="font-size:12px" aria-hidden="true"></i>
-      Interactive Educational Application
-    </div>
-    <h1 class="hero-title">مرحباً بكم في <span>التطبيق التعليمي</span> التفاعلي</h1>
-    <p class="hero-sub">منصة رقمية تدمج التقنية الحديثة مع الاستراتيجيات التربوية لتحويل التعليم إلى تجربة مشوقة ومشاركة فعّالة</p>
-    <div class="hero-stats">
-      <div class="stat"><div class="stat-num">٦</div><div class="stat-label">صفوف دراسية</div></div>
-      <div class="stat"><div class="stat-num">٢٤/٧</div><div class="stat-label">متاح دائماً</div></div>
-      <div class="stat"><div class="stat-num">AI</div><div class="stat-label">تعلّم مخصّص</div></div>
-    </div>
-  </div>
+    <section class="hero-section">
+      <div class="hero-orbit">
+        <div class="orbit-ring r1"><div class="orbit-dot od-cyan"></div></div>
+        <div class="orbit-ring r2"><div class="orbit-dot od-amber"></div></div>
+        <div class="orbit-ring r3"></div>
+      </div>
+      <div class="hero-badge"><div class="hero-pulse"></div> INTERACTIVE PHYSICS LAB</div>
+      <h1 class="hero-title">مرحباً بك في <span class="cyan">مختبر</span> <span class="amber">الفيزياء</span> التفاعلي</h1>
+      <p class="hero-sub">منصة علمية متقدمة تجمع بين الفيزياء الحديثة وأساليب التعلم التفاعلي لتجربة تعليمية استثنائية</p>
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-n">٦</div><div class="stat-l">صفوف دراسية</div></div>
+        <div class="stat-box"><div class="stat-n">٢٤/٧</div><div class="stat-l">متاح دائماً</div></div>
+        <div class="stat-box"><div class="stat-n amber">AI</div><div class="stat-l">تعلّم ذكي</div></div>
+        <div class="stat-box"><div class="stat-n">١٢٠+</div><div class="stat-l">اختباراً تفاعلياً</div></div>
+      </div>
+    </section>
 
-  <div class="section-title">
-    <i class="ti ti-layout-grid" aria-hidden="true"></i>
-    اختر صفك الدراسي
-  </div>
-
-  <div class="grade-grid" id="gradeGrid">
-    <div class="grade-card" data-grade="الصف الأول متوسط" onclick="selectGrade(this,'انتقل إلى الصف الأول متوسط')">
-      <div class="selected-indicator"></div>
-      <div class="grade-tag-inner tag-middle">متوسط</div>
-      <span class="grade-icon">📘</span>
-      <div class="grade-name">الصف الأول</div>
-      <div class="grade-name-en">Grade 7</div>
-    </div>
-    <div class="grade-card" data-grade="الصف الثاني متوسط" onclick="selectGrade(this,'انتقل إلى الصف الثاني متوسط')">
-      <div class="selected-indicator"></div>
-      <div class="grade-tag-inner tag-middle">متوسط</div>
-      <span class="grade-icon">📗</span>
-      <div class="grade-name">الصف الثاني</div>
-      <div class="grade-name-en">Grade 8</div>
-    </div>
-    <div class="grade-card" data-grade="الصف الثالث متوسط" onclick="selectGrade(this,'انتقل إلى الصف الثالث متوسط')">
-      <div class="selected-indicator"></div>
-      <div class="grade-tag-inner tag-middle">متوسط</div>
-      <span class="grade-icon">📙</span>
-      <div class="grade-name">الصف الثالث</div>
-      <div class="grade-name-en">Grade 9</div>
-    </div>
-    <div class="grade-card" data-grade="الصف الرابع الإعدادي" onclick="selectGrade(this,'انتقل إلى الصف الرابع الإعدادي')">
-      <div class="selected-indicator"></div>
-      <div class="grade-tag-inner tag-prep">إعدادي</div>
-      <span class="grade-icon">🔬</span>
-      <div class="grade-name">الصف الرابع</div>
-      <div class="grade-name-en">Grade 10</div>
-    </div>
-    <div class="grade-card" data-grade="الصف الخامس الإعدادي" onclick="selectGrade(this,'انتقل إلى الصف الخامس الإعدادي')">
-      <div class="selected-indicator"></div>
-      <div class="grade-tag-inner tag-prep">إعدادي</div>
-      <span class="grade-icon">🧮</span>
-      <div class="grade-name">الصف الخامس</div>
-      <div class="grade-name-en">Grade 11</div>
-    </div>
-    <div class="grade-card" data-grade="الصف السادس الإعدادي" onclick="selectGrade(this,'انتقل إلى الصف السادس الإعدادي')">
-      <div class="selected-indicator"></div>
-      <div class="grade-tag-inner tag-prep">إعدادي</div>
-      <span class="grade-icon">🎓</span>
-      <div class="grade-name">الصف السادس</div>
-      <div class="grade-name-en">Grade 12</div>
-    </div>
-  </div>
-
-  <div class="bottom-row">
-    <div class="info-card" onclick="sendPrompt('أخبرني عن التطبيق التعليمي التفاعلي بالتفصيل')">
-      <div class="info-icon icon-about"><i class="ti ti-info-circle" aria-hidden="true"></i></div>
-      <div>
-        <div class="info-card-title">عن التطبيق</div>
-        <div class="info-card-sub">تعرّف على رؤيتنا وأهدافنا</div>
+    <div class="sec-label">اختر صفك الدراسي</div>
+    <div class="grade-grid" id="gradeGrid">
+      <div class="g-card" onclick="pick(this,'انتقل إلى الصف الأول متوسط')">
+        <div class="sel-dot"></div>
+        <div class="g-tag tag-mid">متوسط</div>
+        <span class="g-icon"><i class="ti ti-atom" style="color:#00e5ff;font-size:24px" aria-hidden="true"></i></span>
+        <div class="g-name">الصف الأول</div>
+        <div class="g-en">Grade 7</div>
+      </div>
+      <div class="g-card" onclick="pick(this,'انتقل إلى الصف الثاني متوسط')">
+        <div class="sel-dot"></div>
+        <div class="g-tag tag-mid">متوسط</div>
+        <span class="g-icon"><i class="ti ti-wave-sine" style="color:#00e5ff;font-size:24px" aria-hidden="true"></i></span>
+        <div class="g-name">الصف الثاني</div>
+        <div class="g-en">Grade 8</div>
+      </div>
+      <div class="g-card" onclick="pick(this,'انتقل إلى الصف الثالث متوسط')">
+        <div class="sel-dot"></div>
+        <div class="g-tag tag-mid">متوسط</div>
+        <span class="g-icon"><i class="ti ti-ripple" style="color:#00e5ff;font-size:24px" aria-hidden="true"></i></span>
+        <div class="g-name">الصف الثالث</div>
+        <div class="g-en">Grade 9</div>
+      </div>
+      <div class="g-card amber-card" onclick="pick(this,'انتقل إلى الصف الرابع الإعدادي')">
+        <div class="sel-dot"></div>
+        <div class="g-tag tag-adv">إعدادي</div>
+        <span class="g-icon"><i class="ti ti-flask" style="color:#ffab00;font-size:24px" aria-hidden="true"></i></span>
+        <div class="g-name">الصف الرابع</div>
+        <div class="g-en">Grade 10</div>
+      </div>
+      <div class="g-card amber-card" onclick="pick(this,'انتقل إلى الصف الخامس الإعدادي')">
+        <div class="sel-dot"></div>
+        <div class="g-tag tag-adv">إعدادي</div>
+        <span class="g-icon"><i class="ti ti-math-symbols" style="color:#ffab00;font-size:24px" aria-hidden="true"></i></span>
+        <div class="g-name">الصف الخامس</div>
+        <div class="g-en">Grade 11</div>
+      </div>
+      <div class="g-card amber-card" onclick="pick(this,'انتقل إلى الصف السادس الإعدادي')">
+        <div class="sel-dot"></div>
+        <div class="g-tag tag-adv">إعدادي</div>
+        <span class="g-icon"><i class="ti ti-certificate" style="color:#ffab00;font-size:24px" aria-hidden="true"></i></span>
+        <div class="g-name">الصف السادس</div>
+        <div class="g-en">Grade 12</div>
       </div>
     </div>
-    <div class="info-card" onclick="sendPrompt('أريد التواصل مع فريق الدعم')">
-      <div class="info-icon icon-contact"><i class="ti ti-headset" aria-hidden="true"></i></div>
-      <div>
-        <div class="info-card-title">تواصل معنا</div>
-        <div class="info-card-sub">نحن هنا لمساعدتك دائماً</div>
+
+    <div class="sec-label">روابط سريعة</div>
+    <div class="info-row">
+      <div class="i-card" onclick="sendPrompt('أخبرني عن التطبيق التعليمي بالتفصيل')">
+        <div class="i-icon ii-amber"><i class="ti ti-info-circle" aria-hidden="true"></i></div>
+        <div>
+          <div class="i-title">عن التطبيق</div>
+          <div class="i-sub">رؤيتنا وأهدافنا التعليمية</div>
+        </div>
+      </div>
+      <div class="i-card" onclick="sendPrompt('أريد التواصل مع فريق الدعم')">
+        <div class="i-icon ii-cyan"><i class="ti ti-headset" aria-hidden="true"></i></div>
+        <div>
+          <div class="i-title">تواصل معنا</div>
+          <div class="i-sub">فريق الدعم متاح دائماً</div>
+        </div>
       </div>
     </div>
-  </div>
 
+    <footer class="phy-footer">
+      <a href="dashboard.html"><i class="ti ti-arrow-right" aria-hidden="true"></i> العودة لمركز التطبيق</a>
+    </footer>
+
+  </div>
 </div>
 
 <script>
 (function(){
-  const p=document.getElementById('particles');
-  for(let i=0;i<22;i++){
-    const d=document.createElement('div');
-    d.className='dot';
-    d.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*4}s;animation-duration:${2+Math.random()*3}s`;
-    p.appendChild(d);
+  const cv=document.getElementById('starCanvas');
+  const ctx=cv.getContext('2d');
+  function resize(){cv.width=cv.parentElement.offsetWidth||900;cv.height=cv.parentElement.offsetHeight||600}
+  resize();
+  const stars=Array.from({length:80},()=>({
+    x:Math.random()*cv.width,y:Math.random()*cv.height,
+    r:Math.random()*1.2+0.2,
+    o:Math.random(),speed:0.003+Math.random()*0.005
+  }));
+  let t=0;
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    stars.forEach(s=>{
+      const op=0.2+0.4*Math.abs(Math.sin(t*s.speed+s.o*10));
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(0,229,255,${op})`;ctx.fill();
+    });
+    t++;requestAnimationFrame(draw);
   }
+  draw();
+  window.addEventListener('resize',resize);
 })();
 
-function selectGrade(el,prompt){
-  document.querySelectorAll('.grade-card').forEach(c=>c.classList.remove('selected'));
-  el.classList.add('selected');
-  setTimeout(()=>sendPrompt(prompt),300);
+function pick(el,prompt){
+  document.querySelectorAll('.g-card').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  setTimeout(()=>sendPrompt(prompt),280);
 }
+
+document.querySelectorAll('.npill').forEach(b=>{
+  b.addEventListener('click',function(){
+    document.querySelectorAll('.npill').forEach(x=>x.classList.remove('act'));
+    this.classList.add('act');
+  });
+});
 </script>
