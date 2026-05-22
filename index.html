@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>رؤيا Rouya/title>
+  <!-- تم تصحيح وسم العنوان هنا -->
+  <title>رؤيا Rouya</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -129,7 +130,7 @@
     }
     @keyframes pulse-ring {
       0%,100% { box-shadow: 0 0 24px rgba(0,229,255,0.2), inset 0 0 12px rgba(0,229,255,0.06); }
-      50%      { box-shadow: 0 0 40px rgba(0,229,255,0.35), inset 0 0 20px rgba(0,229,255,0.1); }
+      50%     { box-shadow: 0 0 40px rgba(0,229,255,0.35), inset 0 0 20px rgba(0,229,255,0.1); }
     }
 
     .title {
@@ -189,7 +190,6 @@
       width: 22px; height: 22px; flex-shrink: 0;
     }
 
-    /* ── Contact buttons ── */
     .contact-buttons {
       display: flex;
       gap: 10px;
@@ -254,7 +254,6 @@
       width: 18px; height: 18px; flex-shrink: 0;
     }
 
-    /* ── Loading ── */
     #step-loading {
       text-align: center;
       padding: 10px 0;
@@ -451,10 +450,9 @@
 
   <div class="card">
     <div class="icon-ring">⚛️</div>
-    <h1 class="title">  التطبيق التعليمي التفاعلي</h1>
-    <p class="subtitle">  Interactive Educational Application — أ. وليد خالد الفتلاوي</p>
+    <h1 class="title">التطبيق التعليمي التفاعلي</h1>
+    <p class="subtitle">Interactive Educational Application — أ. وليد خالد الفتلاوي</p>
 
-    <!-- Step 1: Google login button -->
     <div class="step active" id="step-1">
       <p style="font-size:13px; color:var(--text-dim); text-align:center; margin-bottom:22px; line-height:1.8;">
         مرحباً بك! سجّل دخولك للوصول إلى منصة التعليم التفاعلي
@@ -479,17 +477,14 @@
         🔒 بياناتك محمية ولا يتم مشاركتها مع أي طرف ثالث
       </p>
 
-      <!-- زرا الاتصال والواتساب -->
       <div class="contact-buttons">
         <a href="tel:+9647718597632" class="btn-call">
-          <!-- Phone icon -->
           <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24 11.36 11.36 0 003.55.57 1 1 0 011 1V21a1 1 0 01-1 1A17 17 0 013 5a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.25 1.01l-2.2 2.21z" fill="currentColor"/>
           </svg>
           اتصل بنا
         </a>
         <a href="https://wa.me/9647718597632" target="_blank" class="btn-whatsapp">
-          <!-- WhatsApp icon -->
           <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
             <path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.558 4.121 1.533 5.853L.057 23.486a.5.5 0 00.609.61l5.722-1.502A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.9a9.893 9.893 0 01-5.031-1.374l-.36-.214-3.733.979.997-3.645-.235-.374A9.861 9.861 0 012.1 12C2.1 6.534 6.534 2.1 12 2.1S21.9 6.534 21.9 12 17.466 21.9 12 21.9z"/>
@@ -499,7 +494,6 @@
       </div>
     </div>
 
-    <!-- Step 2: Loading -->
     <div class="step" id="step-loading">
       <div class="loader-orbit">
         <div class="loader-core"></div>
@@ -509,7 +503,6 @@
       <p class="loading-text">جارٍ التحقق من هويتك...</p>
     </div>
 
-    <!-- Step 3: Code input -->
     <div class="step" id="step-code">
       <p style="font-size:13px; color:var(--text-dim); text-align:center; margin-bottom:22px; line-height:1.8;">
         ✅ تم التحقق من حسابك.<br/>أدخل الآن كود الدخول الخاص بك
@@ -547,7 +540,6 @@
     </div>
   </div>
 
-  <!-- Success Overlay -->
   <div class="success-overlay" id="successOverlay">
     <div class="success-icon">🚀</div>
     <p class="success-title">مرحباً بك في رؤيا!</p>
