@@ -1,246 +1,231 @@
 
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Cairo:wght@400;600;700&display=swap');
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --primary: #1D9E75;
-    --primary-light: #E1F5EE;
-    --primary-mid: #5DCAA5;
-    --primary-dark: #0F6E56;
-    --accent: #7F77DD;
-    --accent-light: #EEEDFE;
-    --gold: #BA7517;
-    --gold-light: #FAEEDA;
-    --surface: var(--color-background-primary);
-    --surface2: var(--color-background-secondary);
-    --border: var(--color-border-tertiary);
-    --text: var(--color-text-primary);
-    --text2: var(--color-text-secondary);
-  }
-  body { font-family: 'Cairo', sans-serif; direction: rtl; }
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cairo',sans-serif;direction:rtl;min-height:100vh;background:linear-gradient(135deg,#0a1628 0%,#0d2137 40%,#0a1f1a 70%,#091420 100%)}
 
-  .app { max-width: 760px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+.bg-scene{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.25;animation:drift 8s ease-in-out infinite alternate}
+.orb1{width:400px;height:400px;background:#1D9E75;top:-10%;right:-5%;animation-delay:0s}
+.orb2{width:300px;height:300px;background:#7F77DD;bottom:-10%;left:-5%;animation-delay:-3s}
+.orb3{width:250px;height:250px;background:#5DCAA5;top:40%;left:30%;animation-delay:-5s;opacity:0.15}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(30px,20px) scale(1.1)}}
 
-  .nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.75rem 1.25rem;
-    background: var(--surface);
-    border: 0.5px solid var(--border);
-    border-radius: var(--border-radius-lg);
-    margin-bottom: 2rem;
-  }
-  .nav-logo {
-    display: flex; align-items: center; gap: 8px;
-  }
-  .nav-logo-icon {
-    width: 36px; height: 36px; border-radius: 8px;
-    background: var(--primary);
-    display: flex; align-items: center; justify-content: center;
-    color: white;
-  }
-  .nav-logo-text { font-size: 15px; font-weight: 700; color: var(--text); }
-  .nav-links { display: flex; gap: 4px; }
-  .nav-btn {
-    font-family: 'Cairo', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text2);
-    background: transparent;
-    border: 0.5px solid transparent;
-    border-radius: var(--border-radius-md);
-    padding: 6px 14px;
-    cursor: pointer;
-    transition: all 0.15s;
-    text-decoration: none;
-    display: inline-flex; align-items: center; gap: 5px;
-  }
-  .nav-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--border); }
-  .nav-btn.logout { color: #A32D2D; }
-  .nav-btn.logout:hover { background: #FCEBEB; border-color: #F7C1C1; }
+.particles{position:fixed;inset:0;z-index:0;pointer-events:none}
+.dot{position:absolute;width:2px;height:2px;background:#5DCAA5;border-radius:50%;opacity:0;animation:twinkle 3s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:0;transform:scale(1)}50%{opacity:0.6;transform:scale(1.5)}}
 
-  .hero {
-    text-align: center;
-    padding: 2.5rem 1rem 2rem;
-    background: var(--surface);
-    border: 0.5px solid var(--border);
-    border-radius: var(--border-radius-lg);
-    margin-bottom: 1.5rem;
-    position: relative;
-    overflow: hidden;
-  }
-  .hero::before {
-    content: '';
-    position: absolute;
-    top: 0; right: 0;
-    width: 220px; height: 220px;
-    background: var(--primary-light);
-    border-radius: 50%;
-    transform: translate(60px, -80px);
-    opacity: 0.5;
-  }
-  .hero::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0;
-    width: 160px; height: 160px;
-    background: var(--accent-light);
-    border-radius: 50%;
-    transform: translate(-50px, 60px);
-    opacity: 0.4;
-  }
-  .hero-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: var(--primary-light);
-    color: var(--primary-dark);
-    font-size: 12px; font-weight: 600;
-    padding: 4px 14px;
-    border-radius: 20px;
-    border: 0.5px solid #9FE1CB;
-    margin-bottom: 1rem;
-    position: relative; z-index: 1;
-  }
-  .hero-title {
-    font-size: 26px; font-weight: 700; color: var(--text);
-    line-height: 1.4; margin-bottom: 0.5rem;
-    position: relative; z-index: 1;
-  }
-  .hero-title span { color: var(--primary); }
-  .hero-sub {
-    font-size: 13px; color: var(--text2); max-width: 480px;
-    margin: 0 auto 1.5rem; line-height: 1.7;
-    position: relative; z-index: 1;
-  }
-  .hero-stats {
-    display: flex; justify-content: center; gap: 2rem;
-    position: relative; z-index: 1;
-  }
-  .stat { text-align: center; }
-  .stat-num { font-size: 20px; font-weight: 700; color: var(--primary); }
-  .stat-label { font-size: 11px; color: var(--text2); margin-top: 1px; }
+.app{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:1.25rem 1rem 2.5rem}
 
-  .section-title {
-    font-size: 14px; font-weight: 600; color: var(--text2);
-    margin-bottom: 0.75rem;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .section-title i { font-size: 16px; color: var(--primary); }
+.glass{
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(93,202,165,0.2);
+  border-radius:20px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.08);
+}
 
-  .grade-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-bottom: 1.5rem;
-  }
+.nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0.75rem 1.25rem;margin-bottom:1.5rem;
+}
+.nav-logo{display:flex;align-items:center;gap:10px}
+.nav-logo-icon{
+  width:38px;height:38px;border-radius:10px;
+  background:linear-gradient(135deg,#1D9E75,#5DCAA5);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 16px rgba(29,158,117,0.5);
+}
+.nav-logo-text{font-size:16px;font-weight:700;color:#fff;letter-spacing:1px}
+.nav-links{display:flex;gap:4px}
+.nav-btn{
+  font-family:'Cairo',sans-serif;font-size:12px;font-weight:600;
+  color:rgba(255,255,255,0.65);
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:50px;
+  padding:6px 14px;cursor:pointer;
+  transition:all 0.2s;
+  display:inline-flex;align-items:center;gap:5px;
+  text-decoration:none;
+}
+.nav-btn:hover{background:rgba(93,202,165,0.15);border-color:rgba(93,202,165,0.4);color:#fff;box-shadow:0 0 12px rgba(93,202,165,0.2)}
+.nav-btn.logout:hover{background:rgba(226,75,74,0.15);border-color:rgba(226,75,74,0.4);color:#F09595;box-shadow:0 0 12px rgba(226,75,74,0.2)}
 
-  .grade-card {
-    background: var(--surface);
-    border: 0.5px solid var(--border);
-    border-radius: var(--border-radius-lg);
-    padding: 1rem 0.875rem;
-    cursor: pointer;
-    transition: all 0.18s;
-    display: flex; flex-direction: column;
-    position: relative; overflow: hidden;
-  }
-  .grade-card:hover {
-    border-color: var(--color-border-secondary);
-    transform: translateY(-2px);
-    background: var(--surface);
-  }
-  .grade-card:hover .grade-icon { transform: scale(1.1); }
+.hero{padding:2rem 1.5rem;margin-bottom:1.25rem;text-align:center;position:relative;overflow:hidden}
+.hero-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:300px;height:150px;background:rgba(29,158,117,0.1);filter:blur(40px);border-radius:50%;pointer-events:none}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(29,158,117,0.15);
+  border:1px solid rgba(93,202,165,0.35);
+  color:#5DCAA5;
+  font-size:11px;font-weight:700;letter-spacing:1px;
+  padding:4px 14px;border-radius:50px;
+  margin-bottom:1rem;
+  box-shadow:0 0 12px rgba(93,202,165,0.15);
+  position:relative;z-index:1;
+}
+.hero-title{font-size:clamp(18px,4vw,28px);font-weight:900;color:#fff;line-height:1.35;margin-bottom:0.6rem;position:relative;z-index:1}
+.hero-title span{background:linear-gradient(90deg,#1D9E75,#5DCAA5);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:13px;color:rgba(255,255,255,0.5);max-width:500px;margin:0 auto 1.5rem;line-height:1.7;position:relative;z-index:1}
+.hero-stats{display:flex;justify-content:center;gap:2.5rem;position:relative;z-index:1}
+.stat-num{font-size:22px;font-weight:900;background:linear-gradient(90deg,#1D9E75,#5DCAA5);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-label{font-size:11px;color:rgba(255,255,255,0.4);margin-top:1px}
 
-  .grade-card.middle { border-top: 2.5px solid var(--primary); }
-  .grade-card.prep { border-top: 2.5px solid var(--accent); }
+.section-title{font-size:13px;font-weight:600;color:rgba(255,255,255,0.4);margin-bottom:0.75rem;display:flex;align-items:center;gap:6px;letter-spacing:0.5px}
+.section-title i{font-size:15px;color:#1D9E75}
 
-  .grade-tag {
-    font-size: 10px; font-weight: 600;
-    padding: 2px 8px; border-radius: 20px;
-    display: inline-block; margin-bottom: 8px; width: fit-content;
-  }
-  .tag-middle { background: var(--primary-light); color: var(--primary-dark); }
-  .tag-prep { background: var(--accent-light); color: #3C3489; }
+.grade-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem}
 
-  .grade-icon {
-    font-size: 24px; margin-bottom: 8px;
-    transition: transform 0.18s;
-  }
-  .grade-name {
-    font-size: 14px; font-weight: 700; color: var(--text);
-    margin-bottom: 3px;
-  }
-  .grade-name-en { font-size: 11px; color: var(--text2); }
+.grade-card{
+  background:rgba(255,255,255,0.04);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:16px;
+  padding:1rem 0.875rem;
+  cursor:pointer;
+  transition:all 0.25s ease;
+  position:relative;overflow:hidden;
+}
+.grade-card::before{
+  content:'';position:absolute;inset:0;border-radius:16px;
+  background:linear-gradient(135deg,rgba(93,202,165,0.08) 0%,transparent 60%);
+  opacity:0;transition:opacity 0.25s;
+}
+.grade-card .glow-ring{
+  position:absolute;inset:-1px;border-radius:16px;
+  background:transparent;
+  border:1px solid transparent;
+  transition:all 0.25s;
+  pointer-events:none;
+}
+.grade-card:hover{
+  transform:translateY(-3px);
+  border-color:rgba(93,202,165,0.35);
+  box-shadow:0 0 20px rgba(29,158,117,0.2),0 8px 24px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.grade-card:hover::before{opacity:1}
+.grade-card.selected{
+  border-color:rgba(93,202,165,0.7) !important;
+  background:rgba(29,158,117,0.12) !important;
+  box-shadow:0 0 28px rgba(29,158,117,0.4),0 0 60px rgba(29,158,117,0.15),0 8px 24px rgba(0,0,0,0.3),inset 0 1px 0 rgba(93,202,165,0.2) !important;
+  transform:translateY(-3px);
+}
+.grade-card.selected .grade-name{color:#5DCAA5}
+.grade-card.selected .grade-tag-inner{background:rgba(93,202,165,0.25);border-color:rgba(93,202,165,0.5);color:#5DCAA5;box-shadow:0 0 8px rgba(93,202,165,0.3)}
 
-  .grade-arrow {
-    position: absolute; left: 10px; bottom: 10px;
-    font-size: 14px; color: var(--text2); opacity: 0;
-    transition: opacity 0.18s;
-  }
-  .grade-card:hover .grade-arrow { opacity: 1; }
+.grade-tag-inner{
+  display:inline-block;
+  font-size:10px;font-weight:700;letter-spacing:0.5px;
+  padding:2px 10px;border-radius:50px;
+  margin-bottom:8px;
+  transition:all 0.25s;
+}
+.tag-middle{background:rgba(29,158,117,0.15);border:1px solid rgba(29,158,117,0.3);color:#5DCAA5}
+.tag-prep{background:rgba(127,119,221,0.15);border:1px solid rgba(127,119,221,0.3);color:#AFA9EC}
 
-  .bottom-row {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-  .info-card {
-    background: var(--surface);
-    border: 0.5px solid var(--border);
-    border-radius: var(--border-radius-lg);
-    padding: 1rem 1.25rem;
-    cursor: pointer;
-    transition: all 0.18s;
-    display: flex; align-items: center; gap: 12px;
-  }
-  .info-card:hover { border-color: var(--color-border-secondary); background: var(--surface2); }
-  .info-card-icon {
-    width: 40px; height: 40px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; flex-shrink: 0;
-  }
-  .icon-about { background: var(--gold-light); color: var(--gold); }
-  .icon-contact { background: var(--primary-light); color: var(--primary-dark); }
-  .info-card-text {}
-  .info-card-title { font-size: 14px; font-weight: 600; color: var(--text); }
-  .info-card-sub { font-size: 12px; color: var(--text2); margin-top: 1px; }
+.grade-icon{font-size:26px;margin-bottom:8px;display:block;transition:transform 0.25s}
+.grade-card:hover .grade-icon,.grade-card.selected .grade-icon{transform:scale(1.15)}
+.grade-name{font-size:14px;font-weight:700;color:rgba(255,255,255,0.85);margin-bottom:2px;transition:color 0.25s}
+.grade-name-en{font-size:11px;color:rgba(255,255,255,0.3)}
+
+.selected-indicator{
+  position:absolute;top:8px;left:8px;
+  width:8px;height:8px;border-radius:50%;
+  background:#5DCAA5;
+  box-shadow:0 0 8px #5DCAA5,0 0 16px rgba(93,202,165,0.6);
+  opacity:0;transition:opacity 0.25s;
+}
+.grade-card.selected .selected-indicator{opacity:1}
+
+.bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.info-card{
+  background:rgba(255,255,255,0.04);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:16px;
+  padding:1rem 1.25rem;
+  cursor:pointer;
+  transition:all 0.25s;
+  display:flex;align-items:center;gap:12px;
+}
+.info-card:hover{
+  border-color:rgba(93,202,165,0.35);
+  background:rgba(29,158,117,0.08);
+  box-shadow:0 0 20px rgba(29,158,117,0.15),0 4px 16px rgba(0,0,0,0.2);
+  transform:translateY(-2px);
+}
+.info-icon{
+  width:42px;height:42px;border-radius:12px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+}
+.icon-about{background:rgba(186,117,23,0.15);border:1px solid rgba(186,117,23,0.25);color:#FAC775}
+.icon-contact{background:rgba(29,158,117,0.15);border:1px solid rgba(29,158,117,0.25);color:#5DCAA5}
+.info-card-title{font-size:14px;font-weight:700;color:rgba(255,255,255,0.85)}
+.info-card-sub{font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px}
+
+@media(max-width:600px){
+  .grade-grid{grid-template-columns:repeat(2,1fr)}
+  .nav-logo-text{display:none}
+  .hero-stats{gap:1.5rem}
+  .hero-title{font-size:20px}
+}
+@media(max-width:380px){
+  .grade-grid{grid-template-columns:1fr 1fr}
+  .nav-btn span{display:none}
+  .bottom-row{grid-template-columns:1fr}
+}
+@media(min-width:900px){
+  .app{padding:2rem 1.5rem 3rem}
+  .hero{padding:2.5rem 2rem}
+}
 </style>
 
-<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden">التطبيق التعليمي التفاعلي - الصفحة الرئيسية</h2>
+<div class="bg-scene">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+<div class="particles" id="particles"></div>
 
 <div class="app">
 
-  <nav class="nav">
+  <nav class="glass nav">
     <div class="nav-logo">
       <div class="nav-logo-icon">
-        <i class="ti ti-school" style="font-size:18px; color:white" aria-hidden="true"></i>
+        <i class="ti ti-school" style="font-size:18px;color:white" aria-hidden="true"></i>
       </div>
       <span class="nav-logo-text">تعلّم</span>
     </div>
     <div class="nav-links">
       <button class="nav-btn" onclick="sendPrompt('أريد معرفة المزيد عن التطبيق')">
         <i class="ti ti-info-circle" aria-hidden="true"></i>
-        عن التطبيق
+        <span>عن التطبيق</span>
       </button>
       <button class="nav-btn" onclick="sendPrompt('أريد التواصل مع فريق التطبيق')">
         <i class="ti ti-message" aria-hidden="true"></i>
-        تواصل معنا
+        <span>تواصل معنا</span>
       </button>
       <button class="nav-btn logout" onclick="sendPrompt('تسجيل خروج')">
         <i class="ti ti-logout" aria-hidden="true"></i>
-        خروج
+        <span>خروج</span>
       </button>
     </div>
   </nav>
 
-  <div class="hero">
+  <div class="glass hero">
+    <div class="hero-glow"></div>
     <div class="hero-badge">
-      <i class="ti ti-sparkles" style="font-size:13px" aria-hidden="true"></i>
+      <i class="ti ti-sparkles" style="font-size:12px" aria-hidden="true"></i>
       Interactive Educational Application
     </div>
     <h1 class="hero-title">مرحباً بكم في <span>التطبيق التعليمي</span> التفاعلي</h1>
-    <p class="hero-sub">منصة رقمية تدمج التقنية الحديثة مع الاستراتيجيات التربوية لتحويل التعليم من التلقين السلبي إلى تجربة مشوقة ومشاركة فعّالة</p>
+    <p class="hero-sub">منصة رقمية تدمج التقنية الحديثة مع الاستراتيجيات التربوية لتحويل التعليم إلى تجربة مشوقة ومشاركة فعّالة</p>
     <div class="hero-stats">
-      <div class="stat"><div class="stat-num">6</div><div class="stat-label">صفوف دراسية</div></div>
+      <div class="stat"><div class="stat-num">٦</div><div class="stat-label">صفوف دراسية</div></div>
       <div class="stat"><div class="stat-num">٢٤/٧</div><div class="stat-label">متاح دائماً</div></div>
       <div class="stat"><div class="stat-num">AI</div><div class="stat-label">تعلّم مخصّص</div></div>
     </div>
@@ -251,66 +236,62 @@
     اختر صفك الدراسي
   </div>
 
-  <div class="grade-grid">
-    <div class="grade-card middle" onclick="sendPrompt('انتقل إلى الصف الأول متوسط')">
-      <div class="grade-tag tag-middle">متوسط</div>
-      <div class="grade-icon">📘</div>
+  <div class="grade-grid" id="gradeGrid">
+    <div class="grade-card" data-grade="الصف الأول متوسط" onclick="selectGrade(this,'انتقل إلى الصف الأول متوسط')">
+      <div class="selected-indicator"></div>
+      <div class="grade-tag-inner tag-middle">متوسط</div>
+      <span class="grade-icon">📘</span>
       <div class="grade-name">الصف الأول</div>
       <div class="grade-name-en">Grade 7</div>
-      <i class="ti ti-arrow-left grade-arrow" aria-hidden="true"></i>
     </div>
-    <div class="grade-card middle" onclick="sendPrompt('انتقل إلى الصف الثاني متوسط')">
-      <div class="grade-tag tag-middle">متوسط</div>
-      <div class="grade-icon">📗</div>
+    <div class="grade-card" data-grade="الصف الثاني متوسط" onclick="selectGrade(this,'انتقل إلى الصف الثاني متوسط')">
+      <div class="selected-indicator"></div>
+      <div class="grade-tag-inner tag-middle">متوسط</div>
+      <span class="grade-icon">📗</span>
       <div class="grade-name">الصف الثاني</div>
       <div class="grade-name-en">Grade 8</div>
-      <i class="ti ti-arrow-left grade-arrow" aria-hidden="true"></i>
     </div>
-    <div class="grade-card middle" onclick="sendPrompt('انتقل إلى الصف الثالث متوسط')">
-      <div class="grade-tag tag-middle">متوسط</div>
-      <div class="grade-icon">📙</div>
+    <div class="grade-card" data-grade="الصف الثالث متوسط" onclick="selectGrade(this,'انتقل إلى الصف الثالث متوسط')">
+      <div class="selected-indicator"></div>
+      <div class="grade-tag-inner tag-middle">متوسط</div>
+      <span class="grade-icon">📙</span>
       <div class="grade-name">الصف الثالث</div>
       <div class="grade-name-en">Grade 9</div>
-      <i class="ti ti-arrow-left grade-arrow" aria-hidden="true"></i>
     </div>
-    <div class="grade-card prep" onclick="sendPrompt('انتقل إلى الصف الرابع الإعدادي')">
-      <div class="grade-tag tag-prep">إعدادي</div>
-      <div class="grade-icon">🔬</div>
+    <div class="grade-card" data-grade="الصف الرابع الإعدادي" onclick="selectGrade(this,'انتقل إلى الصف الرابع الإعدادي')">
+      <div class="selected-indicator"></div>
+      <div class="grade-tag-inner tag-prep">إعدادي</div>
+      <span class="grade-icon">🔬</span>
       <div class="grade-name">الصف الرابع</div>
       <div class="grade-name-en">Grade 10</div>
-      <i class="ti ti-arrow-left grade-arrow" aria-hidden="true"></i>
     </div>
-    <div class="grade-card prep" onclick="sendPrompt('انتقل إلى الصف الخامس الإعدادي')">
-      <div class="grade-tag tag-prep">إعدادي</div>
-      <div class="grade-icon">🧮</div>
+    <div class="grade-card" data-grade="الصف الخامس الإعدادي" onclick="selectGrade(this,'انتقل إلى الصف الخامس الإعدادي')">
+      <div class="selected-indicator"></div>
+      <div class="grade-tag-inner tag-prep">إعدادي</div>
+      <span class="grade-icon">🧮</span>
       <div class="grade-name">الصف الخامس</div>
       <div class="grade-name-en">Grade 11</div>
-      <i class="ti ti-arrow-left grade-arrow" aria-hidden="true"></i>
     </div>
-    <div class="grade-card prep" onclick="sendPrompt('انتقل إلى الصف السادس الإعدادي')">
-      <div class="grade-tag tag-prep">إعدادي</div>
-      <div class="grade-icon">🎓</div>
+    <div class="grade-card" data-grade="الصف السادس الإعدادي" onclick="selectGrade(this,'انتقل إلى الصف السادس الإعدادي')">
+      <div class="selected-indicator"></div>
+      <div class="grade-tag-inner tag-prep">إعدادي</div>
+      <span class="grade-icon">🎓</span>
       <div class="grade-name">الصف السادس</div>
       <div class="grade-name-en">Grade 12</div>
-      <i class="ti ti-arrow-left grade-arrow" aria-hidden="true"></i>
     </div>
   </div>
 
   <div class="bottom-row">
     <div class="info-card" onclick="sendPrompt('أخبرني عن التطبيق التعليمي التفاعلي بالتفصيل')">
-      <div class="info-card-icon icon-about">
-        <i class="ti ti-info-circle" aria-hidden="true"></i>
-      </div>
-      <div class="info-card-text">
+      <div class="info-icon icon-about"><i class="ti ti-info-circle" aria-hidden="true"></i></div>
+      <div>
         <div class="info-card-title">عن التطبيق</div>
         <div class="info-card-sub">تعرّف على رؤيتنا وأهدافنا</div>
       </div>
     </div>
     <div class="info-card" onclick="sendPrompt('أريد التواصل مع فريق الدعم')">
-      <div class="info-card-icon icon-contact">
-        <i class="ti ti-headset" aria-hidden="true"></i>
-      </div>
-      <div class="info-card-text">
+      <div class="info-icon icon-contact"><i class="ti ti-headset" aria-hidden="true"></i></div>
+      <div>
         <div class="info-card-title">تواصل معنا</div>
         <div class="info-card-sub">نحن هنا لمساعدتك دائماً</div>
       </div>
@@ -318,3 +299,21 @@
   </div>
 
 </div>
+
+<script>
+(function(){
+  const p=document.getElementById('particles');
+  for(let i=0;i<22;i++){
+    const d=document.createElement('div');
+    d.className='dot';
+    d.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*4}s;animation-duration:${2+Math.random()*3}s`;
+    p.appendChild(d);
+  }
+})();
+
+function selectGrade(el,prompt){
+  document.querySelectorAll('.grade-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  setTimeout(()=>sendPrompt(prompt),300);
+}
+</script>
