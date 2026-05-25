@@ -1,30 +1,55 @@
+<div id="role-selection" style="display:none;">
+  <h3>أهلاً بك! من فضلك اختر دورك:</h3>
+  <button id="studentBtn">أنا طالب</button>
+  <button id="teacherBtn">أنا مدرس</button>
+</div>
+
 <script type="module">
-  // استيراد الدوال اللازمة من Firebase
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-  import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-  // ضع الكود الذي نسخته من Firebase هنا
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getAuth }
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+  import { getDatabase, ref, set }
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
   const firebaseConfig = {
-    apiKey: "AIzaSyCj9UxvluAtmPVNbLHsl4blTEUA94PEOvI",
-    authDomain: "interactive-rouya.firebaseapp.com",
-    projectId: "interactive-rouya",
-    storageBucket: "interactive-rouya.firebasestorage.app",
+    apiKey:            "AIzaSyCj9UxvluAtmPVNbLHsl4blTEUA94PEOvI",
+    authDomain:        "interactive-rouya.firebaseapp.com",
+    projectId:         "interactive-rouya",
+    storageBucket:     "interactive-rouya.firebasestorage.app",
     messagingSenderId: "164882328808",
-    appId: "1:164882328808:web:868e0251ae47c583a0ed5d"
+    appId:             "1:164882328808:web:868e0251ae47c583a0ed5d"
   };
-  // تهيئة Firebase
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  // دالة تسجيل الدخول
-  window.loginWithGoogle = function() {
-    const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        console.log("تم تسجيل الدخول بنجاح:", result.user.displayName);
-        alert("أهلاً بك يا " + result.user.displayName);
-      })
-      .catch((error) => {
-        console.error("خطأ في تسجيل الدخول:", error);
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);        // ✅ auth معرّف هنا
+  const db   = getDatabase(app);    // ✅ مع app
+
+  async function saveRole(role) {
+    const user = auth.currentUser;
+
+    // ✅ تحقق واضح مع رسالة للمستخدم
+    if (!user) {
+      alert("يجب تسجيل الدخول أولاً");
+      return;
+    }
+
+    try {
+      await set(ref(db, "users/" + user.uid), {
+        email: user.email,
+        role:  role
       });
-  };
+      alert("تم حفظ دورك كـ " + role + " بنجاح!");
+      window.location.href = role === "teacher"
+        ? "teacher_panel.html"
+        : "student_panel.html";
+    } catch (error) {
+      console.error("خطأ:", error.code, "-", error.message);
+      alert("حدث خطأ: " + error.message);
+    }
+  }
+
+  // ✅ addEventListener بدل onclick + window
+  document.getElementById("studentBtn").addEventListener("click", () => saveRole("student"));
+  document.getElementById("teacherBtn").addEventListener("click", () => saveRole("teacher"));
 </script>
-<button onclick="loginWithGoogle()">سجل الدخول باستخدام Gmail</button>
