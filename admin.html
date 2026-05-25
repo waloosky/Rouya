@@ -1,0 +1,11 @@
+// كود في صفحة admin.html الخاصة بك فقط
+const usersRef = ref(db, 'users');
+onValue(usersRef, (snapshot) => {
+    snapshot.forEach((child) => {
+        if (child.val().status === 'pending') {
+            // هنا تظهر قائمة الطلاب المعلقين مع زر "تفعيل"
+            // عند ضغطك على زر التفعيل يتم تنفيذ التالي:
+            update(ref(db, 'users/' + child.key), { status: 'active' });
+        }
+    });
+});
