@@ -1,0 +1,59 @@
+// مرجع لإلغاء الاشتراك لاحقاً
+let usersListener = null;
+
+// جلب المستخدمين الذين حالتهم "قيد الانتظار"
+function loadPendingUsers() {
+    const usersRef = ref(db, 'users');
+    
+    // مسح القائمة قبل كل تحديث لتجنب التكرار
+    const adminPanel = document.getElementById('admin-panel');
+    if (adminPanel) adminPanel.innerHTML = '';
+
+    // حفظ مرجع الاشتراك لإلغائه عند الحاجة
+    usersListener = onValue(usersRef, (snapshot) => {
+        if (adminPanel) adminPanel.innerHTML = ''; // مسح عند كل تحديث
+
+        if (!snapshot.exists()) {
+            console.log("لا يوجد مستخدمون.");
+            return;
+        }
+
+        snapshot.forEach((childSnapshot) => {
+            const user = childSnapshot.val();
+
+            // التحقق من وجود الحقل قبل المقارنة
+            if (user && user.status === 'pending') {
+                renderUserToAdminPanel(childSnapshot.key, user.email);
+            }
+        });
+
+    }, (error) => {
+        console.error("خطأ في جلب المستخدمين:", error);
+    });
+}
+
+// دالة التفعيل
+window.approveUser = (uid) => {
+    if (!uid) return;
+
+    const userRef = ref(db, 'users/' + uid);
+
+    update(userRef, {
+        status: 'active'
+    })
+    .then(() => {
+        alert("✅ تم تفعيل الطالب بنجاح!");
+    })
+    .catch((error) => {
+        console.error("خطأ في التفعيل:", error);
+        alert("❌ حدث خطأ أثناء التفعيل، حاول مجدداً.");
+    });
+};
+
+// استدعاء الدالة
+loadPendingUsers();
+
+// عند مغادرة الصفحة، إلغاء الاشتراك لمنع memory leak
+window.addEventListener('beforeunload', () => {
+    if (usersListener) usersListener();
+});
