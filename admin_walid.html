@@ -1,59 +1,64 @@
-// مرجع لإلغاء الاشتراك لاحقاً
+// ═══════════════════════════════════════════════
+//  ADMIN PANEL — Users Management
+// ═══════════════════════════════════════════════
+
 let usersListener = null;
 
-// جلب المستخدمين الذين حالتهم "قيد الانتظار"
+// ── تحميل المستخدمين المعلقين مع real-time listener ──
 function loadPendingUsers() {
-    const usersRef = ref(db, 'users');
-    
-    // مسح القائمة قبل كل تحديث لتجنب التكرار
     const adminPanel = document.getElementById('admin-panel');
-    if (adminPanel) adminPanel.innerHTML = '';
+    const usersRef = ref(db, 'users');
 
-    // حفظ مرجع الاشتراك لإلغائه عند الحاجة
+    // إلغاء أي listener سابق قبل إنشاء واحد جديد
+    if (usersListener) {
+        usersListener();
+        usersListener = null;
+    }
+
     usersListener = onValue(usersRef, (snapshot) => {
-        if (adminPanel) adminPanel.innerHTML = ''; // مسح عند كل تحديث
+        if (adminPanel) adminPanel.innerHTML = '';
 
         if (!snapshot.exists()) {
-            console.log("لا يوجد مستخدمون.");
+            if (adminPanel) adminPanel.innerHTML = '<p>لا يوجد مستخدمون معلقون.</p>';
             return;
         }
 
+        let hasPending = false;
+
         snapshot.forEach((childSnapshot) => {
             const user = childSnapshot.val();
-
-            // التحقق من وجود الحقل قبل المقارنة
-            if (user && user.status === 'pending') {
+            if (user?.status === 'pending') {
+                hasPending = true;
                 renderUserToAdminPanel(childSnapshot.key, user.email);
             }
         });
 
+        if (!hasPending && adminPanel) {
+            adminPanel.innerHTML = '<p>✅ لا يوجد طلاب بانتظار التفعيل.</p>';
+        }
+
     }, (error) => {
         console.error("خطأ في جلب المستخدمين:", error);
+        if (adminPanel) adminPanel.innerHTML = '<p>❌ خطأ في تحميل البيانات.</p>';
     });
 }
 
-// دالة التفعيل
+// ── تفعيل الطالب ──
 window.approveUser = (uid) => {
     if (!uid) return;
 
-    const userRef = ref(db, 'users/' + uid);
-
-    update(userRef, {
-        status: 'active'
-    })
-    .then(() => {
-        alert("✅ تم تفعيل الطالب بنجاح!");
-    })
-    .catch((error) => {
-        console.error("خطأ في التفعيل:", error);
-        alert("❌ حدث خطأ أثناء التفعيل، حاول مجدداً.");
-    });
+    update(ref(db, 'users/' + uid), { status: 'active' })
+        .then(() => alert("✅ تم تفعيل الطالب بنجاح!"))
+        .catch((error) => {
+            console.error("خطأ في التفعيل:", error);
+            alert("❌ حدث خطأ أثناء التفعيل، حاول مجدداً.");
+        });
 };
 
-// استدعاء الدالة
+// ── تشغيل عند تحميل الصفحة ──
 loadPendingUsers();
 
-// عند مغادرة الصفحة، إلغاء الاشتراك لمنع memory leak
+// ── تنظيف الذاكرة عند مغادرة الصفحة ──
 window.addEventListener('beforeunload', () => {
     if (usersListener) usersListener();
 });
