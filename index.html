@@ -1,34 +1,31 @@
-<script type="module">
-  // استيراد الدوال اللازمة من Firebase
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-  import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+<button id="loginBtn">سجل الدخول باستخدام Gmail</button>
 
-  // ضع الكود الذي نسخته من Firebase هنا
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider }
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
   const firebaseConfig = {
-    apiKey: "project-164882328808",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "YOUR_ID",
-    appId: "YOUR_APP_ID"
+    apiKey:            "AIzaSyCj9UxvluAtmPVNbLHsl4blTEUA94PEOvI",           // ← من Firebase Console
+    authDomain:        "myapp.firebaseapp.com",
+    projectId:         "myapp",
+    storageBucket:     "myapp.appspot.com",
+    messagingSenderId: "164882328808",
+    appId:             "1:164882328808:web:..."
   };
 
-  // تهيئة Firebase
-  const app = initializeApp(firebaseConfig);
+  const app  = initializeApp(firebaseConfig);
   const auth = getAuth(app);
 
-  // دالة تسجيل الدخول
-  window.loginWithGoogle = function() {
+  // ✅ ربط الحدث من داخل الـ module بدل onclick=""
+  document.getElementById("loginBtn").addEventListener("click", () => {
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
-      .then((result) => {
-        console.log("تم تسجيل الدخول بنجاح:", result.user.displayName);
+      .then(result => {
         alert("أهلاً بك يا " + result.user.displayName);
       })
-      .catch((error) => {
-        console.error("خطأ في تسجيل الدخول:", error);
+      .catch(error => {
+        console.error("خطأ:", error.code, error.message);
       });
-  };
+  });
 </script>
-
-<button onclick="loginWithGoogle()">سجل الدخول باستخدام Gmail</button>
