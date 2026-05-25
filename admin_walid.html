@@ -1,38 +1,472 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <title>لوحة التحكم - الأستاذ وليد</title>
-    <style>
-        body {
-            background: #0d1117;
-            color: #fff;
-            font-family: 'Cairo', sans-serif;
-            padding: 30px;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة تحكم الأستاذ وليد</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background: #0d1117;
+      color: #f1f5f9;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      direction: rtl;
+    }
+
+    .container { max-width: 860px; margin: auto; }
+
+    /* ── رأس الصفحة ── */
+    .page-header {
+      background: rgba(0,229,255,0.04);
+      border: 1px solid rgba(0,229,255,0.15);
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 14px; }
+
+    .header-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      background: rgba(0,229,255,0.1);
+      border: 1px solid rgba(0,229,255,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+
+    .header-title { font-size: 18px; font-weight: 800; color: #00e5ff; }
+    .header-sub   { font-size: 12px; color: rgba(180,210,240,0.5); margin-top: 3px; letter-spacing: 0.5px; }
+
+    .logout-btn {
+      padding: 9px 18px;
+      border: 1px solid rgba(248,113,113,0.35);
+      border-radius: 8px;
+      background: transparent;
+      color: #f87171;
+      font-size: 13px;
+      font-family: 'Tajawal', sans-serif;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .logout-btn:hover { background: rgba(248,113,113,0.1); }
+
+    /* ── إحصائيات ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 1.75rem;
+    }
+
+    .stat-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(0,229,255,0.1);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+    }
+
+    .stat-val { font-size: 28px; font-weight: 800; color: #00e5ff; }
+    .stat-val.amber { color: #ffb300; }
+    .stat-val.green { color: #4ade80; }
+    .stat-lbl { font-size: 12px; color: rgba(180,210,240,0.4); margin-top: 4px; }
+
+    /* ── العنوان الفرعي ── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(0,229,255,0.5);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-label::before { content: ''; width: 16px; height: 1px; background: rgba(0,229,255,0.3); }
+    .section-label::after  { content: ''; flex: 1; height: 1px; background: rgba(0,229,255,0.08); }
+
+    /* ── بطاقة الطالب ── */
+    .user-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      margin-bottom: .75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      transition: border-color .2s;
+    }
+    .user-card:hover { border-color: rgba(0,229,255,0.2); }
+
+    .user-avatar {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: rgba(0,229,255,0.1);
+      border: 1px solid rgba(0,229,255,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: #00e5ff;
+      flex-shrink: 0;
+    }
+
+    .user-info { flex: 1; min-width: 0; }
+    .user-name  { font-size: 14px; font-weight: 700; }
+    .user-meta  { font-size: 12px; color: rgba(180,210,240,0.45); margin-top: 3px; }
+
+    .actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    .badge-pending {
+      font-size: 11px; font-weight: 600;
+      padding: 3px 12px; border-radius: 50px;
+      background: rgba(255,179,0,0.1);
+      color: #ffb300;
+      border: 1px solid rgba(255,179,0,0.3);
+    }
+
+    .badge-active {
+      font-size: 11px; font-weight: 600;
+      padding: 3px 12px; border-radius: 50px;
+      background: rgba(74,222,128,0.1);
+      color: #4ade80;
+      border: 1px solid rgba(74,222,128,0.3);
+    }
+
+    .approve-btn {
+      padding: 8px 18px;
+      border: none; border-radius: 8px;
+      background: rgba(0,229,255,0.15);
+      border: 1px solid rgba(0,229,255,0.35);
+      color: #00e5ff;
+      font-size: 13px; font-weight: 700;
+      font-family: 'Tajawal', sans-serif;
+      cursor: pointer;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .approve-btn:hover    { background: rgba(0,229,255,0.25); }
+    .approve-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    .reject-btn {
+      padding: 8px 14px;
+      border: 1px solid rgba(248,113,113,0.3);
+      border-radius: 8px;
+      background: transparent;
+      color: #f87171;
+      font-size: 13px;
+      font-family: 'Tajawal', sans-serif;
+      cursor: pointer;
+      transition: background .2s;
+      white-space: nowrap;
+    }
+    .reject-btn:hover { background: rgba(248,113,113,0.1); }
+
+    /* ── رسائل الحالة ── */
+    .empty-msg {
+      text-align: center;
+      padding: 2.5rem;
+      color: rgba(180,210,240,0.3);
+      font-size: 14px;
+      background: rgba(255,255,255,0.02);
+      border: 1px dashed rgba(255,255,255,0.08);
+      border-radius: 12px;
+    }
+
+    .error-msg {
+      padding: 12px 16px;
+      background: rgba(255,80,80,0.08);
+      color: #f87171;
+      border: 1px solid rgba(255,80,80,0.25);
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .loading-msg {
+      text-align: center;
+      padding: 2rem;
+      color: rgba(180,210,240,0.4);
+      font-size: 14px;
+    }
+
+    /* ── toast ── */
+    #toast {
+      position: fixed;
+      bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: rgba(13,17,23,0.95);
+      border: 1px solid rgba(0,229,255,0.3);
+      border-radius: 10px;
+      padding: 12px 24px;
+      font-size: 14px; font-weight: 600;
+      color: #00e5ff;
+      transition: transform .3s ease;
+      pointer-events: none;
+      z-index: 999;
+      white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.err  { border-color: rgba(248,113,113,0.4); color: #f87171; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- رأس الصفحة -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-icon">🔐</div>
+      <div>
+        <div class="header-title">لوحة تحكم الأستاذ وليد</div>
+        <div class="header-sub">ADMIN DASHBOARD · ROUYA PLATFORM</div>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="handleLogout()">تسجيل خروج ↩</button>
+  </div>
+
+  <!-- إحصائيات -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-val" id="statTotal">—</div>
+      <div class="stat-lbl">إجمالي الطلاب</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val amber" id="statPending">—</div>
+      <div class="stat-lbl">بانتظار التفعيل</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val green" id="statActive">—</div>
+      <div class="stat-lbl">طلاب مفعّلون</div>
+    </div>
+  </div>
+
+  <!-- رسالة خطأ -->
+  <div id="errorMsg" class="error-msg"></div>
+
+  <!-- قائمة الطلاب المعلقين -->
+  <div class="section-label">طلبات الانضمام المعلقة</div>
+  <div id="pendingList"><p class="loading-msg">جارٍ التحقق من الهوية...</p></div>
+
+  <!-- قائمة الطلاب المفعلين -->
+  <div class="section-label" style="margin-top:2rem">الطلاب المفعّلون</div>
+  <div id="activeList"></div>
+
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script type="module">
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut }
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+  import { getDatabase, ref, onValue, update, remove }
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+  // ── Config ──────────────────────────────────────────────
+  const firebaseConfig = {
+    apiKey:            "AIzaSyCj9UxvluAtmPVNbLHsl4blTEUA94PEOvI",
+    authDomain:        "interactive-rouya.firebaseapp.com",
+    databaseURL:       "https://interactive-rouya-default-rtdb.firebaseio.com",
+    projectId:         "interactive-rouya",
+    storageBucket:     "interactive-rouya.firebasestorage.app",
+    messagingSenderId: "164882328808",
+    appId:             "1:164882328808:web:868e0251ae47c583a0ed5d"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getDatabase(app);
+
+  // ✅ ضع إيميلك هنا حصراً
+  const ADMIN_EMAIL = "waloosky@gmail.com";
+
+  let usersListener = null;
+
+  // ── 1. حماية الصفحة ─────────────────────────────────────
+  onAuthStateChanged(auth, (user) => {
+    if (user && user.email === ADMIN_EMAIL) {
+      loadUsers();
+    } else {
+      if (usersListener) usersListener();
+      window.location.href = "index.html";
+    }
+  });
+
+  // ── 2. تحميل المستخدمين real-time ───────────────────────
+  function loadUsers() {
+    // إلغاء الـ listener القديم
+    if (usersListener) {
+      usersListener();
+      usersListener = null;
+    }
+
+    usersListener = onValue(
+      ref(db, 'users'),
+      (snapshot) => {
+        const pendingList = document.getElementById('pendingList');
+        const activeList  = document.getElementById('activeList');
+
+        pendingList.innerHTML = '';
+        activeList.innerHTML  = '';
+
+        if (!snapshot.exists()) {
+          pendingList.innerHTML = '<p class="empty-msg">لا يوجد مستخدمون.</p>';
+          updateStats(0, 0, 0);
+          return;
         }
 
-        .glass-container {
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(0,242,255,0.3);
-            border-radius: 20px;
-            padding: 40px;
+        let total = 0, pending = 0, active = 0;
+
+        snapshot.forEach((child) => {
+          const u   = child.val();
+          const uid = child.key;
+          if (u.role === 'teacher') return; // تجاهل المدرسين
+
+          total++;
+          if (u.status === 'pending') {
+            pending++;
+            pendingList.appendChild(buildCard(uid, u, true));
+          } else if (u.status === 'active') {
+            active++;
+            activeList.appendChild(buildCard(uid, u, false));
+          }
+        });
+
+        if (pending === 0) {
+          pendingList.innerHTML = '<p class="empty-msg">✅ لا توجد طلبات معلقة.</p>';
+        }
+        if (active === 0) {
+          activeList.innerHTML = '<p class="empty-msg">لا يوجد طلاب مفعّلون بعد.</p>';
         }
 
-        h1 { color: #00f2ff; text-shadow: 0 0 15px #00f2ff; }
+        updateStats(total, pending, active);
+      },
+      (error) => {
+        console.error("خطأ في جلب المستخدمين:", error);
+        showError('❌ خطأ في تحميل البيانات: ' + error.message);
+      }
+    );
+  }
 
-        .user-card {
-            border-bottom: 1px solid #334;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-        }
+  // ── 3. بناء بطاقة الطالب ────────────────────────────────
+  function buildCard(uid, u, isPending) {
+    const card = document.createElement('div');
+    card.className = 'user-card';
+    card.id = 'card-' + uid;
 
-        .user-info { display: flex; flex-direction: column; gap: 4px; }
-        .user-email { font-size: 15px; }
-        .user-name  { font-size: 13px; color: #94a3b8; }
+    const initials = u.displayName
+      ? u.displayName.split(' ').slice(0,2).map(n => n[0]).join('')
+      : '؟';
 
-        .approve-btn {
-            background: #00f2ff;
+    const gradeMap = {
+      'sixth_prep':  'السادس الإعدادي',
+      'first_mid':   'الأول متوسط',
+      'second_mid':  'الثاني متوسط',
+    };
+    const gradeText = gradeMap[u.grade] || u.grade || 'غير محدد';
+
+    card.innerHTML = `
+      <div class="user-avatar">${initials}</div>
+      <div class="user-info">
+        <div class="user-name">${u.displayName || 'بدون اسم'}</div>
+        <div class="user-meta">${u.email} · ${gradeText}</div>
+      </div>
+      <div class="actions">
+        <span class="${isPending ? 'badge-pending' : 'badge-active'}">
+          ${isPending ? 'معلق' : 'مفعّل'}
+        </span>
+        ${isPending ? `
+          <button class="approve-btn" id="btn-${uid}" onclick="approveUser('${uid}')">
+            ✓ تفعيل
+          </button>
+          <button class="reject-btn" onclick="rejectUser('${uid}')">
+            ✗ رفض
+          </button>
+        ` : ''}
+      </div>
+    `;
+    return card;
+  }
+
+  // ── 4. تفعيل الطالب ─────────────────────────────────────
+  window.approveUser = async (uid) => {
+    if (!uid) return;
+    if (!confirm('هل تريد تفعيل هذا الحساب؟')) return;
+
+    const btn = document.getElementById('btn-' + uid);
+    if (btn) { btn.disabled = true; btn.textContent = 'جارٍ...'; }
+
+    try {
+      await update(ref(db, 'users/' + uid), { status: 'active' });
+      // الـ listener يحدّث الواجهة تلقائياً
+      showToast('✅ تم تفعيل الطالب بنجاح!');
+    } catch (error) {
+      console.error("خطأ في التفعيل:", error);
+      showToast('❌ فشل التفعيل: ' + error.message, true);
+      if (btn) { btn.disabled = false; btn.textContent = '✓ تفعيل'; }
+    }
+  };
+
+  // ── 5. رفض وحذف الطالب ──────────────────────────────────
+  window.rejectUser = async (uid) => {
+    if (!uid) return;
+    if (!confirm('هل تريد رفض وحذف هذا الطالب نهائياً؟')) return;
+
+    try {
+      await remove(ref(db, 'users/' + uid));
+      showToast('🗑️ تم حذف الطالب.');
+    } catch (error) {
+      console.error("خطأ في الحذف:", error);
+      showToast('❌ فشل الحذف: ' + error.message, true);
+    }
+  };
+
+  // ── 6. تسجيل الخروج ─────────────────────────────────────
+  window.handleLogout = async () => {
+    if (usersListener) usersListener();
+    await signOut(auth);
+    window.location.href = 'index.html';
+  };
+
+  // ── 7. تحديث الإحصائيات ─────────────────────────────────
+  function updateStats(total, pending, active) {
+    document.getElementById('statTotal').textContent   = total;
+    document.getElementById('statPending').textContent = pending;
+    document.getElementById('statActive').textContent  = active;
+  }
+
+  // ── 8. Toast ─────────────────────────────────────────────
+  function showToast(msg, isErr = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'show' + (isErr ? ' err' : '');
+    setTimeout(() => { t.className = ''; }, 3000);
+  }
+
+  // ── 9. رسالة خطأ ────────────────────────────────────────
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  // ── 10. تنظيف الذاكرة عند المغادرة ─────────────────────
+  window.addEventListener('beforeunload', () => {
+    if (usersListener) usersListener();
+  });
+</script>
+</body>
+</html>
