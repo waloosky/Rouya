@@ -1,55 +1,97 @@
-<div id="role-selection" style="display:none;">
-  <h3>أهلاً بك! من فضلك اختر دورك:</h3>
-  <button id="studentBtn">أنا طالب</button>
-  <button id="teacherBtn">أنا مدرس</button>
-</div>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>تسجيل الدخول</title>
+</head>
+<body>
 
-<script type="module">
-  import { initializeApp }
-    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-  import { getAuth }
-    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-  import { getDatabase, ref, set }
-    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+  <!-- ① زر تسجيل الدخول — يظهر أولاً -->
+  <button id="loginBtn">سجل الدخول باستخدام Gmail</button>
 
-  const firebaseConfig = {
-    apiKey:            "AIzaSyCj9UxvluAtmPVNbLHsl4blTEUA94PEOvI",
-    authDomain:        "interactive-rouya.firebaseapp.com",
-    projectId:         "interactive-rouya",
-    storageBucket:     "interactive-rouya.firebasestorage.app",
-    messagingSenderId: "164882328808",
-    appId:             "1:164882328808:web:868e0251ae47c583a0ed5d"
-  };
+  <!-- ② اختيار الدور — مخفي حتى يسجل الدخول -->
+  <div id="role-selection" style="display:none;">
+    <h3>أهلاً بك! من فضلك اختر دورك:</h3>
+    <button id="studentBtn">أنا طالب</button>
+    <button id="teacherBtn">أنا مدرس</button>
+  </div>
 
-  const app  = initializeApp(firebaseConfig);
-  const auth = getAuth(app);        // ✅ auth معرّف هنا
-  const db   = getDatabase(app);    // ✅ مع app
+  <!-- ③ رسالة الحالة -->
+  <p id="status"></p>
 
-  async function saveRole(role) {
-    const user = auth.currentUser;
+  <script type="module">
+    import { initializeApp }
+      from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged }
+      from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { getDatabase, ref, set }
+      from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-    // ✅ تحقق واضح مع رسالة للمستخدم
-    if (!user) {
-      alert("يجب تسجيل الدخول أولاً");
-      return;
+    const firebaseConfig = {
+      apiKey:            "AIzaSyCj9UxvluAtmPVNbLHsl4blTEUA94PEOvI",
+      authDomain:        "interactive-rouya.firebaseapp.com",
+      projectId:         "interactive-rouya",
+      storageBucket:     "interactive-rouya.firebasestorage.app",
+      messagingSenderId: "164882328808",
+      appId:             "1:164882328808:web:868e0251ae47c583a0ed5d",
+      // ✅ مطلوب لـ Realtime Database
+      databaseURL:       "https://interactive-rouya-default-rtdb.firebaseio.com"
+    };
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getDatabase(app);
+
+    const loginBtn      = document.getElementById("loginBtn");
+    const roleSection   = document.getElementById("role-selection");
+    const statusEl      = document.getElementById("status");
+
+    // ✅ تابع حالة المستخدم — يحل مشكلة الصفحة الفارغة عند إعادة التحميل
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loginBtn.style.display    = "none";
+        roleSection.style.display = "block";
+        statusEl.textContent      = "مرحباً " + user.displayName;
+      } else {
+        loginBtn.style.display    = "block";
+        roleSection.style.display = "none";
+        statusEl.textContent      = "";
+      }
+    });
+
+    // تسجيل الدخول
+    loginBtn.addEventListener("click", () => {
+      const provider = new GoogleAuthProvider();
+      signInWithPopup(auth, provider)
+        .catch((error) => {
+          statusEl.textContent = "خطأ: " + error.message;
+          console.error(error.code, error.message);
+        });
+    });
+
+    // حفظ الدور
+    async function saveRole(role) {
+      const user = auth.currentUser;
+      if (!user) { alert("يجب تسجيل الدخول أولاً"); return; }
+
+      try {
+        await set(ref(db, "users/" + user.uid), {
+          email: user.email,
+          role:  role
+        });
+        alert("تم حفظ دورك كـ " + role + " بنجاح!");
+        window.location.href = role === "teacher"
+          ? "teacher_panel.html"
+          : "student_panel.html";
+      } catch (e) {
+        console.error(e.code, e.message);
+        alert("خطأ في الحفظ: " + e.message);
+      }
     }
 
-    try {
-      await set(ref(db, "users/" + user.uid), {
-        email: user.email,
-        role:  role
-      });
-      alert("تم حفظ دورك كـ " + role + " بنجاح!");
-      window.location.href = role === "teacher"
-        ? "teacher_panel.html"
-        : "student_panel.html";
-    } catch (error) {
-      console.error("خطأ:", error.code, "-", error.message);
-      alert("حدث خطأ: " + error.message);
-    }
-  }
+    document.getElementById("studentBtn").addEventListener("click", () => saveRole("student"));
+    document.getElementById("teacherBtn").addEventListener("click", () => saveRole("teacher"));
+  </script>
 
-  // ✅ addEventListener بدل onclick + window
-  document.getElementById("studentBtn").addEventListener("click", () => saveRole("student"));
-  document.getElementById("teacherBtn").addEventListener("click", () => saveRole("teacher"));
-</script>
+</body>
+</html>
