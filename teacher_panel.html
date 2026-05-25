@@ -43,6 +43,62 @@
   <div id="usersList"><p class="empty">جارٍ التحميل...</p></div>
 </div>
 
+
+<!-- ── قسم إرسال الإشعارات ── -->
+<style>
+  .notif-section {
+    margin-top: 2rem;
+    border-top: 1px solid #1e293b;
+    padding-top: 1.5rem;
+  }
+  .notif-section h2 { font-size: 16px; margin-bottom: 1rem; color: #f1f5f9; }
+  .notif-form { display: flex; flex-direction: column; gap: 10px; }
+  .notif-input {
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: #f1f5f9;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 14px;
+    direction: rtl;
+  }
+  .notif-input:focus { outline: none; border-color: #0ea5e9; }
+  textarea.notif-input { min-height: 80px; resize: vertical; }
+  .send-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    background: #0ea5e9;
+    border: none;
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Tajawal', sans-serif;
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  .send-btn:hover { opacity: .9; }
+  .send-status {
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    display: none;
+  }
+  .send-status.ok { background: #052e16; color: #4ade80; border: 1px solid #166534; display: block; }
+  .send-status.err { background: #450a0a; color: #f87171; border: 1px solid #991b1b; display: block; }
+</style>
+
+<div class="notif-section">
+  <h2>🔔 إرسال إشعار للطلاب</h2>
+  <div class="notif-form">
+    <input  class="notif-input" id="notifIcon"  placeholder="الأيقونة (مثال: 📢 أو ✨)" value="📢">
+    <input  class="notif-input" id="notifTitle" placeholder="عنوان الإشعار (مثال: درس جديد في الفيزياء)">
+    <textarea class="notif-input" id="notifBody" placeholder="نص الإشعار..."></textarea>
+    <button class="send-btn" onclick="sendNotifToAll()">📨 إرسال لجميع الطلاب</button>
+    <div class="send-status" id="sendStatus"></div>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp }
     from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
@@ -126,6 +182,48 @@
       await remove(ref(db, 'users/' + uid));
     }
   };
+
+  // ✅ إرسال إشعار لجميع الطلاب
+  window.sendNotifToAll = async () => {
+    const icon  = document.getElementById('notifIcon').value.trim() || '📢';
+    const title = document.getElementById('notifTitle').value.trim();
+    const body  = document.getElementById('notifBody').value.trim();
+    const status = document.getElementById('sendStatus');
+
+    if (!title || !body) {
+      status.className = 'send-status err';
+      status.textContent = '⚠️ يرجى ملء العنوان والنص.';
+      return;
+    }
+
+    try {
+      const usersSnap = await get(ref(db, 'users'));
+      if (!usersSnap.exists()) return;
+
+      const notifKey = 'n_' + Date.now();
+      const notifData = { icon, title, body, ts: Date.now() };
+
+      const updates = {};
+      usersSnap.forEach((child) => {
+        if (child.val().role !== 'teacher') {
+          updates[`notifications/${child.key}/items/${notifKey}`] = notifData;
+        }
+      });
+
+      const { update: fbUpdate } = await import("https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js");
+      await fbUpdate(ref(db), updates);
+
+      status.className = 'send-status ok';
+      status.textContent = '✅ تم إرسال الإشعار لجميع الطلاب!';
+      document.getElementById('notifTitle').value = '';
+      document.getElementById('notifBody').value  = '';
+
+    } catch(e) {
+      status.className = 'send-status err';
+      status.textContent = '❌ خطأ: ' + e.message;
+    }
+  };
+
 </script>
 </body>
 </html>
