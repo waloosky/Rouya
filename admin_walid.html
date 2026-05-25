@@ -1,13 +1,25 @@
 // ═══════════════════════════════════════════════
-//  ADMIN PANEL — Users Management
+//  ADMIN PANEL — Authentication & Users Management
 // ═══════════════════════════════════════════════
 
 let usersListener = null;
 
-// ── تحميل المستخدمين المعلقين مع real-time listener ──
+// ── 1. التحقق من هوية المدير عند تحميل الصفحة ──
+onAuthStateChanged(auth, (user) => {
+    if (user && user.email === "your-email@example.com") {
+        showSuperAdminPanel();
+        loadPendingUsers();
+    } else {
+        // إلغاء الـ listener قبل المغادرة لمنع memory leak
+        if (usersListener) usersListener();
+        window.location.href = "index.html";
+    }
+});
+
+// ── 2. تحميل المستخدمين المعلقين مع real-time listener ──
 function loadPendingUsers() {
     const adminPanel = document.getElementById('admin-panel');
-    const usersRef = ref(db, 'users');
+    const usersRef   = ref(db, 'users');
 
     // إلغاء أي listener سابق قبل إنشاء واحد جديد
     if (usersListener) {
@@ -16,10 +28,11 @@ function loadPendingUsers() {
     }
 
     usersListener = onValue(usersRef, (snapshot) => {
+
         if (adminPanel) adminPanel.innerHTML = '';
 
         if (!snapshot.exists()) {
-            if (adminPanel) adminPanel.innerHTML = '<p>لا يوجد مستخدمون معلقون.</p>';
+            if (adminPanel) adminPanel.innerHTML = '<p>لا يوجد مستخدمون.</p>';
             return;
         }
 
@@ -43,7 +56,7 @@ function loadPendingUsers() {
     });
 }
 
-// ── تفعيل الطالب ──
+// ── 3. تفعيل الطالب ──
 window.approveUser = (uid) => {
     if (!uid) return;
 
@@ -55,10 +68,7 @@ window.approveUser = (uid) => {
         });
 };
 
-// ── تشغيل عند تحميل الصفحة ──
-loadPendingUsers();
-
-// ── تنظيف الذاكرة عند مغادرة الصفحة ──
+// ── 4. تنظيف الذاكرة عند مغادرة الصفحة ──
 window.addEventListener('beforeunload', () => {
     if (usersListener) usersListener();
 });
