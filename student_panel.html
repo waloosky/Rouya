@@ -1,1 +1,337 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة الطالب - دروسي</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      padding: 2rem 1rem;
+      direction: rtl;
+    }
+
+    .container { max-width: 720px; margin: auto; }
+
+    /* ---- رأس الصفحة ---- */
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding-bottom: 1.25rem;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    .avatar {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: #1e3a5f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: #93c5fd;
+      flex-shrink: 0;
+    }
+
+    .page-header h1 { font-size: 20px; font-weight: 700; }
+    .page-header p  { font-size: 13px; color: #94a3b8; margin-top: 3px; }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 1rem;
+    }
+
+    /* ---- بطاقة الدرس ---- */
+    .lesson-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .lesson-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .lesson-title { font-size: 15px; font-weight: 700; }
+    .lesson-desc  { font-size: 13px; color: #94a3b8; margin-top: 4px; line-height: 1.5; }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .badge-locked   { background: #0f172a; color: #64748b; border: 1px solid #334155; }
+    .badge-unlocked { background: #052e16; color: #4ade80; border: 1px solid #166534; }
+
+    /* ---- نقاط المشاهدة ---- */
+    .dots-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .dot {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      border: 1px solid #334155;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .dot.watched { background: #052e16; border-color: #166534; color: #4ade80; }
+
+    /* ---- شريط التقدم ---- */
+    .progress-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .progress-track {
+      flex: 1;
+      height: 6px;
+      background: #0f172a;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: #38bdf8;
+      transition: width .4s ease;
+    }
+
+    .progress-fill.done { background: #22c55e; }
+    .progress-text { font-size: 12px; color: #64748b; white-space: nowrap; }
+
+    /* ---- زر الامتحان ---- */
+    .btn-exam {
+      width: 100%;
+      padding: 11px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'Tajawal', sans-serif;
+      cursor: pointer;
+      border: 1px solid #334155;
+      background: transparent;
+      color: #94a3b8;
+      transition: all .15s;
+    }
+
+    .btn-exam.active {
+      background: #0ea5e9;
+      border-color: #0ea5e9;
+      color: #0f172a;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-exam.active:hover { opacity: .9; }
+    .btn-exam:disabled     { opacity: .4; cursor: not-allowed; }
+
+    /* ---- رسالة الخطأ ---- */
+    .error-msg {
+      display: none;
+      padding: 10px 14px;
+      background: #450a0a;
+      color: #f87171;
+      border: 1px solid #991b1b;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- رأس الصفحة -->
+  <div class="page-header">
+    <div class="avatar" id="userAvatar">؟</div>
+    <div>
+      <h1 id="welcomeMsg">جارٍ التحميل...</h1>
+      <p id="gradeMsg">يرجى الانتظار</p>
+    </div>
+  </div>
+
+  <!-- رسالة خطأ -->
+  <div id="errorMsg" class="error-msg"></div>
+
+  <!-- قائمة الدروس -->
+  <div class="section-label">📚 دروسي</div>
+  <div id="lessonsContainer"></div>
+
+</div>
+
+<script type="module">
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getDatabase, ref, onValue, get, update }
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+  import { getAuth, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyCj9UxvluAtmPVNbLHsl4blTEUA94PEOvI",
+    authDomain:        "interactive-rouya.firebaseapp.com",
+    projectId:         "interactive-rouya",
+    storageBucket:     "interactive-rouya.firebasestorage.app",
+    messagingSenderId: "164882328808",
+    appId:             "1:164882328808:web:868e0251ae47c583a0ed5d",
+    databaseURL:       "https://interactive-rouya-default-rtdb.firebaseio.com"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const db   = getDatabase(app);
+  const auth = getAuth(app);
+
+  // ---- مراقبة حالة المستخدم ----
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // تحديث رأس الصفحة
+      const initials = user.displayName
+        ? user.displayName.split(' ').map(n => n[0]).join('').slice(0, 2)
+        : '؟';
+      document.getElementById('userAvatar').textContent = initials;
+      document.getElementById('welcomeMsg').textContent = 'أهلاً بك يا ' + user.displayName;
+      loadStudentData(user);
+    } else {
+      window.location.href = 'index.html';
+    }
+  });
+
+  // ---- جلب بيانات الطالب ----
+  async function loadStudentData(user) {
+    try {
+      const userSnap = await get(ref(db, 'users/' + user.uid));
+      if (!userSnap.exists()) return showError('لم يتم العثور على بيانات الطالب');
+
+      const grade = userSnap.val().grade;
+      document.getElementById('gradeMsg').textContent =
+        grade === 'first_mid' ? 'الصف الأول متوسط' : 'الصف الثاني متوسط';
+
+      // جلب دروس الصف
+      onValue(ref(db, 'lessons/' + grade), (snap) => {
+        if (!snap.exists()) return showError('لا توجد دروس لهذا الصف بعد');
+        renderLessons(snap.val(), user.uid);
+      });
+
+    } catch (e) {
+      showError('خطأ في تحميل البيانات: ' + e.message);
+    }
+  }
+
+  // ---- عرض الدروس ----
+  function renderLessons(lessons, uid) {
+    const container = document.getElementById('lessonsContainer');
+    container.innerHTML = '';
+    for (const id in lessons) {
+      watchProgress(uid, id, lessons[id], container);
+    }
+  }
+
+  // ---- مراقبة تقدم الطالب لكل درس ----
+  function watchProgress(uid, lessonId, lessonData, container) {
+    onValue(ref(db, `progress/${uid}/${lessonId}`), (snap) => {
+      const views = (snap.val()?.view_count) || 0;
+
+      // تحديث البطاقة الموجودة أو إنشاء واحدة جديدة
+      let card = document.getElementById('card-' + lessonId);
+      if (!card) {
+        card = document.createElement('div');
+        card.id = 'card-' + lessonId;
+        container.appendChild(card);
+      }
+      card.outerHTML = buildCard(lessonId, lessonData, views);
+    });
+  }
+
+  // ---- بناء HTML البطاقة ----
+  function buildCard(id, data, views) {
+    const MAX_VIEWS  = 5;
+    const isUnlocked = views >= MAX_VIEWS;
+    const pct        = Math.min((views / MAX_VIEWS) * 100, 100);
+
+    // نقاط المشاهدة
+    let dotsHTML = '';
+    for (let i = 1; i <= MAX_VIEWS; i++) {
+      dotsHTML += i <= views
+        ? `<div class="dot watched">✓</div>`
+        : `<div class="dot">${i}</div>`;
+    }
+
+    return `
+      <div class="lesson-card" id="card-${id}">
+        <div class="lesson-top">
+          <div>
+            <div class="lesson-title">${data.title}</div>
+            <div class="lesson-desc">${data.desc || ''}</div>
+          </div>
+          <span class="badge ${isUnlocked ? 'badge-unlocked' : 'badge-locked'}">
+            ${isUnlocked ? '🔓 مفتوح' : '🔒 مقفل'}
+          </span>
+        </div>
+
+        <div class="dots-row">${dotsHTML}</div>
+
+        <div class="progress-row">
+          <div class="progress-track">
+            <div class="progress-fill ${isUnlocked ? 'done' : ''}" style="width:${pct}%"></div>
+          </div>
+          <span class="progress-text">${views} / ${MAX_VIEWS} مشاهدات</span>
+        </div>
+
+        <button
+          class="btn-exam ${isUnlocked ? 'active' : ''}"
+          ${isUnlocked ? `onclick="goToExam('${id}')"` : 'disabled'}>
+          ${isUnlocked
+            ? '✏️ أداء الامتحان الآن'
+            : `شاهد ${MAX_VIEWS - views} ${MAX_VIEWS - views === 1 ? 'مرة أخرى' : 'مرات أخرى'} لفتح الامتحان`}
+        </button>
+      </div>`;
+  }
+
+  // ---- الانتقال لصفحة الامتحان ----
+  window.goToExam = (lessonId) => {
+    window.location.href = `exam.html?id=${lessonId}`;
+  };
+
+  // ---- إظهار رسالة خطأ ----
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+</script>
+</body>
+</html>
