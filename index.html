@@ -1,31 +1,33 @@
+<!-- ✅ الكود المصحح -->
 <button id="loginBtn">سجل الدخول باستخدام Gmail</button>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-  import { getAuth, signInWithPopup, GoogleAuthProvider }
+  import { getAuth, signInWithPopup, GoogleAuthProvider } 
     from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
   const firebaseConfig = {
-    apiKey:            "AIzaSyCj9UxvluAtmPVNbLHsl4blTEUA94PEOvI",           // ← من Firebase Console
-    authDomain:        "myapp.firebaseapp.com",
-    projectId:         "myapp",
-    storageBucket:     "myapp.appspot.com",
+    apiKey:            "AIzaSyCj9UxvluAtmPVNbLHsl4blTEUA94PEOvI",
+    authDomain:        "interactive-rouya.firebaseapp.com",
+    projectId:         "interactive-rouya",
+    storageBucket:     "interactive-rouya.firebasestorage.app",
     messagingSenderId: "164882328808",
-    appId:             "1:164882328808:web:..."
+    appId:             "1:164882328808:web:868e0251ae47c583a0ed5d"
   };
 
   const app  = initializeApp(firebaseConfig);
   const auth = getAuth(app);
 
-  // ✅ ربط الحدث من داخل الـ module بدل onclick=""
+  // ✅ addEventListener بدل window.loginWithGoogle + onclick
   document.getElementById("loginBtn").addEventListener("click", () => {
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
-      .then(result => {
+      .then((result) => {
+        console.log("تم تسجيل الدخول بنجاح:", result.user.displayName);
         alert("أهلاً بك يا " + result.user.displayName);
       })
-      .catch(error => {
-        console.error("خطأ:", error.code, error.message);
+      .catch((error) => {
+        console.error("خطأ:", error.code, "-", error.message);
       });
   });
 </script>
