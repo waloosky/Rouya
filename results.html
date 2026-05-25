@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة نتائج الطلاب</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      padding: 2rem 1rem;
+      direction: rtl;
+    }
+
+    .container { max-width: 900px; margin: auto; }
+
+    /* ---- رأس الصفحة ---- */
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding-bottom: 1.25rem;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    .header-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      background: #1e3a5f;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+    }
+
+    .page-header h1 { font-size: 20px; font-weight: 700; }
+    .page-header p  { font-size: 13px; color: #94a3b8; margin-top: 3px; }
+
+    /* ---- إحصائيات سريعة ---- */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+    }
+
+    .stat-val { font-size: 26px; font-weight: 700; color: #f1f5f9; }
+    .stat-lbl { font-size: 12px; color: #64748b; margin-top: 3px; }
+
+    /* ---- الجدول ---- */
+    .table-wrap {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+
+    th {
+      background: #0f172a;
+      color: #64748b;
+      font-weight: 500;
+      padding: 12px 16px;
+      text-align: right;
+      border-bottom: 1px solid #334155;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #1e293b;
+      color: #f1f5f9;
+      text-align: right;
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td      { background: #243044; }
+
+    /* ---- شريط التقدم ---- */
+    .prog-wrap  { display: flex; align-items: center; gap: 8px; }
+    .prog-track { flex: 1; height: 5px; background: #0f172a; border-radius: 999px; overflow: hidden; }
+    .prog-fill  { height: 100%; border-radius: 999px; background: #38bdf8; }
+    .prog-fill.done { background: #22c55e; }
+    .prog-text  { font-size: 12px; color: #64748b; white-space: nowrap; }
+
+    /* ---- شارات الحالة ---- */
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    .badge-done    { background: #1e3a5f; color: #93c5fd; border: 1px solid #1d4ed8; }
+    .badge-ready   { background: #052e16; color: #4ade80; border: 1px solid #166534; }
+    .badge-pending { background: #451a03; color: #fb923c; border: 1px solid #92400e; }
+
+    /* ---- درجة ---- */
+    .score-good { color: #4ade80; font-weight: 700; }
+    .score-none { color: #475569; }
+
+    /* ---- تحميل وأخطاء ---- */
+    .loading-msg, .error-msg {
+      text-align: center;
+      padding: 2rem;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .error-msg {
+      color: #f87171;
+      background: #450a0a;
+      border: 1px solid #991b1b;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    /* ---- حالة فارغة ---- */
+    .empty-row td {
+      text-align: center;
+      color: #475569;
+      padding: 2rem;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- رأس الصفحة -->
+  <div class="page-header">
+    <div class="header-icon">📊</div>
+    <div>
+      <h1>لوحة متابعة تقدم الطلاب</h1>
+      <p>بيانات محدّثة فورياً من Firebase</p>
+    </div>
+  </div>
+
+  <!-- رسالة خطأ -->
+  <div id="errorMsg" class="error-msg"></div>
+
+  <!-- إحصائيات سريعة -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-val" id="statTotal">0</div>
+      <div class="stat-lbl">إجمالي الطلاب</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statReady">0</div>
+      <div class="stat-lbl">مؤهلون للامتحان</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statDone">0</div>
+      <div class="stat-lbl">أتموا الاختبار</div>
+    </div>
+  </div>
+
+  <!-- جدول النتائج -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>اسم الطالب</th>
+          <th>الدرس</th>
+          <th>المشاهدات</th>
+          <th>الدرجة</th>
+          <th>الحالة</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td colspan="5" class="loading-msg">جارٍ تحميل البيانات...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script type="module">
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getDatabase, ref, onValue, get }
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+  import { getAuth, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyCj9UxvluAtmPVNbLHsl4blTEUA94PEOvI",
+    authDomain:        "interactive-rouya.firebaseapp.com",
+    projectId:         "interactive-rouya",
+    storageBucket:     "interactive-rouya.firebasestorage.app",
+    messagingSenderId: "164882328808",
+    appId:             "1:164882328808:web:868e0251ae47c583a0ed5d",
+    databaseURL:       "https://interactive-rouya-default-rtdb.firebaseio.com"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const db   = getDatabase(app);
+  const auth = getAuth(app);
+
+  // ✅ تحقق من صلاحية المدرس قبل عرض البيانات
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'index.html'; return; }
+
+    const snap = await get(ref(db, 'users/' + user.uid));
+    if (!snap.exists() || snap.val().role !== 'teacher') {
+      window.location.href = 'student_panel.html';
+      return;
+    }
+
+    loadResults();
+  });
+
+  // ---- تحميل النتائج بشكل فوري (real-time) ----
+  function loadResults() {
+    onValue(ref(db, 'progress'), async (snapshot) => {
+      const tbody = document.getElementById('tableBody');
+
+      if (!snapshot.exists()) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="5">لا توجد بيانات بعد</td></tr>';
+        return;
+      }
+
+      // جمع كل الصفوف بعد جلب أسماء الطلاب
+      const rows   = [];
+      const promises = [];
+      let statTotal = 0;
+      let statReady = 0;
+      let statDone  = 0;
+      const countedStudents = new Set();
+
+      snapshot.forEach((studentSnap) => {
+        const uid     = studentSnap.key;
+        const lessons = studentSnap.val();
+
+        const p = get(ref(db, 'users/' + uid)).then((userSnap) => {
+          // ✅ استخدام الاسم بدل الإيميل
+          const userName = userSnap.exists()
+            ? (userSnap.val().displayName || userSnap.val().email || 'مجهول')
+            : 'مستخدم غير معروف';
+
+          if (!countedStudents.has(uid)) {
+            countedStudents.add(uid);
+            statTotal++;
+          }
+
+          for (const lessonId in lessons) {
+            const data  = lessons[lessonId];
+            const views = data.view_count || 0;
+            const score = data.score;
+            const pct   = Math.min(Math.round((views / 5) * 100), 100);
+
+            if (views >= 5) statReady++;
+            if (score !== undefined && score !== null) statDone++;
+
+            rows.push(`
+              <tr>
+                <td>${userName}</td>
+                <td>${lessonId}</td>
+                <td>
+                  <div class="prog-wrap">
+                    <div class="prog-track">
+                      <div class="prog-fill ${views >= 5 ? 'done' : ''}" style="width:${pct}%"></div>
+                    </div>
+                    <span class="prog-text">${views} / 5</span>
+                  </div>
+                </td>
+                <td>
+                  ${score !== undefined && score !== null
+                    ? `<span class="score-good">${score}%</span>`
+                    : `<span class="score-none">--</span>`}
+                </td>
+                <td>
+                  ${score !== undefined && score !== null
+                    ? `<span class="badge badge-done">أتم الاختبار</span>`
+                    : views >= 5
+                      ? `<span class="badge badge-ready">مؤهل للامتحان</span>`
+                      : `<span class="badge badge-pending">قيد المشاهدة</span>`}
+                </td>
+              </tr>
+            `);
+          }
+        }).catch(() => {
+          rows.push(`<tr><td colspan="5" style="color:#f87171;text-align:center">خطأ في جلب بيانات طالب</td></tr>`);
+        });
+
+        promises.push(p);
+      });
+
+      // انتظر جلب جميع الأسماء ثم ارسم الجدول
+      await Promise.all(promises);
+
+      tbody.innerHTML = rows.length ? rows.join('') :
+        '<tr class="empty-row"><td colspan="5">لا توجد بيانات</td></tr>';
+
+      document.getElementById('statTotal').textContent = statTotal;
+      document.getElementById('statReady').textContent = statReady;
+      document.getElementById('statDone').textContent  = statDone;
+    }, (error) => {
+      showError('خطأ في قراءة البيانات: ' + error.message);
+    });
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+</script>
+</body>
+</html>
