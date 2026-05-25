@@ -3,240 +3,631 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>تسجيل الدخول - منصة الأستاذ وليد</title>
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <title>منصة رؤيا التعليمية - تسجيل الدخول</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
+    :root {
+      --cyan: #00e5ff;
+      --cyan-dim: rgba(0,229,255,0.15);
+      --cyan-glow: rgba(0,229,255,0.08);
+      --amber: #ffb300;
+      --amber-dim: rgba(255,179,0,0.15);
+      --glass-bg: rgba(255,255,255,0.04);
+      --glass-border: rgba(255,255,255,0.10);
+      --glass-border-strong: rgba(0,229,255,0.35);
+      --text-primary: #f0f6ff;
+      --text-muted: rgba(180,210,240,0.6);
+      --surface: #0d1117;
+    }
+
+    html, body {
+      min-height: 100vh;
       font-family: 'Tajawal', sans-serif;
-      background: #0f172a;
-      color: #f1f5f9;
+      background: var(--surface);
+      color: var(--text-primary);
+      direction: rtl;
+      overflow-x: hidden;
+    }
+
+    /* ── ANIMATED BACKGROUND ─────────────────────────────── */
+    .scene {
+      position: fixed; inset: 0; z-index: 0;
+      overflow: hidden;
+    }
+
+    /* Sci-fi grid */
+    .grid-overlay {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.045) 1px, transparent 1px);
+      background-size: 48px 48px;
+      animation: gridPulse 8s ease-in-out infinite;
+    }
+
+    /* Perspective grid floor feel */
+    .grid-overlay::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 100%, rgba(0,229,255,0.06) 0%, transparent 70%);
+    }
+
+    @keyframes gridPulse {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
+    }
+
+    /* Luminous blobs */
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.55;
+      animation: drift linear infinite;
+      pointer-events: none;
+    }
+
+    .blob-1 {
+      width: 520px; height: 520px;
+      background: radial-gradient(circle, rgba(0,229,255,0.55), transparent 70%);
+      top: -160px; left: -100px;
+      animation-duration: 22s;
+      animation-name: drift1;
+    }
+
+    .blob-2 {
+      width: 420px; height: 420px;
+      background: radial-gradient(circle, rgba(255,179,0,0.45), transparent 70%);
+      bottom: -120px; right: -80px;
+      animation-duration: 18s;
+      animation-name: drift2;
+    }
+
+    .blob-3 {
+      width: 280px; height: 280px;
+      background: radial-gradient(circle, rgba(0,229,255,0.3), transparent 70%);
+      top: 40%; right: 15%;
+      animation-duration: 26s;
+      animation-name: drift3;
+    }
+
+    .blob-4 {
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(255,100,100,0.3), transparent 70%);
+      top: 25%; left: 20%;
+      animation-duration: 30s;
+      animation-name: drift4;
+    }
+
+    @keyframes drift1 {
+      0%   { transform: translate(0,0) scale(1); }
+      33%  { transform: translate(80px,60px) scale(1.1); }
+      66%  { transform: translate(-40px,100px) scale(0.95); }
+      100% { transform: translate(0,0) scale(1); }
+    }
+    @keyframes drift2 {
+      0%   { transform: translate(0,0) scale(1); }
+      40%  { transform: translate(-70px,-50px) scale(1.15); }
+      70%  { transform: translate(50px,-80px) scale(0.9); }
+      100% { transform: translate(0,0) scale(1); }
+    }
+    @keyframes drift3 {
+      0%   { transform: translate(0,0); }
+      50%  { transform: translate(-60px,40px); }
+      100% { transform: translate(0,0); }
+    }
+    @keyframes drift4 {
+      0%   { transform: translate(0,0); }
+      50%  { transform: translate(50px,-30px); }
+      100% { transform: translate(0,0); }
+    }
+
+    /* Scanning line */
+    .scanline {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, transparent 50%, rgba(0,229,255,0.015) 50%);
+      background-size: 100% 4px;
+      animation: scanMove 0.1s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes scanMove {
+      from { background-position: 0 0; }
+      to   { background-position: 0 4px; }
+    }
+
+    /* Moving scan sweep */
+    .scan-sweep {
+      position: absolute; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+      opacity: 0.3;
+      animation: sweepDown 5s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes sweepDown {
+      from { top: -2px; }
+      to   { top: 100%; }
+    }
+
+    /* Floating particles */
+    .particles { position: absolute; inset: 0; pointer-events: none; }
+    .particle {
+      position: absolute;
+      width: 2px; height: 2px;
+      border-radius: 50%;
+      background: var(--cyan);
+      opacity: 0;
+      animation: particleFloat linear infinite;
+    }
+    @keyframes particleFloat {
+      0%   { transform: translateY(100vh) translateX(0); opacity: 0; }
+      10%  { opacity: 0.8; }
+      90%  { opacity: 0.6; }
+      100% { transform: translateY(-10vh) translateX(40px); opacity: 0; }
+    }
+
+    /* ── LAYOUT ──────────────────────────────────────────── */
+    .page {
+      position: relative; z-index: 1;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1rem;
-      direction: rtl;
+      padding: 1.5rem 1rem;
     }
 
+    /* ── LANG TOGGLE ─────────────────────────────────────── */
+    .lang-toggle {
+      position: fixed;
+      top: 1.25rem; left: 1.25rem;
+      z-index: 100;
+    }
+
+    .lang-btn {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 16px;
+      border: 1px solid var(--glass-border-strong);
+      border-radius: 50px;
+      background: rgba(0,229,255,0.08);
+      color: var(--cyan);
+      font-size: 13px;
+      font-family: 'Tajawal', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .25s;
+      backdrop-filter: blur(12px);
+      letter-spacing: 0.5px;
+    }
+    .lang-btn:hover {
+      background: rgba(0,229,255,0.18);
+      box-shadow: 0 0 16px rgba(0,229,255,0.2);
+    }
+    .lang-btn svg { width: 16px; height: 16px; }
+
+    /* ── CARD ────────────────────────────────────────────── */
     .card {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 16px;
-      padding: 2rem;
       width: 100%;
-      max-width: 420px;
+      max-width: 440px;
+      background: rgba(13,17,23,0.6);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 2.5rem 2rem;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      position: relative;
+      overflow: hidden;
+      box-shadow:
+        0 0 0 1px rgba(0,229,255,0.08) inset,
+        0 32px 64px rgba(0,0,0,0.5),
+        0 0 80px rgba(0,229,255,0.05);
+      animation: cardIn 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
     }
 
-    .logo {
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(30px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Card inner glow edges */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan), rgba(255,179,0,0.6), transparent);
+      opacity: 0.6;
+    }
+
+    .card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0,229,255,0.3), transparent);
+    }
+
+    /* Corner accents */
+    .corner { position: absolute; width: 20px; height: 20px; }
+    .corner-tl { top: 10px; right: 10px; border-top: 2px solid var(--cyan); border-right: 2px solid var(--cyan); border-radius: 0 4px 0 0; }
+    .corner-tr { top: 10px; left: 10px;  border-top: 2px solid var(--cyan); border-left:  2px solid var(--cyan); border-radius: 4px 0 0 0; }
+    .corner-bl { bottom: 10px; right: 10px; border-bottom: 2px solid rgba(255,179,0,0.5); border-right: 2px solid rgba(255,179,0,0.5); border-radius: 0 0 4px 0; }
+    .corner-br { bottom: 10px; left: 10px;  border-bottom: 2px solid rgba(255,179,0,0.5); border-left:  2px solid rgba(255,179,0,0.5); border-radius: 0 0 0 4px; }
+
+    /* ── LOGO ─────────────────────────────────────────────── */
+    .logo-wrap {
       text-align: center;
-      margin-bottom: 1.75rem;
+      margin-bottom: 2rem;
     }
 
-    .logo-icon {
-      width: 60px; height: 60px;
-      border-radius: 14px;
-      background: #1e3a5f;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 28px;
-      margin: 0 auto 12px;
+    .logo-img-wrap {
+      width: 72px; height: 72px;
+      margin: 0 auto 14px;
+      position: relative;
     }
 
-    .logo h1 { font-size: 20px; font-weight: 700; }
-    .logo p  { font-size: 13px; color: #94a3b8; margin-top: 4px; }
+    .logo-img-wrap::before {
+      content: '';
+      position: absolute; inset: -6px;
+      border-radius: 20px;
+      background: conic-gradient(from 0deg, var(--cyan), var(--amber), var(--cyan));
+      opacity: 0.5;
+      animation: spinGlow 4s linear infinite;
+    }
 
-    /* ---- tabs ---- */
+    .logo-img-wrap::after {
+      content: '';
+      position: absolute; inset: -2px;
+      border-radius: 18px;
+      background: var(--surface);
+    }
+
+    @keyframes spinGlow {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    .logo-img-wrap img {
+      position: relative; z-index: 1;
+      width: 72px; height: 72px;
+      border-radius: 16px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .logo-title {
+      font-size: 22px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff 30%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 0.3px;
+      line-height: 1.2;
+      margin-bottom: 5px;
+    }
+
+    .logo-sub {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 400;
+    }
+
+    /* Grade badge */
+    .grade-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 8px;
+      padding: 4px 14px;
+      border: 1px solid rgba(255,179,0,0.4);
+      border-radius: 50px;
+      background: rgba(255,179,0,0.07);
+      font-size: 12px;
+      color: var(--amber);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    .grade-badge::before {
+      content: '⬡';
+      font-size: 10px;
+    }
+
+    /* ── TABS ─────────────────────────────────────────────── */
     .tabs {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      background: #0f172a;
-      border-radius: 10px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
       padding: 4px;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.75rem;
+      gap: 4px;
     }
 
     .tab-btn {
-      padding: 9px;
-      border: none;
+      padding: 10px;
+      border: 1px solid transparent;
       background: transparent;
-      color: #64748b;
+      color: rgba(180,210,240,0.45);
       font-size: 14px;
       font-family: 'Tajawal', sans-serif;
-      font-weight: 500;
+      font-weight: 600;
       border-radius: 8px;
       cursor: pointer;
-      transition: all .15s;
+      transition: all .2s;
+      letter-spacing: 0.3px;
     }
 
     .tab-btn.active {
-      background: #1e293b;
-      color: #f1f5f9;
+      background: rgba(0,229,255,0.1);
+      border-color: rgba(0,229,255,0.25);
+      color: var(--cyan);
+      box-shadow: 0 0 12px rgba(0,229,255,0.15) inset;
     }
 
-    /* ---- fields ---- */
-    .fields { display: flex; flex-direction: column; gap: 12px; }
+    /* ── FIELDS ───────────────────────────────────────────── */
+    .fields { display: flex; flex-direction: column; gap: 14px; }
 
-    label { font-size: 13px; color: #94a3b8; display: block; margin-bottom: 5px; }
+    .field-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 6px;
+    }
 
-    input, select {
+    .field-input, .field-select {
       width: 100%;
-      padding: 10px 14px;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      background: #0f172a;
-      color: #f1f5f9;
+      padding: 11px 16px;
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      background: rgba(0,229,255,0.03);
+      color: var(--text-primary);
       font-size: 14px;
       font-family: 'Tajawal', sans-serif;
       outline: none;
-      transition: border-color .15s;
+      transition: all .2s;
     }
 
-    input:focus, select:focus { border-color: #38bdf8; }
-
-    .hint {
-      font-size: 12px;
-      color: #64748b;
-      margin-top: 4px;
+    .field-input:focus, .field-select:focus {
+      border-color: rgba(0,229,255,0.5);
+      background: rgba(0,229,255,0.06);
+      box-shadow: 0 0 0 3px rgba(0,229,255,0.08), 0 0 20px rgba(0,229,255,0.05);
     }
 
-    /* ---- submit ---- */
+    .field-input::placeholder { color: rgba(180,210,240,0.3); }
+
+    .field-select option {
+      background: #0d1117;
+      color: var(--text-primary);
+    }
+
+    .field-hint {
+      font-size: 11.5px;
+      color: rgba(180,210,240,0.35);
+      margin-top: 5px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .field-hint::before { content: '⚡'; font-size: 10px; }
+
+    /* ── SUBMIT BTN ───────────────────────────────────────── */
     .submit-btn {
       width: 100%;
-      padding: 12px;
+      padding: 13px;
       margin-top: 4px;
-      border: none;
-      border-radius: 8px;
-      background: #0ea5e9;
-      color: #0f172a;
+      border: 1px solid rgba(0,229,255,0.4);
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(0,229,255,0.15) 0%, rgba(0,229,255,0.08) 100%);
+      color: var(--cyan);
       font-size: 15px;
       font-weight: 700;
       font-family: 'Tajawal', sans-serif;
       cursor: pointer;
-      transition: opacity .15s;
+      transition: all .25s;
+      letter-spacing: 0.5px;
+      position: relative;
+      overflow: hidden;
     }
 
-    .submit-btn:hover    { opacity: .9; }
-    .submit-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .submit-btn::before {
+      content: '';
+      position: absolute; top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0,229,255,0.12), transparent);
+      transition: left .5s;
+    }
 
-    /* ---- google ---- */
+    .submit-btn:hover {
+      background: linear-gradient(135deg, rgba(0,229,255,0.25) 0%, rgba(0,229,255,0.15) 100%);
+      box-shadow: 0 0 24px rgba(0,229,255,0.25), 0 0 60px rgba(0,229,255,0.08);
+      transform: translateY(-1px);
+    }
+
+    .submit-btn:hover::before { left: 100%; }
+    .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* ── DIVIDER ──────────────────────────────────────────── */
     .divider {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 1rem 0;
-      color: #475569;
-      font-size: 12px;
+      display: flex; align-items: center; gap: 10px;
+      margin: 1.25rem 0;
+      font-size: 11px;
+      color: rgba(180,210,240,0.3);
+      letter-spacing: 1px;
+      text-transform: uppercase;
     }
-
     .divider::before, .divider::after {
       content: '';
       flex: 1;
       height: 1px;
-      background: #334155;
+      background: linear-gradient(90deg, transparent, var(--glass-border), transparent);
     }
 
+    /* ── GOOGLE BTN ───────────────────────────────────────── */
     .google-btn {
       width: 100%;
       padding: 11px;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      background: transparent;
-      color: #94a3b8;
-      font-size: 14px;
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      color: rgba(180,210,240,0.6);
+      font-size: 13.5px;
       font-family: 'Tajawal', sans-serif;
       cursor: pointer;
-      transition: background .15s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
+      transition: all .2s;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      font-weight: 500;
+    }
+    .google-btn:hover {
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(255,255,255,0.2);
+      color: var(--text-primary);
     }
 
-    .google-btn:hover { background: #243044; }
-
-    /* ---- status messages ---- */
+    /* ── STATUS ───────────────────────────────────────────── */
     .msg {
       display: none;
-      padding: 10px 14px;
-      border-radius: 8px;
+      padding: 11px 16px;
+      border-radius: 10px;
       font-size: 13px;
       margin-bottom: 1rem;
+      backdrop-filter: blur(8px);
+      animation: msgIn .3s ease;
     }
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .msg.error   { display: block; background: rgba(255,80,80,0.1); color: #ff6b6b; border: 1px solid rgba(255,80,80,0.25); }
+    .msg.success { display: block; background: rgba(0,229,255,0.08); color: var(--cyan); border: 1px solid rgba(0,229,255,0.25); }
+    .msg.warning { display: block; background: rgba(255,179,0,0.08); color: var(--amber); border: 1px solid rgba(255,179,0,0.25); }
 
-    .msg.error   { display: block; background: #450a0a; color: #f87171; border: 1px solid #991b1b; }
-    .msg.success { display: block; background: #052e16; color: #4ade80; border: 1px solid #166534; }
-    .msg.warning { display: block; background: #431407; color: #fb923c; border: 1px solid #9a3412; }
+    /* ── FOOTER ───────────────────────────────────────────── */
+    .card-footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--glass-border);
+      font-size: 11px;
+      color: rgba(180,210,240,0.25);
+      letter-spacing: 0.5px;
+    }
+    .card-footer span { color: rgba(0,229,255,0.4); }
+
   </style>
 </head>
 <body>
 
-<div class="card">
-  <div class="logo">
-    <div class="logo-icon">🎓</div>
-    <h1>منصة الأستاذ وليد</h1>
-    <p>التعلم التفاعلي لطلاب المتوسط</p>
-  </div>
+<!-- SCENE -->
+<div class="scene">
+  <div class="grid-overlay"></div>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="blob blob-4"></div>
+  <div class="scanline"></div>
+  <div class="scan-sweep"></div>
+  <div class="particles" id="particles"></div>
+</div>
 
-  <!-- Tabs -->
-  <div class="tabs">
-    <button class="tab-btn active" id="tabLogin"    onclick="switchTab('login')">تسجيل الدخول</button>
-    <button class="tab-btn"        id="tabRegister" onclick="switchTab('register')">حساب جديد</button>
-  </div>
+<!-- LANG TOGGLE -->
+<div class="lang-toggle">
+  <button class="lang-btn" id="langBtn" onclick="toggleLang()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>
+    </svg>
+    <span id="langLabel">English</span>
+  </button>
+</div>
 
-  <!-- رسالة حالة -->
-  <div id="statusMsg" class="msg"></div>
+<!-- PAGE -->
+<div class="page">
+  <div class="card">
+    <!-- Corner decorations -->
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
 
-  <!-- ---- نموذج الدخول ---- -->
-  <div id="loginForm">
-    <div class="fields">
-      <div>
-        <label for="loginEmail">البريد الإلكتروني</label>
-        <input type="email" id="loginEmail" placeholder="example@gmail.com">
+    <!-- Logo -->
+    <div class="logo-wrap">
+      <div class="logo-img-wrap">
+        <img src="ROUYA_LOGO_2024.png" alt="Rouya Logo" id="logoImg">
       </div>
-      <div>
-        <label for="loginPassword">كلمة المرور</label>
-        <input type="password" id="loginPassword" placeholder="••••••••">
-      </div>
-      <button class="submit-btn" id="loginBtn">دخول</button>
+      <div class="logo-title" id="platformTitle">منصة رؤيا التعليمية</div>
+      <div class="logo-sub" id="platformSub">التعلم التفاعلي · العلوم</div>
+      <div class="grade-badge" id="gradeBadge">الصف السادس الإعدادي</div>
     </div>
 
-    <div class="divider">أو</div>
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" id="tabLogin" onclick="switchTab('login')" data-ar="تسجيل الدخول" data-en="Sign In">تسجيل الدخول</button>
+      <button class="tab-btn" id="tabRegister" onclick="switchTab('register')" data-ar="حساب جديد" data-en="Register">حساب جديد</button>
+    </div>
 
-    <button class="google-btn" id="googleLoginBtn">
-      <img src="https://www.google.com/favicon.ico" width="16" height="16" alt="Google">
-      الدخول بحساب Google
-    </button>
-  </div>
+    <!-- Status -->
+    <div id="statusMsg" class="msg"></div>
 
-  <!-- ---- نموذج التسجيل ---- -->
-  <div id="registerForm" style="display:none">
-    <div class="fields">
-      <div>
-        <label for="regName">الاسم الكامل</label>
-        <input type="text" id="regName" placeholder="أحمد محمد علي">
+    <!-- LOGIN FORM -->
+    <div id="loginForm">
+      <div class="fields">
+        <div>
+          <label class="field-label" data-ar="البريد الإلكتروني" data-en="Email">البريد الإلكتروني</label>
+          <input class="field-input" type="email" id="loginEmail" data-ar-ph="example@gmail.com" data-en-ph="example@gmail.com" placeholder="example@gmail.com">
+        </div>
+        <div>
+          <label class="field-label" data-ar="كلمة المرور" data-en="Password">كلمة المرور</label>
+          <input class="field-input" type="password" id="loginPassword" data-ar-ph="••••••••" data-en-ph="••••••••" placeholder="••••••••">
+        </div>
+        <button class="submit-btn" id="loginBtn" data-ar="→ دخول" data-en="Sign In →">→ دخول</button>
       </div>
-      <div>
-        <label for="regEmail">البريد الإلكتروني</label>
-        <input type="email" id="regEmail" placeholder="example@gmail.com">
+
+      <div class="divider"><span data-ar="أو" data-en="OR">أو</span></div>
+
+      <button class="google-btn" id="googleLoginBtn">
+        <img src="https://www.google.com/favicon.ico" width="16" height="16" alt="G">
+        <span data-ar="الدخول بحساب Google" data-en="Continue with Google">الدخول بحساب Google</span>
+      </button>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="registerForm" style="display:none">
+      <div class="fields">
+        <div>
+          <label class="field-label" data-ar="الاسم الكامل" data-en="Full Name">الاسم الكامل</label>
+          <input class="field-input" type="text" id="regName" data-ar-ph="أحمد محمد علي" data-en-ph="Ahmed Mohammed Ali" placeholder="أحمد محمد علي">
+        </div>
+        <div>
+          <label class="field-label" data-ar="البريد الإلكتروني" data-en="Email">البريد الإلكتروني</label>
+          <input class="field-input" type="email" id="regEmail" placeholder="example@gmail.com">
+        </div>
+        <div>
+          <label class="field-label" data-ar="كلمة المرور" data-en="Password">كلمة المرور</label>
+          <input class="field-input" type="password" id="regPassword" data-ar-ph="6 أحرف على الأقل" data-en-ph="Min. 6 characters" placeholder="6 أحرف على الأقل">
+        </div>
+        <div>
+          <label class="field-label" data-ar="الصف الدراسي" data-en="Grade">الصف الدراسي</label>
+          <select class="field-select" id="regGrade">
+            <option value="sixth_prep" data-ar="السادس الإعدادي" data-en="Sixth Preparatory">السادس الإعدادي</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label" data-ar="الكود السري" data-en="Access Code">الكود السري</label>
+          <input class="field-input" type="text" id="regCode" data-ar-ph="أدخل الكود السري" data-en-ph="Enter your access code" placeholder="أدخل الكود السري">
+          <p class="field-hint">
+            <span data-ar="تواصل مع الأستاذ للحصول على الكود" data-en="Contact your teacher for the access code">تواصل مع الأستاذ للحصول على الكود</span>
+          </p>
+        </div>
+        <button class="submit-btn" id="registerBtn" data-ar="✦ إنشاء الحساب" data-en="Create Account ✦">✦ إنشاء الحساب</button>
       </div>
-      <div>
-        <label for="regPassword">كلمة المرور</label>
-        <input type="password" id="regPassword" placeholder="6 أحرف على الأقل">
-      </div>
-      <div>
-        <label for="regGrade">الصف الدراسي</label>
-        <select id="regGrade">
-          <option value="first_mid">الأول متوسط</option>
-          <option value="second_mid">الثاني متوسط</option>
-        </select>
-      </div>
-      <div>
-        <label for="regCode">الكود السري</label>
-        <input type="text" id="regCode" placeholder="أدخل الكود الذي أعطاك إياه الأستاذ">
-        <p class="hint">تواصل مع الأستاذ وليد للحصول على الكود</p>
-      </div>
-      <button class="submit-btn" id="registerBtn">إنشاء الحساب</button>
+    </div>
+
+    <!-- Footer -->
+    <div class="card-footer">
+      <span>ROUYA</span> · Sci-Ed Platform · <span id="currentYear"></span>
     </div>
   </div>
 </div>
@@ -265,7 +656,6 @@
   const db       = getDatabase(app);
   const provider = new GoogleAuthProvider();
 
-  // ---- تبديل التبويبات ----
   window.switchTab = (tab) => {
     const isLogin = tab === 'login';
     document.getElementById('loginForm').style.display    = isLogin ? 'block' : 'none';
@@ -275,7 +665,6 @@
     clearMsg();
   };
 
-  // ---- توجيه المستخدم بعد الدخول ----
   onAuthStateChanged(auth, async (user) => {
     if (!user) return;
     await redirectByRole(user);
@@ -284,134 +673,171 @@
   async function redirectByRole(user) {
     const snap = await get(ref(db, 'users/' + user.uid));
     if (!snap.exists()) return;
-
     const data = snap.val();
-
-    // ✅ تحقق من حالة الحساب
     if (data.status === 'pending') {
-      showMsg('حسابك قيد المراجعة. سيتم التفعيل قريباً من قِبل الأستاذ وليد.', 'warning');
-      await auth.signOut();
-      return;
+      const isAr = document.documentElement.lang === 'ar';
+      showMsg(isAr ? 'حسابك قيد المراجعة. سيتم التفعيل قريباً.' : 'Your account is pending approval.', 'warning');
+      await auth.signOut(); return;
     }
-
-    if (data.role === 'teacher') {
-      window.location.href = 'teacher_panel.html';
-    } else {
-      window.location.href = 'student_panel.html';
-    }
+    if (data.role === 'teacher') window.location.href = 'teacher_panel.html';
+    else window.location.href = 'student_panel.html';
   }
 
-  // ---- تسجيل حساب جديد ----
   document.getElementById('registerBtn').addEventListener('click', async () => {
-    const name     = document.getElementById('regName').value.trim();
-    const email    = document.getElementById('regEmail').value.trim();
+    const name = document.getElementById('regName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
     const password = document.getElementById('regPassword').value;
-    const grade    = document.getElementById('regGrade').value;
-    const code     = document.getElementById('regCode').value.trim();
+    const grade = document.getElementById('regGrade').value;
+    const code = document.getElementById('regCode').value.trim();
+    const isAr = document.documentElement.lang === 'ar';
 
     if (!name || !email || !password || !code)
-      return showMsg('يرجى تعبئة جميع الحقول', 'error');
-
+      return showMsg(isAr ? 'يرجى تعبئة جميع الحقول' : 'Please fill in all fields', 'error');
     if (password.length < 6)
-      return showMsg('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'error');
+      return showMsg(isAr ? 'كلمة المرور يجب أن تكون 6 أحرف على الأقل' : 'Password must be at least 6 characters', 'error');
 
     try {
-      // ✅ جلب الكود السري من قاعدة البيانات
       const codeSnap = await get(ref(db, 'config/secretCode'));
       const validCode = codeSnap.exists() ? codeSnap.val() : 'WALID2026';
-
       if (code !== validCode)
-        return showMsg('الكود السري غير صحيح، تواصل مع الأستاذ وليد', 'error');
+        return showMsg(isAr ? 'الكود السري غير صحيح' : 'Invalid access code', 'error');
 
       setLoading('registerBtn', true);
-
       const cred = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(cred.user, { displayName: name });
-
-      // ✅ حفظ البيانات مع status: 'pending'
       await set(ref(db, 'users/' + cred.user.uid), {
-        displayName: name,
-        email:       email,
-        role:        'student',
-        grade:       grade,
-        status:      'pending',       // ← معلق حتى موافقة المدرس
-        createdAt:   Date.now()
+        displayName: name, email, role: 'student',
+        grade, status: 'pending', createdAt: Date.now()
       });
-
       await auth.signOut();
-      showMsg('تم إنشاء حسابك بنجاح! انتظر تفعيله من الأستاذ وليد.', 'success');
-
+      showMsg(isAr ? 'تم إنشاء حسابك! انتظر التفعيل.' : 'Account created! Awaiting approval.', 'success');
     } catch (e) {
-      showMsg(friendlyError(e.code), 'error');
+      showMsg(friendlyError(e.code, isAr), 'error');
     } finally {
       setLoading('registerBtn', false);
     }
   });
 
-  // ---- تسجيل الدخول بالإيميل ----
   document.getElementById('loginBtn').addEventListener('click', async () => {
-    const email    = document.getElementById('loginEmail').value.trim();
+    const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
-
-    if (!email || !password) return showMsg('يرجى تعبئة الحقول', 'error');
-
+    const isAr = document.documentElement.lang === 'ar';
+    if (!email || !password) return showMsg(isAr ? 'يرجى تعبئة الحقول' : 'Please fill in all fields', 'error');
     try {
       setLoading('loginBtn', true);
       await signInWithEmailAndPassword(auth, email, password);
-      // onAuthStateChanged سيتولى التوجيه
     } catch (e) {
-      showMsg(friendlyError(e.code), 'error');
+      showMsg(friendlyError(e.code, isAr), 'error');
     } finally {
       setLoading('loginBtn', false);
     }
   });
 
-  // ---- الدخول بـ Google ----
   document.getElementById('googleLoginBtn').addEventListener('click', async () => {
+    const isAr = document.documentElement.lang === 'ar';
     try {
       const result = await signInWithPopup(auth, provider);
-      const user   = result.user;
-
-      // إذا كان مستخدماً جديداً — أنشئ سجله بحالة pending
-      const snap = await get(ref(db, 'users/' + user.uid));
+      const snap = await get(ref(db, 'users/' + result.user.uid));
       if (!snap.exists()) {
         await auth.signOut();
-        showMsg('يجب التسجيل أولاً بالكود السري للحصول على وصول للمنصة.', 'warning');
+        showMsg(isAr ? 'يجب التسجيل أولاً بالكود السري.' : 'Please register first with an access code.', 'warning');
         return;
       }
-      // onAuthStateChanged سيتولى التوجيه
     } catch (e) {
-      showMsg(friendlyError(e.code), 'error');
+      showMsg(friendlyError(e.code, isAr), 'error');
     }
   });
 
-  // ---- مساعدات ----
   function showMsg(text, type) {
     const el = document.getElementById('statusMsg');
     el.textContent = text;
-    el.className   = 'msg ' + type;
+    el.className = 'msg ' + type;
   }
-
   function clearMsg() {
-    const el = document.getElementById('statusMsg');
-    el.className = 'msg';
+    document.getElementById('statusMsg').className = 'msg';
   }
-
-  function setLoading(btnId, loading) {
-    document.getElementById(btnId).disabled = loading;
+  function setLoading(id, v) {
+    document.getElementById(id).disabled = v;
   }
-
-  function friendlyError(code) {
+  function friendlyError(code, isAr) {
     const map = {
-      'auth/email-already-in-use':  'هذا البريد مسجل مسبقاً',
-      'auth/invalid-email':         'البريد الإلكتروني غير صحيح',
-      'auth/wrong-password':        'كلمة المرور غير صحيحة',
-      'auth/user-not-found':        'لا يوجد حساب بهذا البريد',
-      'auth/weak-password':         'كلمة المرور ضعيفة جداً',
-      'auth/popup-closed-by-user':  'تم إغلاق نافذة الدخول',
+      'auth/email-already-in-use': [  'هذا البريد مسجل مسبقاً', 'Email already registered'],
+      'auth/invalid-email':        [  'البريد غير صحيح', 'Invalid email address'],
+      'auth/wrong-password':       [  'كلمة المرور غير صحيحة', 'Wrong password'],
+      'auth/user-not-found':       [  'لا يوجد حساب بهذا البريد', 'No account with this email'],
+      'auth/weak-password':        [  'كلمة المرور ضعيفة', 'Password is too weak'],
+      'auth/popup-closed-by-user': [  'تم إغلاق نافذة الدخول', 'Popup closed'],
     };
-    return map[code] || 'حدث خطأ، حاول مرة أخرى';
+    const entry = map[code];
+    if (entry) return isAr ? entry[0] : entry[1];
+    return isAr ? 'حدث خطأ، حاول مرة أخرى' : 'An error occurred, please try again';
   }
 </script>
+
+<script>
+  /* ── LANGUAGE TOGGLE ── */
+  let isAr = true;
+
+  const translations = {
+    ar: {
+      lang: 'ar', dir: 'rtl',
+      langLabel: 'English',
+      platformTitle: 'منصة رؤيا التعليمية',
+      platformSub: 'التعلم التفاعلي · العلوم',
+      gradeBadge: 'الصف السادس الإعدادي',
+    },
+    en: {
+      lang: 'en', dir: 'ltr',
+      langLabel: 'عربي',
+      platformTitle: 'Rouya Educational Platform',
+      platformSub: 'Interactive Learning · Science',
+      gradeBadge: 'Sixth Preparatory Grade',
+    }
+  };
+
+  window.toggleLang = function() {
+    isAr = !isAr;
+    const t = isAr ? translations.ar : translations.en;
+    document.documentElement.lang = t.lang;
+    document.documentElement.dir  = t.dir;
+    document.getElementById('langLabel').textContent     = t.langLabel;
+    document.getElementById('platformTitle').textContent = t.platformTitle;
+    document.getElementById('platformSub').textContent   = t.platformSub;
+    document.getElementById('gradeBadge').textContent    = t.gradeBadge;
+
+    document.querySelectorAll('[data-ar]').forEach(el => {
+      el.textContent = isAr ? el.dataset.ar : el.dataset.en;
+    });
+    document.querySelectorAll('[data-ar-ph]').forEach(el => {
+      el.placeholder = isAr ? el.dataset.arPh : el.dataset.enPh;
+    });
+    document.querySelectorAll('select option[data-ar]').forEach(el => {
+      el.textContent = isAr ? el.dataset.ar : el.dataset.en;
+    });
+    document.querySelectorAll('.field-hint span[data-ar]').forEach(el => {
+      el.textContent = isAr ? el.dataset.ar : el.dataset.en;
+    });
+  };
+
+  /* ── PARTICLES ── */
+  const pContainer = document.getElementById('particles');
+  for (let i = 0; i < 28; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `
+      left: ${Math.random()*100}%;
+      animation-duration: ${6 + Math.random()*12}s;
+      animation-delay: ${Math.random()*10}s;
+      width: ${1 + Math.random()*2}px;
+      height: ${1 + Math.random()*2}px;
+      background: ${Math.random() > 0.5 ? '#00e5ff' : '#ffb300'};
+    `;
+    pContainer.appendChild(p);
+  }
+
+  /* Year */
+  document.getElementById('currentYear').textContent = new Date().getFullYear();
+</script>
+
 </body>
 </html>
