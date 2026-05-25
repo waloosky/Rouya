@@ -262,4 +262,156 @@
 
   const app      = initializeApp(firebaseConfig);
   const auth     = getAuth(app);
-  const db       = getDatabase
+  const db       = getDatabase(app);
+  const provider = new GoogleAuthProvider();
+
+  // ---- تبديل التبويبات ----
+  window.switchTab = (tab) => {
+    const isLogin = tab === 'login';
+    document.getElementById('loginForm').style.display    = isLogin ? 'block' : 'none';
+    document.getElementById('registerForm').style.display = isLogin ? 'none'  : 'block';
+    document.getElementById('tabLogin').classList.toggle('active',    isLogin);
+    document.getElementById('tabRegister').classList.toggle('active', !isLogin);
+    clearMsg();
+  };
+
+  // ---- توجيه المستخدم بعد الدخول ----
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    await redirectByRole(user);
+  });
+
+  async function redirectByRole(user) {
+    const snap = await get(ref(db, 'users/' + user.uid));
+    if (!snap.exists()) return;
+
+    const data = snap.val();
+
+    // ✅ تحقق من حالة الحساب
+    if (data.status === 'pending') {
+      showMsg('حسابك قيد المراجعة. سيتم التفعيل قريباً من قِبل الأستاذ وليد.', 'warning');
+      await auth.signOut();
+      return;
+    }
+
+    if (data.role === 'teacher') {
+      window.location.href = 'teacher_panel.html';
+    } else {
+      window.location.href = 'student_panel.html';
+    }
+  }
+
+  // ---- تسجيل حساب جديد ----
+  document.getElementById('registerBtn').addEventListener('click', async () => {
+    const name     = document.getElementById('regName').value.trim();
+    const email    = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
+    const grade    = document.getElementById('regGrade').value;
+    const code     = document.getElementById('regCode').value.trim();
+
+    if (!name || !email || !password || !code)
+      return showMsg('يرجى تعبئة جميع الحقول', 'error');
+
+    if (password.length < 6)
+      return showMsg('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'error');
+
+    try {
+      // ✅ جلب الكود السري من قاعدة البيانات
+      const codeSnap = await get(ref(db, 'config/secretCode'));
+      const validCode = codeSnap.exists() ? codeSnap.val() : 'WALID2026';
+
+      if (code !== validCode)
+        return showMsg('الكود السري غير صحيح، تواصل مع الأستاذ وليد', 'error');
+
+      setLoading('registerBtn', true);
+
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(cred.user, { displayName: name });
+
+      // ✅ حفظ البيانات مع status: 'pending'
+      await set(ref(db, 'users/' + cred.user.uid), {
+        displayName: name,
+        email:       email,
+        role:        'student',
+        grade:       grade,
+        status:      'pending',       // ← معلق حتى موافقة المدرس
+        createdAt:   Date.now()
+      });
+
+      await auth.signOut();
+      showMsg('تم إنشاء حسابك بنجاح! انتظر تفعيله من الأستاذ وليد.', 'success');
+
+    } catch (e) {
+      showMsg(friendlyError(e.code), 'error');
+    } finally {
+      setLoading('registerBtn', false);
+    }
+  });
+
+  // ---- تسجيل الدخول بالإيميل ----
+  document.getElementById('loginBtn').addEventListener('click', async () => {
+    const email    = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    if (!email || !password) return showMsg('يرجى تعبئة الحقول', 'error');
+
+    try {
+      setLoading('loginBtn', true);
+      await signInWithEmailAndPassword(auth, email, password);
+      // onAuthStateChanged سيتولى التوجيه
+    } catch (e) {
+      showMsg(friendlyError(e.code), 'error');
+    } finally {
+      setLoading('loginBtn', false);
+    }
+  });
+
+  // ---- الدخول بـ Google ----
+  document.getElementById('googleLoginBtn').addEventListener('click', async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user   = result.user;
+
+      // إذا كان مستخدماً جديداً — أنشئ سجله بحالة pending
+      const snap = await get(ref(db, 'users/' + user.uid));
+      if (!snap.exists()) {
+        await auth.signOut();
+        showMsg('يجب التسجيل أولاً بالكود السري للحصول على وصول للمنصة.', 'warning');
+        return;
+      }
+      // onAuthStateChanged سيتولى التوجيه
+    } catch (e) {
+      showMsg(friendlyError(e.code), 'error');
+    }
+  });
+
+  // ---- مساعدات ----
+  function showMsg(text, type) {
+    const el = document.getElementById('statusMsg');
+    el.textContent = text;
+    el.className   = 'msg ' + type;
+  }
+
+  function clearMsg() {
+    const el = document.getElementById('statusMsg');
+    el.className = 'msg';
+  }
+
+  function setLoading(btnId, loading) {
+    document.getElementById(btnId).disabled = loading;
+  }
+
+  function friendlyError(code) {
+    const map = {
+      'auth/email-already-in-use':  'هذا البريد مسجل مسبقاً',
+      'auth/invalid-email':         'البريد الإلكتروني غير صحيح',
+      'auth/wrong-password':        'كلمة المرور غير صحيحة',
+      'auth/user-not-found':        'لا يوجد حساب بهذا البريد',
+      'auth/weak-password':         'كلمة المرور ضعيفة جداً',
+      'auth/popup-closed-by-user':  'تم إغلاق نافذة الدخول',
+    };
+    return map[code] || 'حدث خطأ، حاول مرة أخرى';
+  }
+</script>
+</body>
+</html>
