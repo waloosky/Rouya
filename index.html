@@ -1,25 +1,21 @@
-<!-- ✅ الكود المصحح -->
-<button id="loginBtn">سجل الدخول باستخدام Gmail</button>
-
 <script type="module">
+  // استيراد الدوال اللازمة من Firebase
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-  import { getAuth, signInWithPopup, GoogleAuthProvider } 
-    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-
+  import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+  // ضع الكود الذي نسخته من Firebase هنا
   const firebaseConfig = {
-    apiKey:            "AIzaSyCj9UxvluAtmPVNbLHsl4blTEUA94PEOvI",
-    authDomain:        "interactive-rouya.firebaseapp.com",
-    projectId:         "interactive-rouya",
-    storageBucket:     "interactive-rouya.firebasestorage.app",
+    apiKey: "AIzaSyCj9UxvluAtmPVNbLHsl4blTEUA94PEOvI",
+    authDomain: "interactive-rouya.firebaseapp.com",
+    projectId: "interactive-rouya",
+    storageBucket: "interactive-rouya.firebasestorage.app",
     messagingSenderId: "164882328808",
-    appId:             "1:164882328808:web:868e0251ae47c583a0ed5d"
+    appId: "1:164882328808:web:868e0251ae47c583a0ed5d"
   };
-
-  const app  = initializeApp(firebaseConfig);
+  // تهيئة Firebase
+  const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
-
-  // ✅ addEventListener بدل window.loginWithGoogle + onclick
-  document.getElementById("loginBtn").addEventListener("click", () => {
+  // دالة تسجيل الدخول
+  window.loginWithGoogle = function() {
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
       .then((result) => {
@@ -27,7 +23,8 @@
         alert("أهلاً بك يا " + result.user.displayName);
       })
       .catch((error) => {
-        console.error("خطأ:", error.code, "-", error.message);
+        console.error("خطأ في تسجيل الدخول:", error);
       });
-  });
+  };
 </script>
+<button onclick="loginWithGoogle()">سجل الدخول باستخدام Gmail</button>
