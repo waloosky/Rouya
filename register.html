@@ -1,0 +1,61 @@
+import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, updateProfile }
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { getDatabase, ref, set }
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getFunctions, httpsCallable }
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-functions.js";
+
+const firebaseConfig = {
+    apiKey:            "AIzaSyCj9UxvluAtmPVNbLHsl4blTEUA94PEOvI",
+    authDomain:        "interactive-rouya.firebaseapp.com",
+    databaseURL:       "https://interactive-rouya-default-rtdb.firebaseio.com",
+    projectId:         "interactive-rouya",
+    storageBucket:     "interactive-rouya.firebasestorage.app",
+    messagingSenderId: "164882328808",
+    appId:             "1:164882328808:web:868e0251ae47c583a0ed5d"
+};
+
+const app       = initializeApp(firebaseConfig);
+const auth      = getAuth(app);
+const db        = getDatabase(app);
+const functions = getFunctions(app);
+
+async function registerUser(name, email, password, grade) {
+    try {
+        // 1. إنشاء الحساب
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(cred.user, { displayName: name });
+
+        // 2. حفظ البيانات بحالة pending
+        await set(ref(db, 'users/' + cred.user.uid), {
+            displayName: name,
+            email:       email,
+            grade:       grade,
+            role:        'student',
+            status:      'pending',
+            createdAt:   Date.now()
+        });
+
+        // 3. إشعار تيليجرام عبر Cloud Function (التوكن محمي على السيرفر)
+        const notifyAdmin = httpsCallable(functions, 'notifyNewStudent');
+        await notifyAdmin({ name, email, grade });
+
+        await auth.signOut();
+        alert("✅ تم التسجيل! بانتظار موافقة الأستاذ وليد.");
+
+    } catch (error) {
+        console.error("خطأ في التسجيل:", error);
+        alert("❌ " + friendlyError(error.code));
+    }
+}
+
+function friendlyError(code) {
+    const map = {
+        'auth/email-already-in-use': 'هذا البريد مسجل مسبقاً',
+        'auth/invalid-email':        'البريد الإلكتروني غير صحيح',
+        'auth/weak-password':        'كلمة المرور ضعيفة جداً',
+    };
+    return map[code] || 'حدث خطأ، حاول مرة أخرى';
+}
