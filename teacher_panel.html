@@ -1,1 +1,312 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة تحكم المدرس</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      padding: 2rem 1rem;
+      direction: rtl;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* ---- رأس الصفحة ---- */
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    .header-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: #1e3a5f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+
+    .page-header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #f1f5f9;
+    }
+
+    .page-header p {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+
+    /* ---- البطاقات ---- */
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 1rem;
+    }
+
+    /* ---- الحقول ---- */
+    .field { display: flex; flex-direction: column; gap: 5px; }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    label { font-size: 13px; color: #94a3b8; }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: #0f172a;
+      color: #f1f5f9;
+      font-size: 14px;
+      font-family: 'Tajawal', sans-serif;
+      outline: none;
+      transition: border-color .15s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #38bdf8;
+    }
+
+    textarea { resize: vertical; min-height: 90px; }
+
+    .fields-stack { display: flex; flex-direction: column; gap: 14px; }
+
+    /* ---- سؤال الاختبار ---- */
+    .quiz-inner {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: .5rem;
+    }
+
+    .options-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 100px;
+      gap: 10px;
+      align-items: end;
+    }
+
+    /* ---- رسالة الحالة ---- */
+    .status-msg {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    .status-msg.success {
+      display: flex;
+      background: #052e16;
+      color: #4ade80;
+      border: 1px solid #166534;
+    }
+
+    .status-msg.error {
+      display: flex;
+      background: #450a0a;
+      color: #f87171;
+      border: 1px solid #991b1b;
+    }
+
+    /* ---- زر الحفظ ---- */
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      background: #38bdf8;
+      color: #0f172a;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Tajawal', sans-serif;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+    }
+
+    .submit-btn:hover  { opacity: .9; }
+    .submit-btn:active { transform: scale(.98); }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- رأس الصفحة -->
+  <div class="page-header">
+    <div class="header-icon">🎓</div>
+    <div>
+      <h1>لوحة تحكم المدرس</h1>
+      <p>رفع الدروس وإضافة أسئلة الاختبار</p>
+    </div>
+  </div>
+
+  <!-- رسالة الحالة -->
+  <div id="statusMsg" class="status-msg" role="alert"></div>
+
+  <!-- معلومات الدرس -->
+  <div class="card">
+    <div class="section-title">📹 معلومات الدرس</div>
+    <div class="fields-stack">
+      <div class="field">
+        <label for="lessonTitle">عنوان الدرس</label>
+        <input type="text" id="lessonTitle" placeholder="مثلاً: قوانين الحركة">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="gradeLevel">الصف الدراسي</label>
+          <select id="gradeLevel">
+            <option value="first_mid">الأول متوسط</option>
+            <option value="second_mid">الثاني متوسط</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="ytUrl">رابط يوتيوب</label>
+          <input type="text" id="ytUrl" placeholder="https://youtube.com/...">
+        </div>
+      </div>
+      <div class="field">
+        <label for="lessonDesc">وصف الدرس</label>
+        <textarea id="lessonDesc" placeholder="اكتب وصفاً موجزاً للمادة المشروحة"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- سؤال الاختبار -->
+  <div class="card">
+    <div class="section-title">❓ سؤال الاختبار</div>
+    <div class="quiz-inner">
+      <div class="field">
+        <label for="qText">نص السؤال</label>
+        <input type="text" id="qText" placeholder="اكتب السؤال هنا">
+      </div>
+      <div class="options-row">
+        <div class="field">
+          <label for="opt1">الخيار الأول</label>
+          <input type="text" id="opt1" placeholder="الخيار 1">
+        </div>
+        <div class="field">
+          <label for="opt2">الخيار الثاني</label>
+          <input type="text" id="opt2" placeholder="الخيار 2">
+        </div>
+        <div class="field">
+          <label for="correctOpt">الصحيح</label>
+          <select id="correctOpt">
+            <option value="1">1</option>
+            <option value="2">2</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- زر الحفظ -->
+  <button class="submit-btn" id="submitBtn">⬆ حفظ ونشر الدرس</button>
+
+</div>
+
+<script type="module">
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getDatabase, ref, push, set }
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyCj9UxvluAtmPVNbLHsl4blTEUA94PEOvI",
+    authDomain:        "interactive-rouya.firebaseapp.com",
+    projectId:         "interactive-rouya",
+    storageBucket:     "interactive-rouya.firebasestorage.app",
+    messagingSenderId: "164882328808",
+    appId:             "1:164882328808:web:868e0251ae47c583a0ed5d",
+    databaseURL:       "https://interactive-rouya-default-rtdb.firebaseio.com"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+
+  // استخراج ID من رابط يوتيوب
+  function extractYTId(url) {
+    const r = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]{11})/.exec(url);
+    return r ? r[2] : null;
+  }
+
+  // إظهار رسالة حالة
+  function showStatus(msg, type) {
+    const el = document.getElementById('statusMsg');
+    el.textContent = msg;
+    el.className   = 'status-msg ' + type;
+    setTimeout(() => { el.className = 'status-msg'; }, 4000);
+  }
+
+  // رفع الدرس
+  document.getElementById('submitBtn').addEventListener('click', async () => {
+    const title   = document.getElementById('lessonTitle').value.trim();
+    const url     = document.getElementById('ytUrl').value.trim();
+    const grade   = document.getElementById('gradeLevel').value;
+    const desc    = document.getElementById('lessonDesc').value.trim();
+    const question = document.getElementById('qText').value.trim();
+    const opt1    = document.getElementById('opt1').value.trim();
+    const opt2    = document.getElementById('opt2').value.trim();
+    const correct = document.getElementById('correctOpt').value;
+
+    // التحقق من الحقول
+    if (!title)             return showStatus('⚠ يرجى كتابة عنوان الدرس', 'error');
+    if (!extractYTId(url))  return showStatus('⚠ رابط يوتيوب غير صحيح', 'error');
+    if (!question || !opt1 || !opt2)
+                            return showStatus('⚠ يرجى تعبئة سؤال الاختبار وخياريه', 'error');
+
+    try {
+      const newLesson = push(ref(db, 'lessons/' + grade));
+      await set(newLesson, {
+        title,
+        ytId:  extractYTId(url),
+        desc,
+        quiz: { question, options: [opt1, opt2], correct }
+      });
+      showStatus('✅ تم رفع الدرس والأسئلة بنجاح!', 'success');
+    } catch (e) {
+      console.error(e.code, e.message);
+      showStatus('خطأ في الرفع: ' + e.message, 'error');
+    }
+  });
+</script>
+</body>
+</html>
