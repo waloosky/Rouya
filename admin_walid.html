@@ -1,38 +1,647 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <title>لوحة التحكم - الأستاذ وليد</title>
-    <style>
-        body {
-            background: #0d1117;
-            color: #fff;
-            font-family: 'Cairo', sans-serif;
-            padding: 30px;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة التحكم - الأستاذ وليد</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #0d1117;
+      color: #fff;
+      min-height: 100vh;
+      direction: rtl;
+    }
+
+    /* ══════════════════════════════════
+       شاشة الكود السري
+    ══════════════════════════════════ */
+    #lockScreen {
+      position: fixed;
+      inset: 0;
+      background: #0d1117;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .lock-box {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(0,242,255,0.25);
+      border-radius: 24px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 60px rgba(0,242,255,0.08);
+    }
+
+    .lock-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .lock-title {
+      font-size: 22px;
+      font-weight: 900;
+      color: #00f2ff;
+      text-shadow: 0 0 20px rgba(0,242,255,0.5);
+      margin-bottom: 6px;
+    }
+
+    .lock-sub {
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 32px;
+    }
+
+    /* حقول الكود — نقاط مرئية */
+    .pin-row {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .pin-dot {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: rgba(0,242,255,0.15);
+      border: 2px solid rgba(0,242,255,0.3);
+      transition: all .2s;
+    }
+    .pin-dot.filled {
+      background: #00f2ff;
+      border-color: #00f2ff;
+      box-shadow: 0 0 10px rgba(0,242,255,0.6);
+    }
+
+    /* لوحة الأرقام */
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .num-btn {
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,242,255,0.15);
+      background: rgba(255,255,255,0.04);
+      color: #fff;
+      font-size: 20px;
+      font-weight: 700;
+      font-family: 'Cairo', sans-serif;
+      cursor: pointer;
+      transition: all .15s;
+      user-select: none;
+    }
+    .num-btn:hover  { background: rgba(0,242,255,0.1); border-color: rgba(0,242,255,0.4); }
+    .num-btn:active { transform: scale(.94); }
+
+    .num-btn.del {
+      font-size: 18px;
+      color: #f87171;
+      border-color: rgba(248,113,113,0.2);
+    }
+    .num-btn.del:hover { background: rgba(248,113,113,0.1); }
+
+    .num-btn.zero { grid-column: 2; }
+
+    /* رسالة الخطأ */
+    .lock-error {
+      font-size: 13px;
+      color: #f87171;
+      background: rgba(248,113,113,0.1);
+      border: 1px solid rgba(248,113,113,0.3);
+      border-radius: 8px;
+      padding: 8px 14px;
+      display: none;
+      animation: shake .3s ease;
+    }
+    .lock-error.show { display: block; }
+
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25%      { transform: translateX(-8px); }
+      75%      { transform: translateX(8px); }
+    }
+
+    /* ══════════════════════════════════
+       لوحة التحكم الرئيسية
+    ══════════════════════════════════ */
+    #dashboard {
+      display: none;
+      padding: 30px;
+      max-width: 900px;
+      margin: auto;
+    }
+    #dashboard.show { display: block; }
+
+    .dash-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(0,242,255,0.1);
+    }
+
+    .dash-title {
+      font-size: 22px;
+      font-weight: 900;
+      color: #00f2ff;
+      text-shadow: 0 0 15px rgba(0,242,255,0.4);
+    }
+    .dash-sub { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+
+    .lock-again-btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(248,113,113,0.3);
+      background: transparent;
+      color: #f87171;
+      font-family: 'Cairo', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .lock-again-btn:hover { background: rgba(248,113,113,0.1); }
+
+    /* بطاقات الإحصاء */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(0,242,255,0.15);
+      border-radius: 14px;
+      padding: 18px 20px;
+      text-align: center;
+    }
+    .stat-val { font-size: 30px; font-weight: 900; color: #00f2ff; }
+    .stat-lbl { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+
+    /* تبويبات */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .tab-btn {
+      padding: 8px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,242,255,0.2);
+      background: transparent;
+      color: rgba(255,255,255,0.5);
+      font-family: 'Cairo', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .tab-btn.active {
+      background: rgba(0,242,255,0.12);
+      border-color: rgba(0,242,255,0.5);
+      color: #00f2ff;
+    }
+
+    /* بطاقات المستخدمين */
+    .user-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      transition: border-color .15s;
+    }
+    .user-card:hover { border-color: rgba(0,242,255,0.2); }
+
+    .user-info { display: flex; flex-direction: column; gap: 3px; }
+    .user-name  { font-size: 15px; font-weight: 700; }
+    .user-meta  { font-size: 12px; color: rgba(255,255,255,0.4); }
+
+    .actions { display: flex; gap: 8px; align-items: center; }
+
+    .badge-pending { background: rgba(251,146,60,0.15); color: #fb923c; border: 1px solid rgba(251,146,60,0.3); font-size: 11px; padding: 3px 10px; border-radius: 999px; }
+    .badge-active  { background: rgba(74,222,128,0.12); color: #4ade80; border: 1px solid rgba(74,222,128,0.25); font-size: 11px; padding: 3px 10px; border-radius: 999px; }
+
+    .approve-btn {
+      padding: 7px 16px;
+      border: none; border-radius: 8px;
+      background: #00f2ff; color: #0d1117;
+      font-size: 13px; font-weight: 700;
+      font-family: 'Cairo', sans-serif;
+      cursor: pointer; transition: opacity .15s;
+    }
+    .approve-btn:hover { opacity: .85; }
+
+    .reject-btn {
+      padding: 7px 16px;
+      border: 1px solid rgba(248,113,113,0.35); border-radius: 8px;
+      background: transparent; color: #f87171;
+      font-size: 13px; font-family: 'Cairo', sans-serif;
+      cursor: pointer; transition: background .15s;
+    }
+    .reject-btn:hover { background: rgba(248,113,113,0.1); }
+
+    .empty { text-align: center; color: rgba(255,255,255,0.25); padding: 3rem; font-size: 14px; }
+
+    /* قسم الإشعارات */
+    .notif-form {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(0,242,255,0.15);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .notif-input {
+      padding: 11px 16px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04);
+      color: #fff;
+      font-family: 'Cairo', sans-serif;
+      font-size: 14px;
+      direction: rtl;
+      transition: border-color .15s;
+    }
+    .notif-input:focus { outline: none; border-color: rgba(0,242,255,0.4); }
+    textarea.notif-input { min-height: 90px; resize: vertical; }
+
+    .send-btn {
+      padding: 12px;
+      border-radius: 10px;
+      background: #00f2ff;
+      border: none;
+      color: #0d1117;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Cairo', sans-serif;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    .send-btn:hover { opacity: .85; }
+
+    .send-status {
+      font-size: 13px;
+      padding: 9px 14px;
+      border-radius: 8px;
+      display: none;
+    }
+    .send-status.ok  { background: rgba(74,222,128,0.1); color: #4ade80; border: 1px solid rgba(74,222,128,0.25); display: block; }
+    .send-status.err { background: rgba(248,113,113,0.1); color: #f87171; border: 1px solid rgba(248,113,113,0.25); display: block; }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    @media (max-width: 500px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      #dashboard { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ شاشة القفل ══ -->
+<div id="lockScreen">
+  <div class="lock-box">
+    <span class="lock-icon">🔐</span>
+    <div class="lock-title">لوحة الأستاذ وليد</div>
+    <div class="lock-sub">أدخل الكود السري للدخول</div>
+
+    <!-- نقاط الكود -->
+    <div class="pin-row" id="pinDots">
+      <div class="pin-dot" id="dot0"></div>
+      <div class="pin-dot" id="dot1"></div>
+      <div class="pin-dot" id="dot2"></div>
+      <div class="pin-dot" id="dot3"></div>
+    </div>
+
+    <!-- لوحة الأرقام -->
+    <div class="numpad">
+      <button class="num-btn" onclick="pressNum('1')">1</button>
+      <button class="num-btn" onclick="pressNum('2')">2</button>
+      <button class="num-btn" onclick="pressNum('3')">3</button>
+      <button class="num-btn" onclick="pressNum('4')">4</button>
+      <button class="num-btn" onclick="pressNum('5')">5</button>
+      <button class="num-btn" onclick="pressNum('6')">6</button>
+      <button class="num-btn" onclick="pressNum('7')">7</button>
+      <button class="num-btn" onclick="pressNum('8')">8</button>
+      <button class="num-btn" onclick="pressNum('9')">9</button>
+      <button class="num-btn del" onclick="pressNum('del')">⌫</button>
+      <button class="num-btn zero" onclick="pressNum('0')">0</button>
+    </div>
+
+    <div class="lock-error" id="lockError">❌ الكود غير صحيح، حاول مجدداً</div>
+  </div>
+</div>
+
+<!-- ══ لوحة التحكم ══ -->
+<div id="dashboard">
+  <div class="dash-header">
+    <div>
+      <div class="dash-title">🎛️ لوحة التحكم</div>
+      <div class="dash-sub">مرحباً يا أستاذ وليد 👋</div>
+    </div>
+    <button class="lock-again-btn" onclick="lockDashboard()">🔒 قفل</button>
+  </div>
+
+  <!-- إحصاءات سريعة -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-val" id="statTotal">0</div>
+      <div class="stat-lbl">إجمالي الطلاب</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statPending">0</div>
+      <div class="stat-lbl">بانتظار الموافقة</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="statActive">0</div>
+      <div class="stat-lbl">طلاب مفعّلون</div>
+    </div>
+  </div>
+
+  <!-- تبويبات -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('pending')">⏳ طلبات التسجيل</button>
+    <button class="tab-btn"        onclick="switchTab('active')">✅ الطلاب المفعّلون</button>
+    <button class="tab-btn"        onclick="switchTab('notif')">🔔 إرسال إشعار</button>
+  </div>
+
+  <!-- طلبات التسجيل -->
+  <div class="tab-content active" id="tab-pending">
+    <div id="pendingList"><div class="empty">جارٍ التحميل...</div></div>
+  </div>
+
+  <!-- الطلاب المفعّلون -->
+  <div class="tab-content" id="tab-active">
+    <div id="activeList"><div class="empty">جارٍ التحميل...</div></div>
+  </div>
+
+  <!-- إرسال إشعار -->
+  <div class="tab-content" id="tab-notif">
+    <div class="notif-form">
+      <input  class="notif-input" id="notifIcon"  placeholder="الأيقونة (مثال: 📢)" value="📢">
+      <input  class="notif-input" id="notifTitle" placeholder="عنوان الإشعار">
+      <textarea class="notif-input" id="notifBody" placeholder="نص الإشعار..."></textarea>
+      <button class="send-btn" onclick="sendNotif()">📨 إرسال لجميع الطلاب</button>
+      <div class="send-status" id="sendStatus"></div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getDatabase, ref, onValue, update, remove, get }
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyCj9UxvluAtmPVNbLHsl4blTEUA94PEOvI",
+    authDomain:        "interactive-rouya.firebaseapp.com",
+    projectId:         "interactive-rouya",
+    storageBucket:     "interactive-rouya.firebasestorage.app",
+    messagingSenderId: "164882328808",
+    appId:             "1:164882328808:web:868e0251ae47c583a0ed5d",
+    databaseURL:       "https://interactive-rouya-default-rtdb.firebaseio.com"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+
+  // ════════════════════════════════════
+  // 🔐 نظام الكود السري
+  // ════════════════════════════════════
+
+  // ⬇️ غيّر هذا الكود لما تريد (4 أرقام)
+  const MASTER_PIN = "1234";
+
+  let enteredPin  = "";
+  let failCount   = 0;
+  let lockUntil   = 0;
+
+  window.pressNum = (val) => {
+    // تحقق من قفل مؤقت بعد محاولات خاطئة
+    if (Date.now() < lockUntil) {
+      const secs = Math.ceil((lockUntil - Date.now()) / 1000);
+      showLockError(`محاولات كثيرة. انتظر ${secs} ثانية.`);
+      return;
+    }
+
+    if (val === 'del') {
+      enteredPin = enteredPin.slice(0, -1);
+    } else if (enteredPin.length < 4) {
+      enteredPin += val;
+    }
+
+    updateDots();
+
+    if (enteredPin.length === 4) {
+      setTimeout(() => checkPin(), 150);
+    }
+  };
+
+  function updateDots() {
+    for (let i = 0; i < 4; i++) {
+      document.getElementById('dot' + i).classList.toggle('filled', i < enteredPin.length);
+    }
+  }
+
+  function checkPin() {
+    if (enteredPin === MASTER_PIN) {
+      // ✅ كود صحيح — فتح اللوحة
+      failCount = 0;
+      document.getElementById('lockScreen').style.display = 'none';
+      document.getElementById('dashboard').classList.add('show');
+      loadUsers();
+    } else {
+      // ❌ كود خاطئ
+      failCount++;
+      enteredPin = '';
+      updateDots();
+
+      // بعد 5 محاولات خاطئة: قفل 30 ثانية
+      if (failCount >= 5) {
+        lockUntil = Date.now() + 30000;
+        failCount = 0;
+        showLockError('5 محاولات خاطئة. مقفل 30 ثانية 🔒');
+      } else {
+        showLockError(`كود خاطئ (${failCount}/5)`);
+      }
+    }
+  }
+
+  function showLockError(msg) {
+    const el = document.getElementById('lockError');
+    el.textContent = '❌ ' + msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2500);
+  }
+
+  // قفل اللوحة مجدداً
+  window.lockDashboard = () => {
+    document.getElementById('dashboard').classList.remove('show');
+    document.getElementById('lockScreen').style.display = 'flex';
+    enteredPin = '';
+    updateDots();
+  };
+
+  // ════════════════════════════════════
+  // 📋 تحميل بيانات المستخدمين
+  // ════════════════════════════════════
+
+  function loadUsers() {
+    onValue(ref(db, 'users'), (snap) => {
+      if (!snap.exists()) {
+        document.getElementById('pendingList').innerHTML = '<div class="empty">لا يوجد مستخدمون</div>';
+        document.getElementById('activeList').innerHTML  = '<div class="empty">لا يوجد مستخدمون</div>';
+        return;
+      }
+
+      let pendingHTML = '';
+      let activeHTML  = '';
+      let total = 0, pending = 0, active = 0;
+
+      snap.forEach((child) => {
+        const u   = child.val();
+        const uid = child.key;
+        if (u.role === 'teacher') return;
+
+        total++;
+        const gradeText = u.grade === 'first_mid' ? 'الأول متوسط' : 'الثاني متوسط';
+
+        if (u.status === 'pending') {
+          pending++;
+          pendingHTML += `
+            <div class="user-card">
+              <div class="user-info">
+                <div class="user-name">${u.displayName || 'بدون اسم'}</div>
+                <div class="user-meta">${u.email} — ${gradeText}</div>
+              </div>
+              <div class="actions">
+                <span class="badge-pending">معلق</span>
+                <button class="approve-btn" onclick="approveUser('${uid}', '${u.displayName || ''}')">✓ موافقة</button>
+                <button class="reject-btn"  onclick="rejectUser('${uid}')">✗ رفض</button>
+              </div>
+            </div>`;
+        } else {
+          active++;
+          activeHTML += `
+            <div class="user-card">
+              <div class="user-info">
+                <div class="user-name">${u.displayName || 'بدون اسم'}</div>
+                <div class="user-meta">${u.email} — ${gradeText}</div>
+              </div>
+              <div class="actions">
+                <span class="badge-active">مفعّل</span>
+                <button class="reject-btn" onclick="rejectUser('${uid}')">🗑 حذف</button>
+              </div>
+            </div>`;
         }
+      });
 
-        .glass-container {
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(0,242,255,0.3);
-            border-radius: 20px;
-            padding: 40px;
+      document.getElementById('statTotal').textContent   = total;
+      document.getElementById('statPending').textContent = pending;
+      document.getElementById('statActive').textContent  = active;
+
+      document.getElementById('pendingList').innerHTML = pendingHTML || '<div class="empty">لا توجد طلبات معلقة ✅</div>';
+      document.getElementById('activeList').innerHTML  = activeHTML  || '<div class="empty">لا يوجد طلاب مفعّلون بعد</div>';
+    });
+  }
+
+  // ✅ تفعيل طالب
+  window.approveUser = async (uid, name) => {
+    await update(ref(db, 'users/' + uid), { status: 'active' });
+
+    // إشعار تلقائي للطالب عند التفعيل
+    const notifKey = 'n_' + Date.now();
+    await update(ref(db, `notifications/${uid}/items/${notifKey}`), {
+      icon:  '✅',
+      title: 'تم تفعيل حسابك!',
+      body:  'مرحباً! تم قبولك في المنصة. يمكنك الآن الدخول ومتابعة دروسك.',
+      ts:    Date.now()
+    });
+  };
+
+  // ❌ رفض / حذف طالب
+  window.rejectUser = async (uid) => {
+    if (confirm('هل تريد حذف هذا الطالب نهائياً؟')) {
+      await remove(ref(db, 'users/' + uid));
+    }
+  };
+
+  // ════════════════════════════════════
+  // 🔔 إرسال إشعار للجميع
+  // ════════════════════════════════════
+  window.sendNotif = async () => {
+    const icon   = document.getElementById('notifIcon').value.trim()  || '📢';
+    const title  = document.getElementById('notifTitle').value.trim();
+    const body   = document.getElementById('notifBody').value.trim();
+    const status = document.getElementById('sendStatus');
+
+    if (!title || !body) {
+      status.className = 'send-status err';
+      status.textContent = '⚠️ يرجى ملء العنوان والنص.';
+      return;
+    }
+
+    try {
+      const usersSnap = await get(ref(db, 'users'));
+      if (!usersSnap.exists()) return;
+
+      const notifKey  = 'n_' + Date.now();
+      const notifData = { icon, title, body, ts: Date.now() };
+      const updates   = {};
+
+      usersSnap.forEach((child) => {
+        if (child.val().role !== 'teacher') {
+          updates[`notifications/${child.key}/items/${notifKey}`] = notifData;
         }
+      });
 
-        h1 { color: #00f2ff; text-shadow: 0 0 15px #00f2ff; }
+      await update(ref(db), updates);
 
-        .user-card {
-            border-bottom: 1px solid #334;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-        }
+      status.className = 'send-status ok';
+      status.textContent = '✅ تم إرسال الإشعار لجميع الطلاب!';
+      document.getElementById('notifTitle').value = '';
+      document.getElementById('notifBody').value  = '';
 
-        .user-info { display: flex; flex-direction: column; gap: 4px; }
-        .user-email { font-size: 15px; }
-        .user-name  { font-size: 13px; color: #94a3b8; }
+    } catch (e) {
+      status.className = 'send-status err';
+      status.textContent = '❌ خطأ: ' + e.message;
+    }
+  };
 
-        .approve-btn {
-            background: #00f2ff;
+  // ════════════════════════════════════
+  // التبويبات
+  // ════════════════════════════════════
+  window.switchTab = (tab) => {
+    document.querySelectorAll('.tab-btn').forEach((b, i) => {
+      b.classList.toggle('active', ['pending','active','notif'][i] === tab);
+    });
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+  };
+</script>
+</body>
+</html>
