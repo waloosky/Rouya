@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الاختبار التفاعلي</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      padding: 2rem 1rem;
+      direction: rtl;
+    }
+
+    .container { max-width: 640px; margin: auto; }
+
+    /* ---- رأس الصفحة ---- */
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding-bottom: 1.25rem;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    .header-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      background: #422006;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+    }
+
+    .page-header h1 { font-size: 18px; font-weight: 700; }
+    .page-header p  { font-size: 13px; color: #94a3b8; margin-top: 3px; }
+
+    /* ---- بطاقة السؤال ---- */
+    .quiz-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .question-text {
+      font-size: 17px;
+      font-weight: 500;
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ---- أزرار الخيارات ---- */
+    .option-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 12px 16px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      background: #0f172a;
+      color: #f1f5f9;
+      font-size: 14px;
+      font-family: 'Tajawal', sans-serif;
+      cursor: pointer;
+      text-align: right;
+      transition: border-color .15s, background .15s;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: #38bdf8;
+      background: #0c1a2e;
+    }
+
+    .option-btn:disabled { cursor: not-allowed; }
+
+    .option-btn.correct {
+      background: #052e16;
+      border-color: #166534;
+      color: #4ade80;
+    }
+
+    .option-btn.wrong {
+      background: #450a0a;
+      border-color: #991b1b;
+      color: #f87171;
+    }
+
+    .option-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 1px solid #334155;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    /* ---- بطاقة النتيجة ---- */
+    .result-card {
+      display: none;
+      align-items: center;
+      gap: 14px;
+      padding: 1.25rem 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+    }
+
+    .result-card.show   { display: flex; }
+    .result-card.success { background: #052e16; border: 1px solid #166534; color: #4ade80; }
+    .result-card.fail    { background: #450a0a; border: 1px solid #991b1b; color: #f87171; }
+
+    .result-icon  { font-size: 28px; flex-shrink: 0; }
+    .result-title { font-size: 15px; font-weight: 700; }
+    .result-sub   { font-size: 13px; margin-top: 3px; opacity: .85; }
+
+    /* ---- بطاقة المراجعة ---- */
+    .review-card {
+      display: none;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .review-card.show { display: block; }
+    .review-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .review-question { font-size: 14px; color: #94a3b8; margin-bottom: 10px; line-height: 1.6; }
+    .review-row { display: flex; flex-direction: column; gap: 6px; }
+    .review-answer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+    .review-answer.my-wrong {
+      background: #450a0a;
+      border: 1px solid #991b1b;
+      color: #f87171;
+    }
+    .review-answer.correct-ans {
+      background: #052e16;
+      border: 1px solid #166534;
+      color: #4ade80;
+    }
+    .review-label {
+      font-size: 11px;
+      opacity: .7;
+      white-space: nowrap;
+    }
+
+    /* ---- شرح المدرس ---- */
+    .teacher-note {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      background: #1e2d4a;
+      border: 1px solid #1d4ed8;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #93c5fd;
+      line-height: 1.6;
+    }
+    .teacher-note.show { display: block; }
+    .teacher-note-label {
+      font-size: 11px;
+      color: #60a5fa;
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* ---- أزرار التنقل ---- */
+    .nav-row {
+      display: flex;
+      gap: 10px;
+      margin-top: .5rem;
+    }
+
+    .btn-back, .btn-retry, .btn-review {
+      flex: 1;
+      padding: 11px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'Tajawal', sans-serif;
+      cursor: pointer;
+      border: 1px solid #334155;
+      background: transparent;
+      color: #94a3b8;
+      transition: background .15s;
+    }
+
+    .btn-back:hover  { background: #1e293b; }
+    .btn-retry       { background: #0ea5e9; border-color: #0ea5e9; color: #0f172a; font-weight: 700; display: none; }
+    .btn-retry:hover { opacity: .9; }
+    .btn-retry.show  { display: block; }
+    .btn-review      { background: #1e293b; border-color: #334155; display: none; }
+    .btn-review:hover { background: #243044; }
+    .btn-review.show  { display: block; }
+
+    /* ---- رسالة خطأ ---- */
+    .error-msg {
+      display: none;
+      padding: 10px 14px;
+      background: #450a0a;
+      color: #f87171;
+      border: 1px solid #991b1b;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- رأس الصفحة -->
+  <div class="page-header">
+    <div class="header-icon">✏️</div>
+    <div>
+      <h1 id="examTitle">جارٍ تحميل الاختبار...</h1>
+      <p id="examSubtitle">يرجى الانتظار</p>
+    </div>
+  </div>
+
+  <!-- رسالة خطأ -->
+  <div id="errorMsg" class="error-msg"></div>
+
+  <!-- بطاقة السؤال -->
+  <div class="quiz-card" id="quizCard">
+    <div class="question-text" id="questionText">جارٍ تحميل السؤال...</div>
+    <div id="optionsContainer"></div>
+  </div>
+
+  <!-- نتيجة الإجابة -->
+  <div id="resultCard" class="result-card">
+    <div class="result-icon" id="resultIcon"></div>
+    <div>
+      <div class="result-title" id="resultTitle"></div>
+      <div class="result-sub"   id="resultSub"></div>
+    </div>
+  </div>
+
+  <!-- وضع المراجعة (يظهر عند الإجابة الخاطئة) -->
+  <div class="review-card" id="reviewCard">
+    <div class="review-title">🔍 مراجعة الإجابة</div>
+    <div class="review-question" id="reviewQuestion"></div>
+    <div class="review-row" id="reviewRow"></div>
+    <div class="teacher-note" id="teacherNote">
+      <div class="teacher-note-label">📖 شرح الأستاذ</div>
+      <div id="teacherNoteText"></div>
+    </div>
+  </div>
+
+  <!-- أزرار التنقل -->
+  <div class="nav-row">
+    <button class="btn-back" onclick="window.location.href='student_panel.html'">
+      ← العودة للدروس
+    </button>
+    <button class="btn-review show" id="reviewBtn" onclick="toggleReview()" style="display:none">
+      🔍 مراجعة الإجابة
+    </button>
+    <button class="btn-retry show" id="retryBtn" onclick="retryExam()" style="display:none">
+      ↺ حاول مرة أخرى
+    </button>
+  </div>
+
+</div>
+
+<script type="module">
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getDatabase, ref, get, update }
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+  import { getAuth, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyCj9UxvluAtmPVNbLHsl4blTEUA94PEOvI",
+    authDomain:        "interactive-rouya.firebaseapp.com",
+    projectId:         "interactive-rouya",
+    storageBucket:     "interactive-rouya.firebasestorage.app",
+    messagingSenderId: "164882328808",
+    appId:             "1:164882328808:web:868e0251ae47c583a0ed5d",
+    databaseURL:       "https://interactive-rouya-default-rtdb.firebaseio.com"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const db   = getDatabase(app);
+  const auth = getAuth(app);
+
+  const lessonId = new URLSearchParams(window.location.search).get('id');
+  let currentQuiz    = null;
+  let currentUser    = null;
+  let currentGrade   = null;
+  let answered       = false;
+  let reviewVisible  = false;
+
+  if (!lessonId) showError('معرف الدرس مفقود من الرابط');
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'index.html'; return; }
+    currentUser = user;
+    if (lessonId) await loadQuiz(user);
+  });
+
+  async function loadQuiz(user) {
+    try {
+      const userSnap = await get(ref(db, 'users/' + user.uid));
+      if (!userSnap.exists()) return showError('لم يتم العثور على بيانات الطالب');
+
+      currentGrade = userSnap.val().grade;
+
+      const lessonSnap = await get(ref(db, `lessons/${currentGrade}/${lessonId}`));
+      if (!lessonSnap.exists()) return showError('لم يتم العثور على هذا الدرس');
+
+      const lesson = lessonSnap.val();
+      currentQuiz  = lesson.quiz;
+
+      document.getElementById('examTitle').textContent    = 'اختبار: ' + lesson.title;
+      document.getElementById('examSubtitle').textContent = 'أجب على السؤال بدقة';
+
+      renderQuiz(currentQuiz);
+
+    } catch (e) {
+      showError('خطأ في تحميل الاختبار: ' + e.message);
+    }
+  }
+
+  function renderQuiz(quiz) {
+    document.getElementById('questionText').textContent = quiz.question;
+    const container = document.getElementById('optionsContainer');
+    container.innerHTML = '';
+
+    quiz.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = `<span class="option-num">${i + 1}</span>${opt}`;
+      btn.onclick = () => checkAnswer(i + 1, parseInt(quiz.correct), quiz.options, quiz);
+      container.appendChild(btn);
+    });
+  }
+
+  let answered_flag = false;
+
+  window.checkAnswer = async function(selected, correct, options, quiz) {
+    if (answered_flag) return;
+    answered_flag = true;
+
+    const btns = document.querySelectorAll('.option-btn');
+    btns.forEach(b => b.disabled = true);
+
+    const rc = document.getElementById('resultCard');
+
+    if (selected === correct) {
+      // ✅ إجابة صحيحة
+      btns[selected - 1].classList.add('correct');
+      rc.className = 'result-card success show';
+      document.getElementById('resultIcon').textContent  = '✓';
+      document.getElementById('resultTitle').textContent = 'إجابة صحيحة! أحسنت.';
+      document.getElementById('resultSub').textContent   = 'لقد اخترت الإجابة الصحيحة.';
+
+      // حفظ الدرجة في Firebase
+      await saveScore(100);
+
+    } else {
+      // ❌ إجابة خاطئة
+      btns[selected - 1].classList.add('wrong');
+      btns[correct - 1].classList.add('correct');
+      rc.className = 'result-card fail show';
+      document.getElementById('resultIcon').textContent  = '✗';
+      document.getElementById('resultTitle').textContent = 'إجابة خاطئة.';
+      document.getElementById('resultSub').textContent   = `الإجابة الصحيحة: ${options[correct - 1]}`;
+
+      // إظهار زر المراجعة + بناء محتوى المراجعة
+      buildReviewCard(quiz, selected, correct, options);
+      document.getElementById('reviewBtn').style.display = 'block';
+      document.getElementById('retryBtn').style.display  = 'block';
+
+      // حفظ الدرجة 0
+      await saveScore(0);
+    }
+  };
+
+  // ---- حفظ الدرجة في Firebase ----
+  async function saveScore(score) {
+    if (!currentUser || !currentGrade) return;
+    try {
+      await update(ref(db, `progress/${currentUser.uid}/${lessonId}`), {
+        score:    score,
+        scoredAt: Date.now()
+      });
+      // تحديث نقاط الـ Leaderboard
+      const userSnap = await get(ref(db, 'users/' + currentUser.uid));
+      const name = userSnap.val()?.displayName || 'مجهول';
+      const totalSnap = await get(ref(db, `leaderboard/${currentUser.uid}`));
+      const prev = totalSnap.exists() ? (totalSnap.val().totalScore || 0) : 0;
+      await update(ref(db, `leaderboard/${currentUser.uid}`), {
+        name:       name,
+        totalScore: prev + score,
+        lastUpdate: Date.now()
+      });
+    } catch (e) {
+      console.warn('خطأ في حفظ الدرجة:', e.message);
+    }
+  }
+
+  // ---- بناء بطاقة المراجعة ----
+  function buildReviewCard(quiz, selected, correct, options) {
+    document.getElementById('reviewQuestion').textContent = quiz.question;
+
+    const row = document.getElementById('reviewRow');
+    row.innerHTML = `
+      <div class="review-answer my-wrong">
+        <span>✗</span>
+        <span class="review-label">إجابتك:</span>
+        <span>${options[selected - 1]}</span>
+      </div>
+      <div class="review-answer correct-ans">
+        <span>✓</span>
+        <span class="review-label">الصحيحة:</span>
+        <span>${options[correct - 1]}</span>
+      </div>`;
+
+    // شرح المدرس (إن وُجد في قاعدة البيانات)
+    if (quiz.explanation) {
+      const note = document.getElementById('teacherNote');
+      document.getElementById('teacherNoteText').textContent = quiz.explanation;
+      note.classList.add('show');
+    }
+  }
+
+  // ---- إظهار/إخفاء المراجعة ----
+  window.toggleReview = () => {
+    const card = document.getElementById('reviewCard');
+    reviewVisible = !reviewVisible;
+    card.classList.toggle('show', reviewVisible);
+    document.getElementById('reviewBtn').textContent =
+      reviewVisible ? '🙈 إخفاء المراجعة' : '🔍 مراجعة الإجابة';
+  };
+
+  // ---- إعادة المحاولة ----
+  window.retryExam = function() {
+    answered_flag = false;
+    reviewVisible = false;
+    document.getElementById('resultCard').className = 'result-card';
+    document.getElementById('reviewCard').classList.remove('show');
+    document.getElementById('reviewBtn').style.display = 'none';
+    document.getElementById('retryBtn').style.display  = 'none';
+    document.getElementById('reviewBtn').textContent   = '🔍 مراجعة الإجابة';
+    document.querySelectorAll('.option-btn').forEach(b => {
+      b.disabled = false;
+      b.classList.remove('correct', 'wrong');
+    });
+  };
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg;
+    el.style.display = 'block';
+    document.getElementById('quizCard').style.display = 'none';
+  }
+</script>
+</body>
+</html>
