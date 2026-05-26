@@ -511,14 +511,39 @@
       if (!userSnap.exists()) return showError('لم يتم العثور على بيانات الطالب');
 
       const grade = userSnap.val().grade;
-      document.getElementById('gradeMsg').textContent =
-        grade === 'first_mid' ? 'الصف الأول متوسط' : 'الصف الثاني متوسط';
+      const subjectId = userSnap.val().subject || null;
+
+      // عرض اسم الصف
+      const gradeNames = {
+        sixth_prep:  'الصف السادس الإعدادي',
+        fifth_prep:  'الصف الخامس الإعدادي',
+        fourth_prep: 'الصف الرابع الإعدادي',
+        first_mid:   'الصف الأول متوسط',
+        second_mid:  'الصف الثاني متوسط'
+      };
+      document.getElementById('gradeMsg').textContent = gradeNames[grade] || grade;
 
       document.getElementById('attendanceCard').style.display = 'flex';
 
-      onValue(ref(db, 'lessons/' + grade), (snap) => {
-        if (!snap.exists()) return showError('لا توجد دروس لهذا الصف بعد');
-        renderLessons(snap.val(), user.uid);
+      // ✅ الإصلاح: قراءة الدروس من المسار العام وتصفيتها حسب الصف والمادة
+      onValue(ref(db, 'lessons'), (snap) => {
+        if (!snap.exists()) return showError('لا توجد دروس متاحة بعد');
+        const allLessons = snap.val();
+        // تصفية الدروس: فقط دروس الصف السادس الإعدادي (grade === sixth_prep أو grade مطابق)
+        const filtered = {};
+        for (const id in allLessons) {
+          const lesson = allLessons[id];
+          // إظهار الدروس التي تخص هذا الصف
+          // إذا لم يكن للدرس grade محدد أو كان grade === grade الطالب
+          if (!lesson.grade || lesson.grade === grade) {
+            // إذا كانت للطالب مادة محددة، اعرض فقط دروس تلك المادة
+            if (!subjectId || lesson.subject === subjectId || !lesson.subject) {
+              filtered[id] = lesson;
+            }
+          }
+        }
+        if (Object.keys(filtered).length === 0) return showError('لا توجد دروس منشورة لصفك بعد');
+        renderLessons(filtered, user.uid);
       });
 
     } catch (e) {
