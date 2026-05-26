@@ -359,13 +359,23 @@
 
     <div class="form-row">
       <div class="form-group">
+        <label class="form-label">الصف الدراسي</label>
+        <select class="form-select" id="lessonGrade">
+          <option value="sixth_prep">السادس الإعدادي</option>
+          <option value="fifth_prep">الخامس الإعدادي</option>
+          <option value="fourth_prep">الرابع الإعدادي</option>
+          <option value="first_mid">الأول متوسط</option>
+          <option value="second_mid">الثاني متوسط</option>
+        </select>
+      </div>
+      <div class="form-group">
         <label class="form-label">المادة</label>
         <select class="form-select" id="lessonSubject"></select>
       </div>
-      <div class="form-group">
-        <label class="form-label">اسم الدرس</label>
-        <input class="form-input" type="text" id="lessonTitle" placeholder="مثال: المتسعات - الفصل الأول">
-      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">اسم الدرس</label>
+      <input class="form-input" type="text" id="lessonTitle" placeholder="مثال: المتسعات - الفصل الأول">
     </div>
 
     <div class="form-group">
@@ -779,6 +789,18 @@ window.editLesson = function(lessonId) {
   document.getElementById('lessonVideo').value = lesson.videoUrl || '';
   document.getElementById('lessonDesc').value  = lesson.description || '';
   document.getElementById('lessonSubject').value = lesson.subject || '';
+  document.getElementById('lessonGrade').value   = lesson.grade || 'sixth_prep';  // ✅
+  document.getElementById('questionsContainer').innerHTML = '';
+  questionCount = 0;
+
+  if (lesson.questions) {
+    Object.entries(lesson.questions).forEach(([qid, q]) => {
+      addQuestion(q);
+    });
+  }
+  document.getElementById('lessonModal').classList.add('show');
+};
+  document.getElementById('lessonSubject').value = lesson.subject || '';
   document.getElementById('questionsContainer').innerHTML = '';
   questionCount = 0;
 
@@ -842,10 +864,12 @@ window.saveLesson = async function() {
   const video   = document.getElementById('lessonVideo').value.trim();
   const desc    = document.getElementById('lessonDesc').value.trim();
   const subject = document.getElementById('lessonSubject').value;
+  const grade   = document.getElementById('lessonGrade').value;  // ✅ إضافة الصف
   const editId  = document.getElementById('editLessonId').value;
 
   if (!title) return showToast('أدخل اسم الدرس', true);
   if (!video) return showToast('أدخل رابط الفيديو', true);
+  if (!grade) return showToast('اختر الصف الدراسي', true);
 
   const ytId = extractYoutubeId(video);
   if (!ytId) return showToast('رابط YouTube غير صحيح', true);
@@ -866,7 +890,8 @@ window.saveLesson = async function() {
   showLoading(true);
   try {
     const lessonData = {
-      title, subject, videoUrl: video, videoId: ytId,
+      title, subject, grade,           // ✅ grade محفوظ مع الدرس
+      videoUrl: video, videoId: ytId,
       description: desc,
       teacherUid: currentUser.uid,
       teacherName: currentUser.displayName || '',
