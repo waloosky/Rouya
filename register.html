@@ -1,6 +1,6 @@
 import { initializeApp }
     from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, updateProfile }
+import { getAuth, createUserWithEmailAndPassword, updateProfile, signOut }
     from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import { getDatabase, ref, set }
     from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
@@ -22,27 +22,47 @@ const auth      = getAuth(app);
 const db        = getDatabase(app);
 const functions = getFunctions(app);
 
+const ALLOWED_GRADES = ['الأول', 'الثاني', 'الثالث', 'الرابع', 'الخامس', 'السادس'];
+
 async function registerUser(name, email, password, grade) {
+
+    // ── تحقق من المدخلات ──────────────────────────────
+    if (!name?.trim() || !email?.trim() || !password || !grade) {
+        alert("❌ يرجى ملء جميع الحقول.");
+        return;
+    }
+    if (!ALLOWED_GRADES.includes(grade)) {
+        alert("❌ الصف الدراسي غير صحيح.");
+        return;
+    }
+
     try {
         // 1. إنشاء الحساب
         const cred = await createUserWithEmailAndPassword(auth, email, password);
-        await updateProfile(cred.user, { displayName: name });
+        await updateProfile(cred.user, { displayName: name.trim() });
 
         // 2. حفظ البيانات بحالة pending
         await set(ref(db, 'users/' + cred.user.uid), {
-            displayName: name,
-            email:       email,
+            displayName: name.trim(),
+            email:       email.trim(),
             grade:       grade,
             role:        'student',
             status:      'pending',
-            createdAt:   Date.now()
+            createdAt:   Date.now(),
+            createdAtISO: new Date().toISOString()
         });
 
-        // 3. إشعار تيليجرام عبر Cloud Function (التوكن محمي على السيرفر)
-        const notifyAdmin = httpsCallable(functions, 'notifyNewStudent');
-        await notifyAdmin({ name, email, grade });
+        // 3. إشعار تيليجرام — لا يوقف العملية إذا فشل
+        try {
+            const notifyAdmin = httpsCallable(functions, 'notifyNewStudent');
+            await notifyAdmin({ name: name.trim(), email: email.trim(), grade });
+        } catch (notifyErr) {
+            console.warn("⚠️ فشل إشعار الأدمن (الحساب أُنشئ بنجاح):", notifyErr);
+        }
 
-        await auth.signOut();
+        // 4. تسجيل الخروج
+        await signOut(auth);  // ✅ الطريقة الصحيحة في v9
+
         alert("✅ تم التسجيل! بانتظار موافقة الأستاذ وليد.");
 
     } catch (error) {
@@ -53,9 +73,11 @@ async function registerUser(name, email, password, grade) {
 
 function friendlyError(code) {
     const map = {
-        'auth/email-already-in-use': 'هذا البريد مسجل مسبقاً',
-        'auth/invalid-email':        'البريد الإلكتروني غير صحيح',
-        'auth/weak-password':        'كلمة المرور ضعيفة جداً',
+        'auth/email-already-in-use':  'هذا البريد مسجل مسبقاً',
+        'auth/invalid-email':         'البريد الإلكتروني غير صحيح',
+        'auth/weak-password':         'كلمة المرور ضعيفة (6 أحرف على الأقل)',
+        'functions/unavailable':      'الخادم غير متاح حالياً، حاول لاحقاً',
+        'functions/internal':         'خطأ داخلي في الخادم',
     };
     return map[code] || 'حدث خطأ، حاول مرة أخرى';
 }
