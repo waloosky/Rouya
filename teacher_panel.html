@@ -544,6 +544,11 @@ onAuthStateChanged(auth, async (user) => {
   const data = snap.val();
   if (data.role !== 'teacher' && data.role !== 'admin') {
     await signOut(auth); window.location.href = 'index.html'; return;
+    if (data.status !== 'active') {
+  await signOut(auth);
+  window.location.href = 'index.html';
+  return;
+}
   }
   currentUser = { ...data, uid: user.uid };
   document.getElementById('sidebarName').textContent = data.displayName || user.email;
