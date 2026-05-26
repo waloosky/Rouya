@@ -332,11 +332,22 @@
 
       currentGrade = userSnap.val().grade;
 
-      const lessonSnap = await get(ref(db, `lessons/${currentGrade}/${lessonId}`));
+      // ✅ الإصلاح: قراءة الدرس من المسار العام (بدون grade في المسار)
+      const lessonSnap = await get(ref(db, `lessons/${lessonId}`));
       if (!lessonSnap.exists()) return showError('لم يتم العثور على هذا الدرس');
 
       const lesson = lessonSnap.val();
-      currentQuiz  = lesson.quiz;
+      // دعم questions (مصفوفة) أو quiz (سؤال واحد)
+      const questions = lesson.questions
+        ? Object.values(lesson.questions)
+        : (lesson.quiz ? [lesson.quiz] : null);
+
+      if (!questions || questions.length === 0) {
+        return showError('لا توجد أسئلة لهذا الاختبار بعد');
+      }
+
+      // اختيار سؤال عشوائي من الأسئلة المتاحة
+      currentQuiz = questions[Math.floor(Math.random() * questions.length)];
 
       document.getElementById('examTitle').textContent    = 'اختبار: ' + lesson.title;
       document.getElementById('examSubtitle').textContent = 'أجب على السؤال بدقة';
@@ -403,21 +414,47 @@
     }
   };
 
-  // ---- حفظ الدرجة في Firebase ----
+  // ---- حفظ الدرجة في Firebase وإرسالها للمدرس ----
   async function saveScore(score) {
     if (!currentUser || !currentGrade) return;
     try {
+      // 1. حفظ نتيجة الطالب في progress
       await update(ref(db, `progress/${currentUser.uid}/${lessonId}`), {
         score:    score,
         scoredAt: Date.now()
       });
-      // تحديث نقاط الـ Leaderboard
+
+      // 2. جلب بيانات الدرس لمعرفة المدرس
+      const lessonSnap = await get(ref(db, `lessons/${lessonId}`));
+      const lessonData = lessonSnap.exists() ? lessonSnap.val() : {};
+      const teacherUid = lessonData.teacherUid;
+
+      // 3. جلب بيانات الطالب
       const userSnap = await get(ref(db, 'users/' + currentUser.uid));
-      const name = userSnap.val()?.displayName || 'مجهول';
+      const studentName = userSnap.val()?.displayName || 'مجهول';
+      const totalQuestions = lessonData.questions ? Object.keys(lessonData.questions).length : 1;
+
+      // ✅ 4. إرسال إشعار للمدرس بالنتيجة
+      if (teacherUid) {
+        const notifKey = `${currentUser.uid}_${lessonId}_${Date.now()}`;
+        await update(ref(db, `notifications/${teacherUid}/items/${notifKey}`), {
+          title: `نتيجة اختبار: ${lessonData.title || 'درس'}`,
+          body:  `${studentName} حصل على ${score} من ${totalQuestions} (${Math.round((score/totalQuestions)*100)}%)`,
+          icon:  '📊',
+          ts:    Date.now(),
+          type:  'exam_result',
+          studentUid: currentUser.uid,
+          lessonId:   lessonId,
+          score,
+          total:      totalQuestions
+        });
+      }
+
+      // 5. تحديث نقاط الـ Leaderboard
       const totalSnap = await get(ref(db, `leaderboard/${currentUser.uid}`));
       const prev = totalSnap.exists() ? (totalSnap.val().totalScore || 0) : 0;
       await update(ref(db, `leaderboard/${currentUser.uid}`), {
-        name:       name,
+        name:       studentName,
         totalScore: prev + score,
         lastUpdate: Date.now()
       });
