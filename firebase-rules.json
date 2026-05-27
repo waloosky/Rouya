@@ -178,6 +178,35 @@
       /* كتابة: الأدمن فقط */
       ".write": "auth != null &&
                  root.child('users').child(auth.uid).child('role').val() === 'admin'"
+    },
+
+
+    /* ────────────────────────────────────────────────
+       نتائج الاختبارات (exam_results)
+       الطالب يكتب نتيجته — المدرس/الأدمن يقرأ الكل
+       ──────────────────────────────────────────────── */
+    "exam_results": {
+      "$uid": {
+        /* القراءة: الطالب يقرأ نتائجه + المدرس/الأدمن يقرأ الكل */
+        ".read": "auth != null && (
+                    auth.uid === $uid ||
+                    root.child('users').child(auth.uid).child('role').val() === 'teacher' ||
+                    root.child('users').child(auth.uid).child('role').val() === 'admin'
+                  )",
+
+        "$lessonId": {
+          /* الكتابة: الطالب يسجّل نتيجة اختباره فقط */
+          ".write": "auth != null && auth.uid === $uid",
+
+          ".validate": "newData.hasChildren(['score', 'total', 'submittedAt'])",
+          "score":       { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "total":       { ".validate": "newData.isNumber() && newData.val() > 0" },
+          "submittedAt": { ".validate": "newData.isNumber()" },
+          "lessonId":    { ".validate": "newData.isString()" },
+          "teacherUid":  { ".validate": "newData.isString() || !newData.exists()" },
+          "studentName": { ".validate": "newData.isString() || !newData.exists()" }
+        }
+      }
     }
 
     /* ─────────────────────────────────────────────────

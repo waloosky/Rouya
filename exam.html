@@ -309,26 +309,7 @@
 </div>
 
 <script type="module">
-  import { initializeApp }
-    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-  import { getDatabase, ref, get, update }
-    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
-  import { getAuth, onAuthStateChanged }
-    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-
-  const firebaseConfig = {
-    apiKey:            "AIzaSyCj9UxvluAtmPVNbLHsl4blTEUA94PEOvI",
-    authDomain:        "interactive-rouya.firebaseapp.com",
-    projectId:         "interactive-rouya",
-    storageBucket:     "interactive-rouya.firebasestorage.app",
-    messagingSenderId: "164882328808",
-    appId:             "1:164882328808:web:868e0251ae47c583a0ed5d",
-    databaseURL:       "https://interactive-rouya-default-rtdb.firebaseio.com"
-  };
-
-  const app  = initializeApp(firebaseConfig);
-  const db   = getDatabase(app);
-  const auth = getAuth(app);
+  import { auth, db, ref, get, update, requireAuth } from './auth.js';
 
   const lessonId = new URLSearchParams(window.location.search).get('id');
   let currentQuiz    = null;
@@ -365,10 +346,11 @@
 
   if (!lessonId) showError('معرف الدرس مفقود من الرابط');
 
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) { window.location.href = 'index.html'; return; }
-    currentUser = user;
-    if (lessonId) await loadQuiz(user);
+  requireAuth('student', {
+    onSuccess: async (user) => {
+      currentUser = user;
+      if (lessonId) await loadQuiz(user);
+    }
   });
 
   async function loadQuiz(user) {
@@ -378,17 +360,18 @@
 
       currentGrade = userSnap.val().grade;
 
-      // ✅ التحقق: هل أجرى الطالب الاختبار مسبقاً؟
-      const progressSnap = await get(ref(db, `progress/${user.uid}/${lessonId}`));
+      // ✅ التحقق: هل أجرى الطالب الاختبار مسبقاً؟ (يقرأ من exam_results)
+      const progressSnap = await get(ref(db, `exam_results/${user.uid}/${lessonId}`));
       if (progressSnap.exists() && progressSnap.val().score !== undefined) {
-        const prevScore = progressSnap.val().score;
+        const prev      = progressSnap.val();
+        const prevScore = prev.total > 0 ? Math.round((prev.score / prev.total) * 100) : prev.score;
         document.getElementById('quizCard').style.display = 'none';
         const err = document.getElementById('errorMsg');
         err.style.display = 'block';
         err.style.background = '#052e16';
         err.style.borderColor = '#166534';
         err.style.color = '#4ade80';
-        err.innerHTML = `✅ لقد أجريت هذا الاختبار مسبقاً.<br>نتيجتك: <strong>${prevScore}%</strong><br><br>
+        err.innerHTML = `✅ لقد أجريت هذا الاختبار مسبقاً.<br>نتيجتك: <strong>${prev.score}/${prev.total} (${prevScore}%)</strong><br><br>
           <a href="student_panel.html" style="color:#38bdf8;text-decoration:none;">← العودة للدروس</a>`;
         return;
       }
@@ -479,21 +462,24 @@
   async function saveScore(score) {
     if (!currentUser || !currentGrade) return;
     try {
-      // 1. حفظ نتيجة الطالب في progress
-      await update(ref(db, `progress/${currentUser.uid}/${lessonId}`), {
-        score:    score,
-        scoredAt: Date.now()
-      });
-
-      // 2. جلب بيانات الدرس لمعرفة المدرس
+      // 2. جلب بيانات الدرس لمعرفة المدرس والأسئلة
       const lessonSnap = await get(ref(db, `lessons/${lessonId}`));
       const lessonData = lessonSnap.exists() ? lessonSnap.val() : {};
       const teacherUid = lessonData.teacherUid;
+      const totalQuestions = lessonData.questions ? Object.keys(lessonData.questions).length : 1;
+
+      // 1. حفظ نتيجة الطالب في exam_results (المسار الصحيح الذي يسمح للطالب بالكتابة)
+      await update(ref(db, `exam_results/${currentUser.uid}/${lessonId}`), {
+        score,
+        total:       totalQuestions,
+        lessonId,
+        teacherUid:  teacherUid || '',
+        submittedAt: Date.now()
+      });
 
       // 3. جلب بيانات الطالب
       const userSnap = await get(ref(db, 'users/' + currentUser.uid));
       const studentName = userSnap.val()?.displayName || 'مجهول';
-      const totalQuestions = lessonData.questions ? Object.keys(lessonData.questions).length : 1;
 
       // ✅ 4. إرسال إشعار للمدرس بالنتيجة
       if (teacherUid) {

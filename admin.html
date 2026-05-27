@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>لوحة الإدارة - منصة رؤيا</title>
+  <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -739,48 +740,25 @@
      FIREBASE + LOGIC
 ══════════════════════════════════════════════════════ -->
 <script type="module">
-  import { initializeApp }
-    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
   import {
-    getAuth, onAuthStateChanged, signOut
-  } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-  import {
-    getDatabase, ref, get, set, update, remove, onValue, push
-  } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
-
-  const firebaseConfig = {
-    apiKey:            "AIzaSyCj9UxvluAtmPVNbLHsl4blTEUA94PEOvI",
-    authDomain:        "interactive-rouya.firebaseapp.com",
-    projectId:         "interactive-rouya",
-    storageBucket:     "interactive-rouya.firebasestorage.app",
-    messagingSenderId: "164882328808",
-    appId:             "1:164882328808:web:868e0251ae47c583a0ed5d",
-    databaseURL:       "https://interactive-rouya-default-rtdb.firebaseio.com"
-  };
-
-  const app  = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db   = getDatabase(app);
+    auth, db,
+    ref, get, set, update, remove, onValue, push,
+    requireAuth, signOutUser as authSignOut
+  } from './auth.js';
 
   /* ── Global state ── */
   let allUsers    = {};
   let currentUser = null;
 
   /* ── Auth guard ── */
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) { window.location.href = 'index.html'; return; }
-    const snap = await get(ref(db, 'users/' + user.uid));
-    if (!snap.exists()) { await signOut(auth); window.location.href = 'index.html'; return; }
-    const data = snap.val();
-    if (data.role !== 'teacher' && data.role !== 'admin') {
-      await signOut(auth); window.location.href = 'index.html'; return;
+  requireAuth(['teacher', 'admin'], {
+    onSuccess: (user, data) => {
+      currentUser = { ...data, uid: user.uid };
+      document.getElementById('adminName').textContent   = data.displayName || user.email;
+      document.getElementById('adminRole').textContent   = data.role === 'admin' ? 'أدمن' : 'مدرس';
+      document.getElementById('adminAvatar').textContent = (data.displayName || 'A')[0].toUpperCase();
+      loadUsers();
     }
-    currentUser = { ...data, uid: user.uid };
-    document.getElementById('adminName').textContent  = data.displayName || user.email;
-    document.getElementById('adminRole').textContent  = data.role === 'admin' ? 'أدمن' : 'مدرس';
-    document.getElementById('adminAvatar').textContent = (data.displayName || 'A')[0].toUpperCase();
-
-    loadUsers();
   });
 
   /* ── Load all users realtime ── */
@@ -1003,10 +981,7 @@
   };
 
   /* ── Logout ── */
-  window.doLogout = async () => {
-    await signOut(auth);
-    window.location.href = 'index.html';
-  };
+  window.doLogout = () => authSignOut('index.html');
 
   /* ── UI helpers ── */
   function showLoading(v) {

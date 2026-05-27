@@ -618,12 +618,6 @@
     .pending-box .pb-desc { font-size: 12px; color: rgba(255,210,120,0.7); line-height: 1.6; }
   </style>
 </head>
-  <!-- في <head> -->
-<link rel="stylesheet" href="style.css">
-
-<!-- في <script type="module"> -->
-import { requireAuth, signOutUser } from './auth.js';
-requireAuth('student', { onSuccess: (user, data) => initPage(user, data) });
 <body>
 
 <!-- SCENE -->
@@ -774,25 +768,13 @@ requireAuth('student', { onSuccess: (user, data) => initPage(user, data) });
      FIREBASE + APP LOGIC
 ═══════════════════════════════════════════════════════ -->
 <script type="module">
-  import { initializeApp }
-    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
   import {
-    getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-    signInWithPopup, GoogleAuthProvider, updateProfile, onAuthStateChanged
-  } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-  import { getDatabase, ref, set, get }
-    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
-
-  /* ── Firebase config ── */
-  const firebaseConfig = {
-    apiKey:            "AIzaSyCj9UxvluAtmPVNbLHsl4blTEUA94PEOvI",
-    authDomain:        "interactive-rouya.firebaseapp.com",
-    projectId:         "interactive-rouya",
-    storageBucket:     "interactive-rouya.firebasestorage.app",
-    messagingSenderId: "164882328808",
-    appId:             "1:164882328808:web:868e0251ae47c583a0ed5d",
-    databaseURL:       "https://interactive-rouya-default-rtdb.firebaseio.com"
-  };
+    auth, db,
+    ref, set, get,
+    signInWithEmailAndPassword, createUserWithEmailAndPassword,
+    signInWithPopup, provider, updateProfile,
+    onAuthStateChanged
+  } from './auth.js';
 
   /* ══════════════════════════════════════════════════════
      🔑  CODES — غيّر هذه الأكواد عند الحاجة
@@ -800,11 +782,6 @@ requireAuth('student', { onSuccess: (user, data) => initPage(user, data) });
   const STUDENT_CODE = "STUDENT2026";   // كود الطلاب
   const TEACHER_CODE = "TEACHER2026";   // كود المدرسين
   /* ════════════════════════════════════════════════════ */
-
-  const app      = initializeApp(firebaseConfig);
-  const auth     = getAuth(app);
-  const db       = getDatabase(app);
-  const provider = new GoogleAuthProvider();
 
   /* expose switch/role fns to global (called from HTML) */
   window.switchTab  = switchTab;

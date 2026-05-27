@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>لوحة المدرس - منصة رؤيا</title>
+  <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -517,20 +518,11 @@
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getDatabase, ref, get, set, push, update, remove, onValue, query, orderByChild }
-  from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
-
-const firebaseConfig = {
-  apiKey:            "AIzaSyCj9UxvluAtmPVNbLHsl4blTEUA94PEOvI",
-  authDomain:        "interactive-rouya.firebaseapp.com",
-  projectId:         "interactive-rouya",
-  storageBucket:     "interactive-rouya.firebasestorage.app",
-  messagingSenderId: "164882328808",
-  appId:             "1:164882328808:web:868e0251ae47c583a0ed5d",
-  databaseURL:       "https://interactive-rouya-default-rtdb.firebaseio.com"
-};
+import {
+  auth, db,
+  ref, get, set, push, update, remove, onValue, query, orderByChild,
+  requireAuth, signOutUser as authSignOut
+} from './auth.js';
 
 const SUBJECTS = [
   { id: 'physics',   name: 'الفيزياء',         icon: '⚛️' },
@@ -542,34 +534,21 @@ const SUBJECTS = [
   { id: 'islamic',   name: 'التربية الإسلامية', icon: '🌙' },
 ];
 
-const app  = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db   = getDatabase(app);
+let currentUser    = null;
+let allLessons     = {};
+let allUsers       = {};
+let allExamResults = {};  /* exam_results بدلاً من progress */
+let questionCount  = 0;
 
-let currentUser = null;
-let allLessons  = {};
-let allUsers    = {};
-let allProgress = {};
-let questionCount = 0;
-
-/* ── Auth Guard ── */
-onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = 'index.html'; return; }
-  const snap = await get(ref(db, 'users/' + user.uid));
-  if (!snap.exists()) { await signOut(auth); window.location.href = 'index.html'; return; }
-  const data = snap.val();
-  if (data.role !== 'teacher' && data.role !== 'admin') {
-    await signOut(auth); window.location.href = 'index.html'; return;
+/* ── Auth Guard — يستخدم requireAuth المركزي ── */
+requireAuth(['teacher', 'admin'], {
+  onSuccess: (user, data) => {
+    currentUser = { ...data, uid: user.uid };
+    document.getElementById('sidebarName').textContent = data.displayName || user.email;
+    document.getElementById('sideAvatar').textContent  = (data.displayName || 'م')[0];
+    buildSubjectOptions();
+    loadData();
   }
-  if (data.status !== 'active') {
-    await signOut(auth); window.location.href = 'index.html'; return;
-  }
-  currentUser = { ...data, uid: user.uid };
-  document.getElementById('sidebarName').textContent = data.displayName || user.email;
-  document.getElementById('sideAvatar').textContent  = (data.displayName || 'م')[0];
-
-  buildSubjectOptions();
-  loadData();
 });
 
 function buildSubjectOptions() {
@@ -615,9 +594,9 @@ function loadData() {
     allUsers = snap.exists() ? snap.val() : {};
     updateOverallStats();
   });
-  // Load progress
-  onValue(ref(db, 'progress'), (snap) => {
-    allProgress = snap.exists() ? snap.val() : {};
+  // Load exam results (exam_results بدلاً من progress)
+  onValue(ref(db, 'exam_results'), (snap) => {
+    allExamResults = snap.exists() ? snap.val() : {};
     updateOverallStats();
     loadAllResults();
   });
@@ -644,7 +623,7 @@ function renderLessons() {
     const qCount = l.questions ? Object.keys(l.questions).length : 0;
     // Count results
     let resultCount = 0;
-    Object.values(allProgress).forEach(userProg => {
+    Object.values(allExamResults).forEach(userProg => {
       if (userProg[id] !== undefined) resultCount++;
     });
     return `
@@ -685,7 +664,7 @@ function updateOverallStats() {
   let studentSet = new Set();
   let passCount = 0, totalCount = 0;
   myLessons.forEach(([lid]) => {
-    Object.entries(allProgress).forEach(([uid, userProg]) => {
+    Object.entries(allExamResults).forEach(([uid, userProg]) => {
       if (userProg[lid] !== undefined) {
         studentSet.add(uid);
         totalCount++;
@@ -713,14 +692,14 @@ window.loadAllResults = function() {
 
   myLessons.forEach(([lid, lesson]) => {
     const subj = subjectMap[lesson.subject] || { name: lesson.subject };
-    Object.entries(allProgress).forEach(([uid, userProg]) => {
+    Object.entries(allExamResults).forEach(([uid, userProg]) => {
       if (userProg[lid] !== undefined) {
         const prog = userProg[lid];
         const user = allUsers[uid] || {};
         const score = prog.score ?? 0;
         const total = lesson.questions ? Object.keys(lesson.questions).length : 1;
         const pct   = Math.round(score / Math.max(total,1) * 100);
-        const date  = prog.scoredAt ? new Date(prog.scoredAt).toLocaleDateString('ar-EG') : '—';
+        const date  = (prog.submittedAt || prog.scoredAt) ? new Date(prog.submittedAt || prog.scoredAt).toLocaleDateString('ar-EG') : '—';
         rows.push({ name: user.displayName || '—', email: user.email || '—', subject: subj.name, lessonTitle: lesson.title, score, total, pct, date });
       }
     });
@@ -753,13 +732,13 @@ window.viewResults = function(lessonId) {
   const total = lesson.questions ? Object.keys(lesson.questions).length : 1;
   let rows = [], passCount = 0;
 
-  Object.entries(allProgress).forEach(([uid, userProg]) => {
+  Object.entries(allExamResults).forEach(([uid, userProg]) => {
     if (userProg[lessonId] !== undefined) {
       const prog  = userProg[lessonId];
       const user  = allUsers[uid] || {};
       const score = prog.score ?? 0;
       const pct   = Math.round(score / Math.max(total,1) * 100);
-      const date  = prog.scoredAt ? new Date(prog.scoredAt).toLocaleDateString('ar-EG') : '—';
+      const date  = (prog.submittedAt || prog.scoredAt) ? new Date(prog.submittedAt || prog.scoredAt).toLocaleDateString('ar-EG') : '—';
       if (pct >= 50) passCount++;
       rows.push({ name: user.displayName||'—', email: user.email||'—', grade: gradeLabel(user.grade), score, total, pct, date });
     }
@@ -940,10 +919,7 @@ window.closeModal = function() {
 };
 
 /* ── Logout ── */
-window.doLogout = async function() {
-  await signOut(auth);
-  window.location.href = 'index.html';
-};
+window.doLogout = () => authSignOut('index.html');
 
 /* ── UI Helpers ── */
 function showLoading(v) { document.getElementById('loadingOverlay').classList.toggle('show', v); }

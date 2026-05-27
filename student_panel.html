@@ -1,15 +1,10 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <!-- في <head> -->
-<link rel="stylesheet" href="style.css">
-
-<!-- في <script type="module"> -->
-import { requireAuth, signOutUser } from './auth.js';
-requireAuth('student', { onSuccess: (user, data) => initPage(user, data) });
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>لوحة الطالب - دروسي</title>
+  <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://www.youtube.com/iframe_api"></script>
   <style>
@@ -134,6 +129,21 @@ requireAuth('student', { onSuccess: (user, data) => initPage(user, data) });
     .subject-icon { font-size: 36px; }
     .subject-name { font-size: 13px; font-weight: 700; color: #f1f5f9; }
     .subject-count { font-size: 11px; color: #64748b; }
+
+    /* ── Skeleton Loading ── */
+    @keyframes skeleton-shimmer {
+      0%   { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+    .skeleton-card {
+      min-height: 100px;
+      cursor: default;
+      background: linear-gradient(90deg, #1e293b 25%, #243348 50%, #1e293b 75%);
+      background-size: 800px 100%;
+      animation: skeleton-shimmer 1.5s infinite;
+      pointer-events: none;
+      border-color: transparent !important;
+    }
 
     /* ══════════ قائمة الدروس ══════════ */
     .back-btn {
@@ -354,7 +364,14 @@ requireAuth('student', { onSuccess: (user, data) => initPage(user, data) });
   <div id="screen-subjects">
     <div class="section-title">📚 اختر المادة</div>
     <div class="subjects-grid" id="subjectsGrid">
-      <div class="empty-state"><div class="empty-icon">⏳</div>جارٍ التحميل...</div>
+      <!-- Skeleton cards أثناء التحميل -->
+      <div class="subject-btn skeleton-card" aria-hidden="true"></div>
+      <div class="subject-btn skeleton-card" aria-hidden="true"></div>
+      <div class="subject-btn skeleton-card" aria-hidden="true"></div>
+      <div class="subject-btn skeleton-card" aria-hidden="true"></div>
+      <div class="subject-btn skeleton-card" aria-hidden="true"></div>
+      <div class="subject-btn skeleton-card" aria-hidden="true"></div>
+      <div class="subject-btn skeleton-card" aria-hidden="true"></div>
     </div>
   </div>
 
@@ -438,22 +455,12 @@ requireAuth('student', { onSuccess: (user, data) => initPage(user, data) });
 </div>
 
 <script type="module">
-  import { initializeApp }
-    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-  import { getDatabase, ref, onValue, get, update }
-    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
-  import { getAuth, onAuthStateChanged, signOut }
-    from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-
-  const firebaseConfig = {
-    apiKey:            "AIzaSyCj9UxvluAtmPVNbLHsl4blTEUA94PEOvI",
-    authDomain:        "interactive-rouya.firebaseapp.com",
-    projectId:         "interactive-rouya",
-    storageBucket:     "interactive-rouya.firebasestorage.app",
-    messagingSenderId: "164882328808",
-    appId:             "1:164882328808:web:868e0251ae47c583a0ed5d",
-    databaseURL:       "https://interactive-rouya-default-rtdb.firebaseio.com"
-  };
+  /* ── استيراد من الوحدة المركزية auth.js ── */
+  import {
+    auth, db,
+    ref, onValue, get, update, signOut,
+    requireAuth, signOutUser as authSignOut
+  } from './auth.js';
 
   const SUBJECTS = [
     { id: 'islamic',   name: 'التربية الإسلامية', icon: '🌙' },
@@ -464,10 +471,6 @@ requireAuth('student', { onSuccess: (user, data) => initPage(user, data) });
     { id: 'biology',   name: 'الأحياء',            icon: '🧬' },
     { id: 'physics',   name: 'الفيزياء',           icon: '⚛️' },
   ];
-
-  const app  = initializeApp(firebaseConfig);
-  const db   = getDatabase(app);
-  const auth = getAuth(app);
 
   let currentUID   = null;
   let currentGrade = null;
@@ -506,11 +509,8 @@ requireAuth('student', { onSuccess: (user, data) => initPage(user, data) });
     }
   });
 
-  // ══ تسجيل الخروج ══
-  window.signOutUser = async () => {
-    await signOut(auth);
-    window.location.href = 'index.html';
-  };
+  // ══ تسجيل الخروج — يستخدم authSignOut من auth.js ══
+  window.signOutUser = () => authSignOut('index.html');
 
   // ══ الإشعارات ══
   window.toggleNotif = () => {
@@ -525,9 +525,9 @@ requireAuth('student', { onSuccess: (user, data) => initPage(user, data) });
     }
   };
 
-  // ══ Auth ══
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
+  // ══ Auth — يستخدم requireAuth المركزي ══
+  requireAuth('student', {
+    onSuccess: (user) => {
       currentUID = user.uid;
       const initials = user.displayName
         ? user.displayName.split(' ').map(n => n[0]).join('').slice(0, 2)
@@ -536,8 +536,6 @@ requireAuth('student', { onSuccess: (user, data) => initPage(user, data) });
       document.getElementById('welcomeMsg').textContent = 'أهلاً بك يا ' + (user.displayName || '');
       loadStudentData(user);
       loadNotifications(user.uid);
-    } else {
-      window.location.href = 'index.html';
     }
   });
 
