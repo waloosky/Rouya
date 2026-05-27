@@ -14,7 +14,21 @@
       color: #f1f5f9;
       padding: 2rem 1rem;
       direction: rtl;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
     }
+
+    /* شاشة الحجب */
+    .blur-overlay {
+      display: none; position: fixed; inset: 0;
+      background: #0f172a; z-index: 9999;
+      align-items: center; justify-content: center;
+      flex-direction: column; gap: 12px;
+      font-size: 18px; color: #f87171; font-weight: 700;
+    }
+    .blur-overlay.show { display: flex; }
 
     .container { max-width: 640px; margin: auto; }
 
@@ -233,6 +247,14 @@
   </style>
 </head>
 <body>
+
+<!-- شاشة الحجب عند تبديل النافذة أثناء الاختبار -->
+<div class="blur-overlay" id="blurOverlay">
+  <div style="font-size:48px">🚫</div>
+  <div>تم اكتشاف مغادرة صفحة الاختبار!</div>
+  <div style="font-size:13px;color:#94a3b8;font-weight:400">هذه المحاولة محفوظة</div>
+</div>
+
 <div class="container">
 
   <!-- رأس الصفحة -->
@@ -281,9 +303,7 @@
     <button class="btn-review show" id="reviewBtn" onclick="toggleReview()" style="display:none">
       🔍 مراجعة الإجابة
     </button>
-    <button class="btn-retry show" id="retryBtn" onclick="retryExam()" style="display:none">
-      ↺ حاول مرة أخرى
-    </button>
+    <!-- زر إعادة الاختبار محذوف — لا يُسمح بإعادة الاختبار -->
   </div>
 
 </div>
@@ -317,6 +337,32 @@
   let answered       = false;
   let reviewVisible  = false;
 
+  // ══ منع لقطة الشاشة ══
+  document.addEventListener('keydown', (e) => {
+    if (
+      e.key === 'PrintScreen' || e.keyCode === 44 ||
+      (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key)) ||
+      (e.ctrlKey && e.key === 'u') ||
+      e.key === 'F12'
+    ) {
+      e.preventDefault();
+      e.stopPropagation();
+      alert('🚫 غير مسموح بلقطة الشاشة أو أدوات المطور');
+      return false;
+    }
+  });
+  document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+  // حجب الشاشة عند التبديل
+  document.addEventListener('visibilitychange', () => {
+    const overlay = document.getElementById('blurOverlay');
+    if (document.hidden) {
+      overlay.classList.add('show');
+    } else {
+      setTimeout(() => overlay.classList.remove('show'), 2000);
+    }
+  });
+
   if (!lessonId) showError('معرف الدرس مفقود من الرابط');
 
   onAuthStateChanged(auth, async (user) => {
@@ -331,6 +377,21 @@
       if (!userSnap.exists()) return showError('لم يتم العثور على بيانات الطالب');
 
       currentGrade = userSnap.val().grade;
+
+      // ✅ التحقق: هل أجرى الطالب الاختبار مسبقاً؟
+      const progressSnap = await get(ref(db, `progress/${user.uid}/${lessonId}`));
+      if (progressSnap.exists() && progressSnap.val().score !== undefined) {
+        const prevScore = progressSnap.val().score;
+        document.getElementById('quizCard').style.display = 'none';
+        const err = document.getElementById('errorMsg');
+        err.style.display = 'block';
+        err.style.background = '#052e16';
+        err.style.borderColor = '#166534';
+        err.style.color = '#4ade80';
+        err.innerHTML = `✅ لقد أجريت هذا الاختبار مسبقاً.<br>نتيجتك: <strong>${prevScore}%</strong><br><br>
+          <a href="student_panel.html" style="color:#38bdf8;text-decoration:none;">← العودة للدروس</a>`;
+        return;
+      }
 
       // ✅ الإصلاح: قراءة الدرس من المسار العام (بدون grade في المسار)
       const lessonSnap = await get(ref(db, `lessons/${lessonId}`));
@@ -407,7 +468,7 @@
       // إظهار زر المراجعة + بناء محتوى المراجعة
       buildReviewCard(quiz, selected, correct, options);
       document.getElementById('reviewBtn').style.display = 'block';
-      document.getElementById('retryBtn').style.display  = 'block';
+      // لا يُسمح بإعادة الاختبار
 
       // حفظ الدرجة 0
       await saveScore(0);
@@ -495,21 +556,6 @@
     card.classList.toggle('show', reviewVisible);
     document.getElementById('reviewBtn').textContent =
       reviewVisible ? '🙈 إخفاء المراجعة' : '🔍 مراجعة الإجابة';
-  };
-
-  // ---- إعادة المحاولة ----
-  window.retryExam = function() {
-    answered_flag = false;
-    reviewVisible = false;
-    document.getElementById('resultCard').className = 'result-card';
-    document.getElementById('reviewCard').classList.remove('show');
-    document.getElementById('reviewBtn').style.display = 'none';
-    document.getElementById('retryBtn').style.display  = 'none';
-    document.getElementById('reviewBtn').textContent   = '🔍 مراجعة الإجابة';
-    document.querySelectorAll('.option-btn').forEach(b => {
-      b.disabled = false;
-      b.classList.remove('correct', 'wrong');
-    });
   };
 
   function showError(msg) {
