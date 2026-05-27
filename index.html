@@ -116,7 +116,7 @@
       <div class="fields">
         <div>
           <label class="field-label">نوع الحساب</label>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
             <div class="role-card" id="roleStudent" onclick="selectRole('student')" style="padding:14px;border:1.5px solid rgba(255,255,255,0.1);border-radius:12px;text-align:center;cursor:pointer;">
               <div>🎓</div>
               <span>طالب</span>
@@ -124,6 +124,10 @@
             <div class="role-card" id="roleTeacher" onclick="selectRole('teacher')" style="padding:14px;border:1.5px solid rgba(255,255,255,0.1);border-radius:12px;text-align:center;cursor:pointer;">
               <div>📚</div>
               <span>مدرس</span>
+            </div>
+            <div class="role-card" id="roleAdmin" onclick="selectRole('admin')" style="padding:14px;border:1.5px solid rgba(255,255,255,0.1);border-radius:12px;text-align:center;cursor:pointer;">
+              <div>🛡️</div>
+              <span>أدمن</span>
             </div>
           </div>
         </div>
@@ -171,6 +175,7 @@
 
   const STUDENT_CODE = "STUDENT2026";
   const TEACHER_CODE = "TEACHER2026";
+  const ADMIN_CODE   = "ADMIN2026";
 
   window.switchTab = function(tab) {
     const isLogin = tab === 'login';
@@ -186,8 +191,9 @@
     currentRole = role;
     document.getElementById('roleStudent').style.borderColor = role === 'student' ? '#00e5ff' : 'rgba(255,255,255,0.1)';
     document.getElementById('roleTeacher').style.borderColor = role === 'teacher' ? '#ffb300' : 'rgba(255,255,255,0.1)';
+    document.getElementById('roleAdmin').style.borderColor   = role === 'admin'   ? '#ff4444' : 'rgba(255,255,255,0.1)';
     document.getElementById('registerBtn').className = role === 'teacher' ? 'submit-btn teacher-btn' : 'submit-btn';
-    document.getElementById('gradeField').style.display = role === 'teacher' ? 'none' : 'block';
+    document.getElementById('gradeField').style.display = (role === 'teacher' || role === 'admin') ? 'none' : 'block';
   };
 
   function showMsg(text, type) {
@@ -262,6 +268,7 @@
 
     if (currentRole === 'student' && code !== STUDENT_CODE) return showMsg('❌ كود الطالب غير صحيح', 'error');
     if (currentRole === 'teacher' && code !== TEACHER_CODE) return showMsg('❌ كود المدرس غير صحيح', 'error');
+    if (currentRole === 'admin'   && code !== ADMIN_CODE)   return showMsg('❌ كود الأدمن غير صحيح', 'error');
 
     try {
       setLoading('registerBtn', true);
@@ -280,7 +287,7 @@
       await set(ref(db, 'users/' + cred.user.uid), userData);
       await signOut(auth);
 
-      showMsg('✅ تم إنشاء الحساب. إذا كان الأدمن فسيتم تفعيله مباشرة بعد ضبط السجل.', 'success');
+      showMsg(currentRole === 'admin' ? '✅ تم إنشاء حساب الأدمن. يمكنك تسجيل الدخول الآن.' : '✅ تم إنشاء الحساب. انتظر موافقة الأدمن للتفعيل.', 'success');
       ['regName', 'regEmail', 'regPassword', 'regCode'].forEach(id => document.getElementById(id).value = '');
     } catch (e) {
       showMsg(friendlyError(e.code), 'error');
