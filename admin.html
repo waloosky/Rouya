@@ -14,6 +14,7 @@
       --amber: #ffb300;
       --green: #00e676;
       --red: #ff5252;
+      --purple: #b388ff;
       --surface: #0d1117;
       --surface2: #161b22;
       --surface3: #1c2128;
@@ -31,100 +32,46 @@
       direction: rtl;
     }
 
-    /* ── SIDEBAR ─────────────────────────────────────────── */
-    .layout {
-      display: grid;
-      grid-template-columns: 240px 1fr;
-      min-height: 100vh;
-    }
+    /* ── SIDEBAR ── */
+    .layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
 
     .sidebar {
       background: var(--surface2);
       border-left: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      padding: 0;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      overflow-y: auto;
+      display: flex; flex-direction: column;
+      position: sticky; top: 0; height: 100vh; overflow-y: auto;
     }
 
-    .sidebar-logo {
-      padding: 20px 20px 16px;
-      border-bottom: 1px solid var(--border);
-    }
+    .sidebar-logo { padding: 20px 20px 16px; border-bottom: 1px solid var(--border); }
     .sidebar-logo .logo-title {
-      font-size: 16px;
-      font-weight: 800;
+      font-size: 16px; font-weight: 800;
       background: linear-gradient(135deg, #fff 30%, var(--cyan));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
-    .sidebar-logo .logo-sub {
-      font-size: 10px;
-      color: var(--muted);
-      letter-spacing: 1px;
-      margin-top: 2px;
-    }
+    .sidebar-logo .logo-sub { font-size: 10px; color: var(--muted); letter-spacing: 1px; margin-top: 2px; }
 
     .sidebar-nav { padding: 12px 0; flex: 1; }
-
-    .nav-section {
-      padding: 6px 16px 2px;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      color: rgba(180,210,240,0.3);
-      text-transform: uppercase;
-    }
-
+    .nav-section { padding: 6px 16px 2px; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: rgba(180,210,240,0.3); text-transform: uppercase; }
     .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 20px;
-      cursor: pointer;
-      transition: all .15s;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--muted);
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 20px; cursor: pointer; transition: all .15s;
+      font-size: 14px; font-weight: 500; color: var(--muted);
       border-right: 3px solid transparent;
-      position: relative;
     }
     .nav-item:hover { background: rgba(0,229,255,0.04); color: var(--text); }
-    .nav-item.active {
-      background: rgba(0,229,255,0.08);
-      color: var(--cyan);
-      border-right-color: var(--cyan);
-    }
+    .nav-item.active { background: rgba(0,229,255,0.08); color: var(--cyan); border-right-color: var(--cyan); }
     .nav-item .nav-icon { font-size: 18px; width: 22px; text-align: center; }
     .nav-badge {
-      margin-right: auto;
-      background: var(--red);
-      color: #fff;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 1px 7px;
-      border-radius: 10px;
-      min-width: 20px;
-      text-align: center;
+      margin-right: auto; background: var(--red); color: #fff;
+      font-size: 10px; font-weight: 700; padding: 1px 7px;
+      border-radius: 10px; min-width: 20px; text-align: center;
     }
     .nav-badge.amber { background: var(--amber); color: #000; }
-    .nav-badge.green { background: var(--green); color: #000; }
 
-    .sidebar-footer {
-      padding: 16px 20px;
-      border-top: 1px solid var(--border);
-    }
-    .admin-info {
-      display: flex; align-items: center; gap: 10px;
-      margin-bottom: 12px;
-    }
+    .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); }
+    .admin-info { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
     .admin-avatar {
-      width: 34px; height: 34px;
-      border-radius: 50%;
+      width: 34px; height: 34px; border-radius: 50%;
       background: linear-gradient(135deg, var(--cyan), var(--amber));
       display: flex; align-items: center; justify-content: center;
       font-size: 14px; font-weight: 700; color: #000;
@@ -132,431 +79,258 @@
     .admin-name { font-size: 13px; font-weight: 600; }
     .admin-role { font-size: 10px; color: var(--cyan); }
     .logout-btn {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid rgba(255,82,82,0.3);
-      border-radius: 8px;
-      background: rgba(255,82,82,0.05);
-      color: var(--red);
-      font-size: 13px;
-      font-family: 'Tajawal', sans-serif;
-      cursor: pointer;
-      transition: all .2s;
-      font-weight: 600;
+      width: 100%; padding: 8px; border: 1px solid rgba(255,82,82,0.3);
+      border-radius: 8px; background: rgba(255,82,82,0.05); color: var(--red);
+      font-size: 13px; font-family: 'Tajawal', sans-serif;
+      cursor: pointer; transition: all .2s; font-weight: 600;
     }
     .logout-btn:hover { background: rgba(255,82,82,0.12); }
 
-    /* ── MAIN ────────────────────────────────────────────── */
-    .main {
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-    }
-
+    /* ── MAIN ── */
+    .main { display: flex; flex-direction: column; overflow-y: auto; }
     .topbar {
-      padding: 16px 28px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(13,17,23,0.8);
-      backdrop-filter: blur(12px);
-      position: sticky;
-      top: 0;
-      z-index: 10;
+      padding: 16px 28px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(13,17,23,0.8); backdrop-filter: blur(12px);
+      position: sticky; top: 0; z-index: 10;
     }
     .topbar-title { font-size: 18px; font-weight: 700; }
     .topbar-search {
       display: flex; align-items: center; gap: 8px;
-      background: var(--surface3);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 7px 14px;
+      background: var(--surface3); border: 1px solid var(--border);
+      border-radius: 8px; padding: 7px 14px;
     }
     .topbar-search input {
-      background: transparent;
-      border: none;
-      color: var(--text);
-      font-size: 13px;
-      font-family: 'Tajawal', sans-serif;
-      outline: none;
-      width: 200px;
+      background: transparent; border: none; color: var(--text);
+      font-size: 13px; font-family: 'Tajawal', sans-serif;
+      outline: none; width: 200px;
     }
     .topbar-search input::placeholder { color: var(--muted); }
 
     .content { padding: 24px 28px; flex: 1; }
 
-    /* ── STAT CARDS ──────────────────────────────────────── */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 28px;
-    }
-
+    /* ── STAT CARDS ── */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
     .stat-card {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 20px;
-      position: relative;
-      overflow: hidden;
-      transition: transform .2s;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px;
+      position: relative; overflow: hidden; transition: transform .2s;
     }
     .stat-card:hover { transform: translateY(-2px); }
-    .stat-card::before {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0;
-      height: 2px;
-    }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
     .stat-card.cyan::before  { background: var(--cyan); }
     .stat-card.amber::before { background: var(--amber); }
     .stat-card.green::before { background: var(--green); }
     .stat-card.red::before   { background: var(--red); }
+    .stat-card.purple::before { background: var(--purple); }
+    .stat-icon { font-size: 28px; margin-bottom: 10px; display: block; }
+    .stat-value { font-size: 32px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+    .stat-card.cyan   .stat-value { color: var(--cyan); }
+    .stat-card.amber  .stat-value { color: var(--amber); }
+    .stat-card.green  .stat-value { color: var(--green); }
+    .stat-card.red    .stat-value { color: var(--red); }
+    .stat-card.purple .stat-value { color: var(--purple); }
+    .stat-label { font-size: 12px; color: var(--muted); font-weight: 500; }
 
-    .stat-icon {
-      font-size: 28px;
-      margin-bottom: 10px;
-      display: block;
-    }
-    .stat-value {
-      font-size: 32px;
-      font-weight: 800;
-      line-height: 1;
-      margin-bottom: 4px;
-    }
-    .stat-card.cyan  .stat-value { color: var(--cyan); }
-    .stat-card.amber .stat-value { color: var(--amber); }
-    .stat-card.green .stat-value { color: var(--green); }
-    .stat-card.red   .stat-value { color: var(--red); }
-
-    .stat-label {
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 500;
-    }
-
-    /* ── SECTION TITLE ───────────────────────────────────── */
-    .section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-    }
-    .section-title {
-      font-size: 16px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .section-title .badge {
-      font-size: 11px;
-      padding: 2px 10px;
-      border-radius: 20px;
-      font-weight: 600;
-    }
+    /* ── SECTION HEADER ── */
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .section-title { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .section-title .badge { font-size: 11px; padding: 2px 10px; border-radius: 20px; font-weight: 600; }
     .badge-amber { background: rgba(255,179,0,0.15); color: var(--amber); border: 1px solid rgba(255,179,0,0.3); }
     .badge-cyan  { background: rgba(0,229,255,0.15);  color: var(--cyan);  border: 1px solid rgba(0,229,255,0.3); }
     .badge-green { background: rgba(0,230,118,0.15);  color: var(--green); border: 1px solid rgba(0,230,118,0.3); }
     .badge-red   { background: rgba(255,82,82,0.15);  color: var(--red);   border: 1px solid rgba(255,82,82,0.3); }
+    .badge-purple{ background: rgba(179,136,255,0.15);color: var(--purple);border: 1px solid rgba(179,136,255,0.3); }
 
-    /* ── PANEL ───────────────────────────────────────────── */
-    .panel {
-      display: none;
-    }
+    /* ── PANEL ── */
+    .panel { display: none; }
     .panel.active { display: block; }
 
-    /* ── REQUESTS TABLE ──────────────────────────────────── */
-    .requests-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
+    /* ── REQUESTS ── */
+    .requests-list { display: flex; flex-direction: column; gap: 10px; }
     .request-card {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px 20px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      transition: border-color .2s;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px 20px;
+      display: flex; align-items: center; gap: 16px; transition: border-color .2s;
     }
     .request-card:hover { border-color: var(--border-cyan); }
-
-    .request-avatar {
-      width: 42px; height: 42px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
+    .request-avatar { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; flex-shrink: 0; }
     .av-student { background: rgba(0,229,255,0.15); color: var(--cyan); border: 1px solid rgba(0,229,255,0.3); }
     .av-teacher { background: rgba(255,179,0,0.15); color: var(--amber); border: 1px solid rgba(255,179,0,0.3); }
-
     .request-info { flex: 1; min-width: 0; }
-    .request-name {
-      font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 3px;
-    }
-    .request-meta {
-      font-size: 12px;
-      color: var(--muted);
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .request-meta span { display: flex; align-items: center; gap: 4px; }
-
-    .role-pill {
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
+    .request-name { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+    .request-meta { font-size: 12px; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; }
+    .role-pill { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; flex-shrink: 0; }
     .role-pill.student { background: rgba(0,229,255,0.12); color: var(--cyan); }
     .role-pill.teacher { background: rgba(255,179,0,0.12); color: var(--amber); }
+    .request-actions { display: flex; gap: 8px; flex-shrink: 0; }
 
-    .request-actions {
-      display: flex;
-      gap: 8px;
-      flex-shrink: 0;
-    }
-
-    .btn {
-      padding: 7px 16px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-family: 'Tajawal', sans-serif;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all .2s;
-      border: 1px solid transparent;
-    }
-    .btn-approve {
-      background: rgba(0,230,118,0.12);
-      color: var(--green);
-      border-color: rgba(0,230,118,0.3);
-    }
+    .btn { padding: 7px 16px; border-radius: 8px; font-size: 13px; font-family: 'Tajawal', sans-serif; font-weight: 600; cursor: pointer; transition: all .2s; border: 1px solid transparent; }
+    .btn-approve { background: rgba(0,230,118,0.12); color: var(--green); border-color: rgba(0,230,118,0.3); }
     .btn-approve:hover { background: rgba(0,230,118,0.22); }
-    .btn-reject {
-      background: rgba(255,82,82,0.08);
-      color: var(--red);
-      border-color: rgba(255,82,82,0.25);
-    }
-    .btn-reject:hover { background: rgba(255,82,82,0.18); }
-    .btn-delete {
-      background: rgba(255,82,82,0.08);
-      color: var(--red);
-      border-color: rgba(255,82,82,0.25);
-      padding: 5px 12px;
-      font-size: 12px;
-    }
-    .btn-delete:hover { background: rgba(255,82,82,0.18); }
-    .btn-sm {
-      padding: 5px 12px;
-      font-size: 12px;
-    }
+    .btn-reject  { background: rgba(255,82,82,0.08); color: var(--red); border-color: rgba(255,82,82,0.25); }
+    .btn-reject:hover  { background: rgba(255,82,82,0.18); }
+    .btn-delete  { background: rgba(255,82,82,0.08); color: var(--red); border-color: rgba(255,82,82,0.25); padding: 5px 12px; font-size: 12px; }
+    .btn-delete:hover  { background: rgba(255,82,82,0.18); }
+    .btn-sm { padding: 5px 12px; font-size: 12px; }
 
-    /* ── USERS TABLE ─────────────────────────────────────── */
-    .users-table {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow: hidden;
-    }
-
+    /* ── USERS TABLE ── */
+    .users-table { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
     .table-head {
-      display: grid;
-      grid-template-columns: 2fr 2fr 1fr 1fr 1fr;
-      padding: 12px 20px;
-      background: rgba(0,229,255,0.04);
+      display: grid; grid-template-columns: 2fr 2fr 1fr 1fr 1fr;
+      padding: 12px 20px; background: rgba(0,229,255,0.04);
       border-bottom: 1px solid var(--border);
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--muted);
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
+      font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase;
     }
-
     .table-row {
-      display: grid;
-      grid-template-columns: 2fr 2fr 1fr 1fr 1fr;
-      padding: 14px 20px;
-      border-bottom: 1px solid var(--border);
-      align-items: center;
-      font-size: 13px;
-      transition: background .15s;
+      display: grid; grid-template-columns: 2fr 2fr 1fr 1fr 1fr;
+      padding: 14px 20px; border-bottom: 1px solid var(--border);
+      align-items: center; font-size: 13px; transition: background .15s;
     }
     .table-row:last-child { border-bottom: none; }
     .table-row:hover { background: rgba(0,229,255,0.02); }
-
-    .user-name-cell {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .user-mini-avatar {
-      width: 30px; height: 30px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 600;
-    }
+    .table-row.danger { background: rgba(255,82,82,0.04); border-right: 2px solid var(--red); }
+    .user-name-cell { display: flex; align-items: center; gap: 10px; }
+    .user-mini-avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+    .status-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
     .status-active  { background: rgba(0,230,118,0.12); color: var(--green); }
     .status-pending { background: rgba(255,179,0,0.12);  color: var(--amber); }
     .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-    /* ── EMPTY STATE ─────────────────────────────────────── */
-    .empty-state {
-      text-align: center;
-      padding: 48px 20px;
-      color: var(--muted);
+    /* ── PROGRESS BAR ── */
+    .progress-bar-wrap { width: 100%; background: rgba(255,255,255,0.06); border-radius: 6px; height: 6px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; border-radius: 6px; transition: width .4s ease; }
+    .pb-green  { background: var(--green); }
+    .pb-amber  { background: var(--amber); }
+    .pb-red    { background: var(--red); }
+    .progress-label { font-size: 11px; margin-bottom: 4px; }
+
+    /* ── ANALYTICS GRID ── */
+    .analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+    .analytics-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+    .analytics-card h3 { font-size: 13px; color: var(--muted); font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 16px; }
+
+    /* ── BAR CHART ── */
+    .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 80px; }
+    .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .bar-fill { width: 100%; border-radius: 4px 4px 0 0; transition: height .5s ease; min-height: 4px; }
+    .bar-label { font-size: 10px; color: var(--muted); }
+    .bar-val { font-size: 10px; font-weight: 700; color: var(--text); }
+
+    /* ── TOP LIST ── */
+    .top-list { display: flex; flex-direction: column; gap: 10px; }
+    .top-item { display: flex; align-items: center; gap: 12px; }
+    .top-rank { font-size: 18px; width: 28px; text-align: center; }
+    .top-info { flex: 1; }
+    .top-name { font-size: 13px; font-weight: 600; }
+    .top-sub  { font-size: 11px; color: var(--muted); }
+    .top-score { font-size: 15px; font-weight: 800; }
+
+    /* ── DETAIL DRAWER ── */
+    .drawer-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px); z-index: 500; display: none;
+      align-items: center; justify-content: center;
     }
+    .drawer-overlay.show { display: flex; }
+    .drawer {
+      background: var(--surface2); border: 1px solid var(--border-cyan);
+      border-radius: 16px; padding: 28px; width: 520px; max-width: 92vw;
+      max-height: 80vh; overflow-y: auto;
+    }
+    .drawer-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .drawer-title { font-size: 16px; font-weight: 700; }
+    .drawer-close { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; }
+    .exam-result-item {
+      background: var(--surface3); border-radius: 10px; padding: 14px 16px;
+      margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .exam-lesson-name { font-size: 13px; font-weight: 600; }
+    .exam-meta { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .score-chip { padding: 5px 14px; border-radius: 20px; font-size: 14px; font-weight: 800; }
+    .score-good   { background: rgba(0,230,118,0.15); color: var(--green); }
+    .score-mid    { background: rgba(255,179,0,0.15);  color: var(--amber); }
+    .score-low    { background: rgba(255,82,82,0.15);  color: var(--red); }
+
+    /* ── NOTIFY ── */
+    .notify-form { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; padding: 24px; max-width: 560px; }
+    .notify-form label { display: block; font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 6px; }
+    .notify-form input, .notify-form textarea, .notify-form select {
+      width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px;
+      background: var(--surface3); color: var(--text); font-size: 14px;
+      font-family: 'Tajawal', sans-serif; outline: none; transition: border-color .2s; margin-bottom: 16px;
+    }
+    .notify-form input:focus, .notify-form textarea:focus, .notify-form select:focus { border-color: var(--border-cyan); }
+    .notify-form textarea { resize: vertical; min-height: 100px; }
+    .notify-form select option { background: #0d1117; }
+    .btn-send { background: rgba(0,229,255,0.12); color: var(--cyan); border: 1px solid rgba(0,229,255,0.3); padding: 10px 28px; border-radius: 8px; font-family: 'Tajawal', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all .2s; }
+    .btn-send:hover { background: rgba(0,229,255,0.22); }
+
+    /* ── EMPTY ── */
+    .empty-state { text-align: center; padding: 48px 20px; color: var(--muted); }
     .empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
     .empty-state .empty-text { font-size: 14px; }
 
-    /* ── NOTIFY PANEL ────────────────────────────────────── */
-    .notify-form {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 24px;
-      max-width: 560px;
-    }
-    .notify-form label {
-      display: block;
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 600;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-    .notify-form input,
-    .notify-form textarea,
-    .notify-form select {
-      width: 100%;
-      padding: 10px 14px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--surface3);
-      color: var(--text);
-      font-size: 14px;
-      font-family: 'Tajawal', sans-serif;
-      outline: none;
-      transition: border-color .2s;
-      margin-bottom: 16px;
-    }
-    .notify-form input:focus,
-    .notify-form textarea:focus,
-    .notify-form select:focus { border-color: var(--border-cyan); }
-    .notify-form textarea { resize: vertical; min-height: 100px; }
-    .notify-form select option { background: #0d1117; }
-    .btn-send {
-      background: rgba(0,229,255,0.12);
-      color: var(--cyan);
-      border: 1px solid rgba(0,229,255,0.3);
-      padding: 10px 28px;
-      border-radius: 8px;
-      font-family: 'Tajawal', sans-serif;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all .2s;
-    }
-    .btn-send:hover { background: rgba(0,229,255,0.22); }
-
-    /* ── TOAST ───────────────────────────────────────────── */
-    .toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: var(--surface3);
-      border: 1px solid var(--border-cyan);
-      color: var(--cyan);
-      padding: 12px 24px;
-      border-radius: 40px;
-      font-size: 14px;
-      font-weight: 600;
-      z-index: 9999;
-      transition: transform .35s cubic-bezier(0.34,1.56,0.64,1);
-      white-space: nowrap;
-    }
+    /* ── TOAST ── */
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface3); border: 1px solid var(--border-cyan); color: var(--cyan); padding: 12px 24px; border-radius: 40px; font-size: 14px; font-weight: 600; z-index: 9999; transition: transform .35s cubic-bezier(0.34,1.56,0.64,1); white-space: nowrap; }
     .toast.show { transform: translateX(-50%) translateY(0); }
     .toast.error { color: var(--red); border-color: rgba(255,82,82,0.3); }
 
-    /* ── LOADING ─────────────────────────────────────────── */
-    .loading-overlay {
-      display: none;
-      position: fixed; inset: 0;
-      background: rgba(13,17,23,0.7);
-      backdrop-filter: blur(4px);
-      z-index: 999;
-      align-items: center;
-      justify-content: center;
-    }
+    /* ── LOADING ── */
+    .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(13,17,23,0.7); backdrop-filter: blur(4px); z-index: 999; align-items: center; justify-content: center; }
     .loading-overlay.show { display: flex; }
-    .spinner {
-      width: 44px; height: 44px;
-      border: 3px solid rgba(0,229,255,0.2);
-      border-top-color: var(--cyan);
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-    }
+    .spinner { width: 44px; height: 44px; border: 3px solid rgba(0,229,255,0.2); border-top-color: var(--cyan); border-radius: 50%; animation: spin .7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── RESPONSIVE ──────────────────────────────────────── */
+    /* ── STUDENTS ANALYTICS TABLE ── */
+    .students-analytics-table { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .sa-head { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; padding: 12px 20px; background: rgba(0,229,255,0.04); border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; }
+    .sa-row  { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; padding: 14px 20px; border-bottom: 1px solid var(--border); align-items: center; font-size: 13px; transition: background .15s; }
+    .sa-row:last-child { border-bottom: none; }
+    .sa-row:hover { background: rgba(0,229,255,0.02); }
+    .sa-row.danger { border-right: 3px solid var(--red); background: rgba(255,82,82,0.03); }
+
     @media (max-width: 900px) {
       .layout { grid-template-columns: 1fr; }
       .sidebar { display: none; }
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .table-head,
-      .table-row { grid-template-columns: 2fr 2fr 1fr; }
-      .table-head > *:nth-child(n+4),
-      .table-row > *:nth-child(n+4) { display: none; }
+      .analytics-grid { grid-template-columns: 1fr; }
+      .table-head, .table-row { grid-template-columns: 2fr 2fr 1fr; }
+      .table-head > *:nth-child(n+4), .table-row > *:nth-child(n+4) { display: none; }
+      .sa-head, .sa-row { grid-template-columns: 2fr 1fr 1fr; }
+      .sa-head > *:nth-child(n+4), .sa-row > *:nth-child(n+4) { display: none; }
     }
   </style>
 </head>
 <body>
 
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="spinner"></div>
-</div>
-
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
 <div class="toast" id="toast"></div>
+
+<!-- Detail Drawer -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer(event)">
+  <div class="drawer" id="drawer">
+    <div class="drawer-header">
+      <div class="drawer-title" id="drawerTitle">نتائج الطالب</div>
+      <button class="drawer-close" onclick="document.getElementById('drawerOverlay').classList.remove('show')">✕</button>
+    </div>
+    <div id="drawerContent"></div>
+  </div>
+</div>
 
 <div class="layout">
 
-  <!-- ════════ SIDEBAR ════════ -->
+  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-logo">
       <div class="logo-title">👁 منصة رؤيا</div>
       <div class="logo-sub">ADMIN PANEL · لوحة الإدارة</div>
     </div>
-
     <nav class="sidebar-nav">
       <div class="nav-section">الرئيسية</div>
       <div class="nav-item active" onclick="showPanel('dashboard')">
         <span class="nav-icon">📊</span> الإحصائيات
       </div>
-
       <div class="nav-section">المستخدمون</div>
       <div class="nav-item" onclick="showPanel('pending')" id="navPending">
         <span class="nav-icon">⏳</span> طلبات التسجيل
@@ -568,13 +342,15 @@
       <div class="nav-item" onclick="showPanel('teachers')">
         <span class="nav-icon">📚</span> المدرسون
       </div>
-
+      <div class="nav-section">التحليلات</div>
+      <div class="nav-item" onclick="showPanel('analytics')">
+        <span class="nav-icon">📈</span> أداء الطلاب
+      </div>
       <div class="nav-section">الأدوات</div>
       <div class="nav-item" onclick="showPanel('notify')">
         <span class="nav-icon">🔔</span> إرسال إشعار
       </div>
     </nav>
-
     <div class="sidebar-footer">
       <div class="admin-info">
         <div class="admin-avatar" id="adminAvatar">A</div>
@@ -587,9 +363,8 @@
     </div>
   </aside>
 
-  <!-- ════════ MAIN ════════ -->
+  <!-- MAIN -->
   <main class="main">
-
     <div class="topbar">
       <div class="topbar-title" id="topbarTitle">الإحصائيات</div>
       <div class="topbar-search">
@@ -618,10 +393,34 @@
             <div class="stat-value" id="stat-teachers">0</div>
             <div class="stat-label">مدرسون نشطون</div>
           </div>
-          <div class="stat-card red">
-            <span class="stat-icon">👥</span>
-            <div class="stat-value" id="stat-total">0</div>
-            <div class="stat-label">إجمالي المستخدمين</div>
+          <div class="stat-card purple">
+            <span class="stat-icon">📝</span>
+            <div class="stat-value" id="stat-exams">0</div>
+            <div class="stat-label">اختبارات أُجريت</div>
+          </div>
+        </div>
+
+        <!-- Analytics quick row -->
+        <div class="analytics-grid" style="margin-bottom:28px">
+          <div class="analytics-card">
+            <h3>📊 متوسط الدرجات</h3>
+            <div style="display:flex;align-items:flex-end;gap:16px">
+              <div style="font-size:48px;font-weight:800;color:var(--cyan);line-height:1" id="dash-avg-score">—</div>
+              <div style="font-size:13px;color:var(--muted);padding-bottom:8px">% متوسط الطلاب</div>
+            </div>
+            <div style="margin-top:12px">
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-fill pb-green" id="dash-avg-bar" style="width:0%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="analytics-card">
+            <h3>⚠️ طلاب بحاجة متابعة (أقل من 50%)</h3>
+            <div style="display:flex;align-items:flex-end;gap:16px">
+              <div style="font-size:48px;font-weight:800;color:var(--red);line-height:1" id="dash-low-count">—</div>
+              <div style="font-size:13px;color:var(--muted);padding-bottom:8px">طالب</div>
+            </div>
+            <div style="margin-top:8px;font-size:12px;color:var(--muted)" id="dash-low-names"></div>
           </div>
         </div>
 
@@ -631,14 +430,10 @@
             ⏳ أحدث طلبات التسجيل
             <span class="badge badge-amber" id="dash-pending-badge">0</span>
           </div>
-          <button class="btn btn-sm" style="background:rgba(0,229,255,0.08);color:var(--cyan);border:1px solid rgba(0,229,255,0.2)"
-            onclick="showPanel('pending')">عرض الكل</button>
+          <button class="btn btn-sm" style="background:rgba(0,229,255,0.08);color:var(--cyan);border:1px solid rgba(0,229,255,0.2)" onclick="showPanel('pending')">عرض الكل</button>
         </div>
         <div class="requests-list" id="dash-pending-list">
-          <div class="empty-state">
-            <div class="empty-icon">✅</div>
-            <div class="empty-text">لا توجد طلبات انتظار حالياً</div>
-          </div>
+          <div class="empty-state"><div class="empty-icon">✅</div><div class="empty-text">لا توجد طلبات انتظار حالياً</div></div>
         </div>
       </div>
 
@@ -652,10 +447,7 @@
           <button class="btn btn-sm btn-approve" onclick="approveAll()">✅ قبول الكل</button>
         </div>
         <div class="requests-list" id="pending-list">
-          <div class="empty-state">
-            <div class="empty-icon">✅</div>
-            <div class="empty-text">لا توجد طلبات انتظار</div>
-          </div>
+          <div class="empty-state"><div class="empty-icon">✅</div><div class="empty-text">لا توجد طلبات انتظار</div></div>
         </div>
       </div>
 
@@ -669,17 +461,10 @@
         </div>
         <div class="users-table">
           <div class="table-head">
-            <span>الاسم</span>
-            <span>البريد</span>
-            <span>الصف</span>
-            <span>الحالة</span>
-            <span>إجراء</span>
+            <span>الاسم</span><span>البريد</span><span>الصف</span><span>الحالة</span><span>إجراء</span>
           </div>
           <div id="students-list">
-            <div class="empty-state">
-              <div class="empty-icon">🎓</div>
-              <div class="empty-text">لا يوجد طلاب بعد</div>
-            </div>
+            <div class="empty-state"><div class="empty-icon">🎓</div><div class="empty-text">لا يوجد طلاب بعد</div></div>
           </div>
         </div>
       </div>
@@ -694,17 +479,56 @@
         </div>
         <div class="users-table">
           <div class="table-head">
-            <span>الاسم</span>
-            <span>البريد</span>
-            <span>الدور</span>
-            <span>الحالة</span>
-            <span>إجراء</span>
+            <span>الاسم</span><span>البريد</span><span>الدور</span><span>الحالة</span><span>إجراء</span>
           </div>
           <div id="teachers-list">
-            <div class="empty-state">
-              <div class="empty-icon">📚</div>
-              <div class="empty-text">لا يوجد مدرسون بعد</div>
-            </div>
+            <div class="empty-state"><div class="empty-icon">📚</div><div class="empty-text">لا يوجد مدرسون بعد</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ANALYTICS ── -->
+      <div class="panel" id="panel-analytics">
+        <div class="section-header">
+          <div class="section-title">📈 أداء الطلاب في الاختبارات</div>
+        </div>
+
+        <!-- Summary cards -->
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px">
+          <div class="stat-card cyan">
+            <span class="stat-icon">📝</span>
+            <div class="stat-value" id="an-total-exams">0</div>
+            <div class="stat-label">إجمالي الاختبارات المجراة</div>
+          </div>
+          <div class="stat-card green">
+            <span class="stat-icon">⭐</span>
+            <div class="stat-value" id="an-avg">—</div>
+            <div class="stat-label">متوسط الدرجات %</div>
+          </div>
+          <div class="stat-card red">
+            <span class="stat-icon">⚠️</span>
+            <div class="stat-value" id="an-low">0</div>
+            <div class="stat-label">طلاب أقل من 50%</div>
+          </div>
+        </div>
+
+        <!-- Students detailed table -->
+        <div class="section-header" style="margin-top:8px">
+          <div class="section-title">جدول أداء الطلاب
+            <span class="badge badge-cyan" id="an-table-count">0</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted)">🔴 أقل من 50% · 🟡 50-74% · 🟢 75%+</div>
+        </div>
+        <div class="students-analytics-table">
+          <div class="sa-head">
+            <span>الطالب</span>
+            <span>الاختبارات</span>
+            <span>متوسط الدرجات</span>
+            <span>أعلى درجة</span>
+            <span>التفاصيل</span>
+          </div>
+          <div id="analytics-table-body">
+            <div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">جاري تحميل البيانات...</div></div>
           </div>
         </div>
       </div>
@@ -721,9 +545,7 @@
             <option value="students">الطلاب فقط</option>
             <option value="teachers">المدرسون فقط</option>
           </select>
-          <div id="recipientCountBadge" style="font-size:12px;color:#38bdf8;margin-top:-8px;margin-bottom:4px;padding-right:4px">
-            ⏳ جارٍ الحساب...
-          </div>
+          <div id="recipientCountBadge" style="font-size:12px;color:#38bdf8;margin-top:-8px;margin-bottom:16px;padding-right:4px">⏳ جارٍ الحساب...</div>
           <label>عنوان الإشعار</label>
           <input type="text" id="notifyTitle" placeholder="مثال: تنبيه مهم">
           <label>نص الرسالة</label>
@@ -733,12 +555,12 @@
       </div>
 
     </div><!-- /content -->
-  </main><!-- /main -->
-</div><!-- /layout -->
+  </main>
+</div>
 
-<!-- ══════════════════════════════════════════════════════
+<!-- ══════════════════════════════
      FIREBASE + LOGIC
-══════════════════════════════════════════════════════ -->
+══════════════════════════════ -->
 <script type="module">
   import {
     auth, db,
@@ -746,8 +568,11 @@
     requireAuth, signOutUser as authSignOut
   } from './auth.js';
 
-  /* ── Global state ── */
+  /* ── State ── */
   let allUsers    = {};
+  let allExams    = {};   // exam_results/{uid}/{lessonId}
+  let allProgress = {};   // progress/{uid}/{lessonId}
+  let allLessons  = {};   // lessons/
   let currentUser = null;
 
   /* ── Auth guard ── */
@@ -757,34 +582,55 @@
       document.getElementById('adminName').textContent   = data.displayName || user.email;
       document.getElementById('adminRole').textContent   = data.role === 'admin' ? 'أدمن' : 'مدرس';
       document.getElementById('adminAvatar').textContent = (data.displayName || 'A')[0].toUpperCase();
-      loadUsers();
+      fetchAdminData();
     }
   });
 
-  /* ── Load all users realtime ── */
-  function loadUsers() {
-    onValue(ref(db, 'users'), (snap) => {
+  /* ══════════════════════════════
+     fetchAdminData — كل البيانات دفعة واحدة
+  ══════════════════════════════ */
+  async function fetchAdminData() {
+    // مستخدمون — realtime
+    onValue(ref(db, 'users'), snap => {
       allUsers = snap.exists() ? snap.val() : {};
       renderAll();
     });
+
+    // دروس — قراءة واحدة كافية
+    const lessonsSnap = await get(ref(db, 'lessons'));
+    allLessons = lessonsSnap.exists() ? lessonsSnap.val() : {};
+
+    // نتائج الاختبارات — realtime
+    onValue(ref(db, 'exam_results'), snap => {
+      allExams = snap.exists() ? snap.val() : {};
+      renderAnalytics();
+      updateDashboardAnalytics();
+    });
+
+    // تقدم مشاهدة الدروس — realtime
+    onValue(ref(db, 'progress'), snap => {
+      allProgress = snap.exists() ? snap.val() : {};
+    });
   }
 
+  /* ══════════════════════════════
+     renderAll
+  ══════════════════════════════ */
   function renderAll() {
     const users    = Object.entries(allUsers).map(([uid, d]) => ({ uid, ...d }))
-                          .filter(u => u.status !== 'deleted'); // استثناء المحذوفين
+                          .filter(u => u.status !== 'deleted');
     const pending  = users.filter(u => u.status === 'pending');
     const students = users.filter(u => u.role === 'student' && u.status === 'active');
     const teachers = users.filter(u => (u.role === 'teacher' || u.role === 'admin') && u.status === 'active');
 
-    /* Stats */
+    // Stats
     document.getElementById('stat-pending').textContent  = pending.length;
     document.getElementById('stat-students').textContent = students.length;
     document.getElementById('stat-teachers').textContent = teachers.length;
-    document.getElementById('stat-total').textContent    = users.length;
 
     updateRecipientCount();
 
-    /* Badges */
+    // Badges
     ['pendingBadge','dash-pending-badge','pending-count-badge'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.textContent = pending.length;
@@ -794,14 +640,160 @@
     const tb = document.getElementById('teachers-count-badge');
     if (tb) tb.textContent = teachers.length;
 
-    /* Panels */
-    renderRequestList('dash-pending-list',  pending.slice(0,5), false);
-    renderRequestList('pending-list',        pending,            true);
+    // Panels
+    renderRequestList('dash-pending-list', pending.slice(0,5), false);
+    renderRequestList('pending-list',       pending,            true);
     renderUsersTable('students-list',  students,  'student');
     renderUsersTable('teachers-list',  teachers,  'teacher');
   }
 
-  /* ── Request card ── */
+  /* ══════════════════════════════
+     renderAnalytics — جدول أداء الطلاب
+  ══════════════════════════════ */
+  function renderAnalytics() {
+    const students = Object.entries(allUsers)
+      .filter(([, d]) => d.role === 'student' && d.status === 'active')
+      .map(([uid, d]) => ({ uid, ...d }));
+
+    // بناء إحصائيات لكل طالب
+    const rows = students.map(s => {
+      const exams = allExams[s.uid] ? Object.entries(allExams[s.uid]) : [];
+      const totalExams = exams.length;
+      let totalPct = 0;
+      let maxPct   = 0;
+      exams.forEach(([lessonId, e]) => {
+        const pct = e.total > 0 ? Math.round((e.score / e.total) * 100) : 0;
+        totalPct += pct;
+        if (pct > maxPct) maxPct = pct;
+      });
+      const avgPct = totalExams > 0 ? Math.round(totalPct / totalExams) : null;
+      return { ...s, totalExams, avgPct, maxPct };
+    }).sort((a, b) => (b.avgPct ?? -1) - (a.avgPct ?? -1));
+
+    // إحصائيات عامة
+    const withExams   = rows.filter(r => r.avgPct !== null);
+    const totalExamsCount = Object.values(allExams).reduce((acc, u) => acc + Object.keys(u).length, 0);
+    const globalAvg   = withExams.length > 0 ? Math.round(withExams.reduce((a,r) => a + r.avgPct, 0) / withExams.length) : null;
+    const lowCount    = withExams.filter(r => r.avgPct < 50).length;
+
+    document.getElementById('an-total-exams').textContent = totalExamsCount;
+    document.getElementById('an-avg').textContent         = globalAvg !== null ? globalAvg + '%' : '—';
+    document.getElementById('an-low').textContent         = lowCount;
+    document.getElementById('an-table-count').textContent = rows.length;
+    document.getElementById('stat-exams').textContent     = totalExamsCount;
+
+    // جدول
+    const tbody = document.getElementById('analytics-table-body');
+    if (rows.length === 0) {
+      tbody.innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">لا يوجد طلاب نشطون بعد</div></div>`;
+      return;
+    }
+
+    tbody.innerHTML = rows.map(r => {
+      const isDanger = r.avgPct !== null && r.avgPct < 50;
+      const colorClass = r.avgPct === null ? '' : (r.avgPct >= 75 ? 'pb-green' : r.avgPct >= 50 ? 'pb-amber' : 'pb-red');
+      const scoreClass = r.avgPct === null ? '' : (r.avgPct >= 75 ? 'score-good' : r.avgPct >= 50 ? 'score-mid' : 'score-low');
+      const indicator  = r.avgPct === null ? '—' : (r.avgPct >= 75 ? '🟢' : r.avgPct >= 50 ? '🟡' : '🔴');
+      const initials   = (r.displayName || r.email || '?')[0].toUpperCase();
+      return `
+        <div class="sa-row ${isDanger ? 'danger' : ''}">
+          <div class="user-name-cell">
+            <div class="user-mini-avatar av-student">${initials}</div>
+            <div>
+              <div style="font-weight:600">${r.displayName || '—'}</div>
+              <div style="font-size:11px;color:var(--muted)">${gradeLabel(r.grade)}</div>
+            </div>
+          </div>
+          <span style="font-weight:700;color:var(--cyan)">${r.totalExams}</span>
+          <span>
+            ${r.avgPct !== null
+              ? `<span class="score-chip ${scoreClass}">${indicator} ${r.avgPct}%</span>`
+              : '<span style="color:var(--muted);font-size:12px">لم يجرِ اختباراً</span>'}
+          </span>
+          <span style="font-weight:700;color:var(--green)">${r.maxPct > 0 ? r.maxPct + '%' : '—'}</span>
+          <span>
+            <button class="btn btn-sm" style="background:rgba(0,229,255,0.08);color:var(--cyan);border:1px solid rgba(0,229,255,0.2)"
+              onclick="showStudentDetail('${r.uid}','${(r.displayName||'').replace(/'/g,"\\'")}')">🔍 تفاصيل</button>
+          </span>
+        </div>`;
+    }).join('');
+  }
+
+  /* ══════════════════════════════
+     updateDashboardAnalytics
+  ══════════════════════════════ */
+  function updateDashboardAnalytics() {
+    const students = Object.entries(allUsers)
+      .filter(([, d]) => d.role === 'student' && d.status === 'active');
+
+    let totalPct = 0, count = 0;
+    const lowStudents = [];
+
+    students.forEach(([uid, d]) => {
+      const exams = allExams[uid] ? Object.values(allExams[uid]) : [];
+      if (exams.length === 0) return;
+      const avg = Math.round(exams.reduce((a, e) => a + (e.total > 0 ? (e.score / e.total) * 100 : 0), 0) / exams.length);
+      totalPct += avg; count++;
+      if (avg < 50) lowStudents.push(d.displayName || d.email || 'مجهول');
+    });
+
+    const globalAvg = count > 0 ? Math.round(totalPct / count) : null;
+
+    const avgEl = document.getElementById('dash-avg-score');
+    const barEl = document.getElementById('dash-avg-bar');
+    if (avgEl) avgEl.textContent = globalAvg !== null ? globalAvg + '%' : '—';
+    if (barEl) {
+      barEl.style.width = (globalAvg || 0) + '%';
+      barEl.className = 'progress-bar-fill ' + (globalAvg >= 75 ? 'pb-green' : globalAvg >= 50 ? 'pb-amber' : 'pb-red');
+    }
+
+    const lowEl  = document.getElementById('dash-low-count');
+    const namesEl = document.getElementById('dash-low-names');
+    if (lowEl)   lowEl.textContent  = lowStudents.length;
+    if (namesEl) namesEl.textContent = lowStudents.length > 0
+      ? '⚠️ ' + lowStudents.slice(0,3).join(' · ') + (lowStudents.length > 3 ? ` +${lowStudents.length-3}` : '')
+      : '✅ جميع الطلاب بأداء جيد';
+  }
+
+  /* ══════════════════════════════
+     showStudentDetail — نافذة التفاصيل
+  ══════════════════════════════ */
+  window.showStudentDetail = (uid, name) => {
+    const exams = allExams[uid] ? Object.entries(allExams[uid]) : [];
+    document.getElementById('drawerTitle').textContent = `📋 نتائج: ${name}`;
+
+    if (exams.length === 0) {
+      document.getElementById('drawerContent').innerHTML =
+        `<div class="empty-state"><div class="empty-icon">📝</div><div class="empty-text">لم يجرِ هذا الطالب أي اختبار بعد</div></div>`;
+    } else {
+      const items = exams.map(([lessonId, e]) => {
+        const pct = e.total > 0 ? Math.round((e.score / e.total) * 100) : 0;
+        const cls = pct >= 75 ? 'score-good' : pct >= 50 ? 'score-mid' : 'score-low';
+        const lessonName = allLessons[lessonId]?.title || lessonId;
+        const date = e.ts ? new Date(e.ts).toLocaleDateString('ar-EG') : '';
+        return `
+          <div class="exam-result-item">
+            <div>
+              <div class="exam-lesson-name">📖 ${lessonName}</div>
+              <div class="exam-meta">${date ? '📅 ' + date : ''} · ${e.score}/${e.total} إجابة صحيحة</div>
+            </div>
+            <span class="score-chip ${cls}">${pct}%</span>
+          </div>`;
+      }).join('');
+      document.getElementById('drawerContent').innerHTML = items;
+    }
+
+    document.getElementById('drawerOverlay').classList.add('show');
+  };
+
+  window.closeDrawer = (e) => {
+    if (e.target === document.getElementById('drawerOverlay'))
+      document.getElementById('drawerOverlay').classList.remove('show');
+  };
+
+  /* ══════════════════════════════
+     Request card
+  ══════════════════════════════ */
   function renderRequestList(containerId, list, full) {
     const el = document.getElementById(containerId);
     if (!el) return;
@@ -810,10 +802,10 @@
       return;
     }
     el.innerHTML = list.map(u => {
-      const initials = (u.displayName || u.email || '?')[0].toUpperCase();
+      const initials  = (u.displayName || u.email || '?')[0].toUpperCase();
       const isTeacher = u.role === 'teacher';
       const gradeText = u.grade ? gradeLabel(u.grade) : '';
-      const date = u.createdAt ? new Date(u.createdAt).toLocaleDateString('ar-EG') : '';
+      const date      = u.createdAt ? new Date(u.createdAt).toLocaleDateString('ar-EG') : '';
       return `
         <div class="request-card" id="req-${u.uid}">
           <div class="request-avatar ${isTeacher ? 'av-teacher' : 'av-student'}">${initials}</div>
@@ -830,21 +822,22 @@
             <button class="btn btn-approve" onclick="approveUser('${u.uid}')">✅ قبول</button>
             <button class="btn btn-reject"  onclick="rejectUser('${u.uid}')">❌ رفض</button>
           </div>
-        </div>
-      `;
+        </div>`;
     }).join('');
   }
 
-  /* ── Users table ── */
+  /* ══════════════════════════════
+     Users table
+  ══════════════════════════════ */
   function renderUsersTable(containerId, list, defaultRole) {
     const el = document.getElementById(containerId);
     if (!el) return;
     if (list.length === 0) {
-      el.innerHTML = `<div class="empty-state"><div class="empty-icon">${defaultRole === 'student' ? '🎓' : '📚'}</div><div class="empty-text">لا يوجد ${defaultRole === 'student' ? 'طلاب' : 'مدرسون'} بعد</div></div>`;
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon">${defaultRole==='student'?'🎓':'📚'}</div><div class="empty-text">لا يوجد ${defaultRole==='student'?'طلاب':'مدرسون'} بعد</div></div>`;
       return;
     }
     el.innerHTML = list.map(u => {
-      const initials = (u.displayName || u.email || '?')[0].toUpperCase();
+      const initials  = (u.displayName || u.email || '?')[0].toUpperCase();
       const isTeacher = u.role === 'teacher' || u.role === 'admin';
       const gradeText = u.grade ? gradeLabel(u.grade) : '—';
       const roleText  = u.role === 'admin' ? 'أدمن' : (isTeacher ? 'مدرس' : 'طالب');
@@ -857,21 +850,20 @@
           <span style="color:var(--muted);font-size:12px">${u.email}</span>
           <span>${isTeacher ? roleText : gradeText}</span>
           <span><span class="status-pill status-active"><span class="status-dot"></span>نشط</span></span>
-          <span>
-            <button class="btn btn-delete" onclick="deleteUser('${u.uid}')">🗑 حذف</button>
-          </span>
-        </div>
-      `;
+          <span><button class="btn btn-delete" onclick="deleteUser('${u.uid}')">🗑 حذف</button></span>
+        </div>`;
     }).join('');
   }
 
   /* ── Grade label ── */
   function gradeLabel(g) {
     const map = { sixth_prep:'السادس', fifth_prep:'الخامس', fourth_prep:'الرابع' };
-    return map[g] || g;
+    return map[g] || g || '—';
   }
 
-  /* ── Actions ── */
+  /* ══════════════════════════════
+     Actions
+  ══════════════════════════════ */
   window.approveUser = async (uid) => {
     showLoading(true);
     try {
@@ -885,12 +877,7 @@
     if (!confirm('هل تريد رفض وحذف هذا الطلب؟')) return;
     showLoading(true);
     try {
-      // نضع علامة "محذوف" بدلاً من الحذف الكامل
-      // لأن Firebase Auth يحتفظ بالحساب حتى بعد حذف بياناته
-      await update(ref(db, 'users/' + uid), {
-        status: 'deleted',
-        deletedAt: Date.now()
-      });
+      await update(ref(db, 'users/' + uid), { status: 'deleted', deletedAt: Date.now() });
       showToast('🗑 تم الرفض والحذف');
     } catch(e) { showToast('خطأ: ' + e.message, true); }
     showLoading(false);
@@ -900,12 +887,7 @@
     if (!confirm('هل أنت متأكد من حذف هذا المستخدم؟')) return;
     showLoading(true);
     try {
-      // نضع علامة "محذوف" بدلاً من الحذف الكامل
-      // لأن Firebase Auth يحتفظ بالحساب حتى بعد حذف بياناته
-      await update(ref(db, 'users/' + uid), {
-        status: 'deleted',
-        deletedAt: Date.now()
-      });
+      await update(ref(db, 'users/' + uid), { status: 'deleted', deletedAt: Date.now() });
       showToast('🗑 تم الحذف');
     } catch(e) { showToast('خطأ: ' + e.message, true); }
     showLoading(false);
@@ -916,15 +898,14 @@
     if (pending.length === 0) return showToast('لا توجد طلبات انتظار', true);
     if (!confirm(`قبول جميع الطلبات (${pending.length})؟`)) return;
     showLoading(true);
-    for (const [uid] of pending) {
-      await update(ref(db, 'users/' + uid), { status: 'active' });
-    }
+    for (const [uid] of pending) await update(ref(db, 'users/' + uid), { status: 'active' });
     showLoading(false);
     showToast(`✅ تم قبول ${pending.length} طلب`);
   };
 
-  /* ── Notifications ── */
-  /* ── Recipient Count Preview ── */
+  /* ══════════════════════════════
+     Notifications
+  ══════════════════════════════ */
   window.updateRecipientCount = () => {
     const target = document.getElementById('notifyTarget')?.value;
     const badge  = document.getElementById('recipientCountBadge');
@@ -941,10 +922,8 @@
     const target = document.getElementById('notifyTarget').value;
     const title  = document.getElementById('notifyTitle').value.trim();
     const body   = document.getElementById('notifyBody').value.trim();
-
     if (!title || !body) return showToast('اكتب العنوان والرسالة', true);
 
-    // تحديد المستخدمين المستهدفين من allUsers
     const recipients = Object.entries(allUsers).filter(([uid, u]) => {
       if (u.status !== 'active') return false;
       if (target === 'all')      return true;
@@ -952,29 +931,13 @@
       if (target === 'teachers') return u.role === 'teacher' || u.role === 'admin';
       return false;
     });
-
-    if (recipients.length === 0) {
-      return showToast('لا يوجد مستخدمون نشطون لإرسال الإشعار إليهم', true);
-    }
+    if (recipients.length === 0) return showToast('لا يوجد مستخدمون نشطون', true);
 
     showLoading(true);
     try {
-      const notifKey = `admin_${Date.now()}`;
-      const notifData = {
-        title,
-        body,
-        icon:    '📢',
-        ts:      Date.now(),
-        type:    'admin_broadcast',
-        sentBy:  currentUser?.uid || 'admin'
-      };
-
-      // اكتب الإشعار لكل مستخدم في مساره الخاص notifications/{uid}/items/
-      const writes = recipients.map(([uid]) =>
-        update(ref(db, `notifications/${uid}/items/${notifKey}`), notifData)
-      );
-      await Promise.all(writes);
-
+      const notifKey  = `admin_${Date.now()}`;
+      const notifData = { title, body, icon: '📢', ts: Date.now(), type: 'admin_broadcast', sentBy: currentUser?.uid || 'admin' };
+      await Promise.all(recipients.map(([uid]) => update(ref(db, `notifications/${uid}/items/${notifKey}`), notifData)));
       document.getElementById('notifyTitle').value = '';
       document.getElementById('notifyBody').value  = '';
       showToast(`📤 تم إرسال الإشعار لـ ${recipients.length} مستخدم`);
@@ -985,9 +948,8 @@
   /* ── Search ── */
   window.handleSearch = (query) => {
     const q = query.toLowerCase();
-    document.querySelectorAll('.request-card, .table-row').forEach(row => {
-      const text = row.textContent.toLowerCase();
-      row.style.display = text.includes(q) ? '' : 'none';
+    document.querySelectorAll('.request-card, .table-row, .sa-row').forEach(row => {
+      row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
     });
   };
 
@@ -995,10 +957,7 @@
   window.doLogout = () => authSignOut('index.html');
 
   /* ── UI helpers ── */
-  function showLoading(v) {
-    document.getElementById('loadingOverlay').classList.toggle('show', v);
-  }
-
+  function showLoading(v) { document.getElementById('loadingOverlay').classList.toggle('show', v); }
   window.showToast = (msg, isError = false) => {
     const el = document.getElementById('toast');
     el.textContent = msg;
@@ -1009,24 +968,17 @@
 </script>
 
 <script>
-  /* Panel switcher */
-  const panels = ['dashboard','pending','students','teachers','notify'];
+  const panels = ['dashboard','pending','students','teachers','analytics','notify'];
   const titles  = {
     dashboard: '📊 الإحصائيات',
     pending:   '⏳ طلبات التسجيل',
     students:  '🎓 الطلاب',
     teachers:  '📚 المدرسون',
+    analytics: '📈 أداء الطلاب',
     notify:    '🔔 إرسال إشعار'
   };
-
   window.showPanel = (name) => {
-    panels.forEach(p => {
-      document.getElementById('panel-' + p)?.classList.toggle('active', p === name);
-    });
-    document.querySelectorAll('.nav-item').forEach((el, i) => {
-      el.classList.toggle('active', el.getAttribute('onclick')?.includes(panels[i]));
-    });
-    /* manual highlight */
+    panels.forEach(p => document.getElementById('panel-' + p)?.classList.toggle('active', p === name));
     document.querySelectorAll('.nav-item').forEach(el => {
       el.classList.remove('active');
       if (el.getAttribute('onclick')?.includes(`'${name}'`)) el.classList.add('active');
