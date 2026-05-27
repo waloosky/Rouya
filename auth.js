@@ -23,13 +23,14 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  databaseURL: "YOUR_DATABASE_URL",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyCj9UxvluAtmPVNbLHsl4blTEUA94PEOvI",
+  authDomain: "interactive-rouya.firebaseapp.com",
+  databaseURL: "https://interactive-rouya-default-rtdb.firebaseio.com",
+  projectId: "interactive-rouya",
+  storageBucket: "interactive-rouya.firebasestorage.app",
+  messagingSenderId: "164882328808",
+  appId: "1:164882328808:web:868e0251ae47c583a0ed5d",
+  measurementId: "G-5HF2WQSSM1"
 };
 
 const app = initializeApp(firebaseConfig);
