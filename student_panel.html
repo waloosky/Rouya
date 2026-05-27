@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+  <!-- في <head> -->
+<link rel="stylesheet" href="style.css">
+
+<!-- في <script type="module"> -->
+import { requireAuth, signOutUser } from './auth.js';
+requireAuth('student', { onSuccess: (user, data) => initPage(user, data) });
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>لوحة الطالب - دروسي</title>
