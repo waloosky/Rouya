@@ -715,11 +715,14 @@
         </div>
         <div class="notify-form">
           <label>المستلمون</label>
-          <select id="notifyTarget">
-            <option value="all">جميع المستخدمين</option>
+          <select id="notifyTarget" onchange="updateRecipientCount()">
+            <option value="all">جميع المستخدمين النشطين</option>
             <option value="students">الطلاب فقط</option>
             <option value="teachers">المدرسون فقط</option>
           </select>
+          <div id="recipientCountBadge" style="font-size:12px;color:#38bdf8;margin-top:-8px;margin-bottom:4px;padding-right:4px">
+            ⏳ جارٍ الحساب...
+          </div>
           <label>عنوان الإشعار</label>
           <input type="text" id="notifyTitle" placeholder="مثال: تنبيه مهم">
           <label>نص الرسالة</label>
@@ -799,6 +802,8 @@
     document.getElementById('stat-students').textContent = students.length;
     document.getElementById('stat-teachers').textContent = teachers.length;
     document.getElementById('stat-total').textContent    = users.length;
+
+    updateRecipientCount();
 
     /* Badges */
     ['pendingBadge','dash-pending-badge','pending-count-badge'].forEach(id => {
@@ -930,6 +935,19 @@
   };
 
   /* ── Notifications ── */
+  /* ── Recipient Count Preview ── */
+  window.updateRecipientCount = () => {
+    const target = document.getElementById('notifyTarget')?.value;
+    const badge  = document.getElementById('recipientCountBadge');
+    if (!badge) return;
+    const all = Object.values(allUsers).filter(u => u.status === 'active');
+    let count = 0;
+    if (target === 'all')      count = all.length;
+    if (target === 'students') count = all.filter(u => u.role === 'student').length;
+    if (target === 'teachers') count = all.filter(u => u.role === 'teacher' || u.role === 'admin').length;
+    badge.textContent = `👥 سيصل الإشعار إلى ${count} مستخدم`;
+  };
+
   window.sendNotification = async () => {
     const target = document.getElementById('notifyTarget').value;
     const title  = document.getElementById('notifyTitle').value.trim();
@@ -937,16 +955,40 @@
 
     if (!title || !body) return showToast('اكتب العنوان والرسالة', true);
 
+    // تحديد المستخدمين المستهدفين من allUsers
+    const recipients = Object.entries(allUsers).filter(([uid, u]) => {
+      if (u.status !== 'active') return false;
+      if (target === 'all')      return true;
+      if (target === 'students') return u.role === 'student';
+      if (target === 'teachers') return u.role === 'teacher' || u.role === 'admin';
+      return false;
+    });
+
+    if (recipients.length === 0) {
+      return showToast('لا يوجد مستخدمون نشطون لإرسال الإشعار إليهم', true);
+    }
+
     showLoading(true);
     try {
-      await push(ref(db, 'notifications'), {
-        target, title, body,
-        sentBy: currentUser?.uid || 'admin',
-        sentAt: Date.now()
-      });
+      const notifKey = `admin_${Date.now()}`;
+      const notifData = {
+        title,
+        body,
+        icon:    '📢',
+        ts:      Date.now(),
+        type:    'admin_broadcast',
+        sentBy:  currentUser?.uid || 'admin'
+      };
+
+      // اكتب الإشعار لكل مستخدم في مساره الخاص notifications/{uid}/items/
+      const writes = recipients.map(([uid]) =>
+        update(ref(db, `notifications/${uid}/items/${notifKey}`), notifData)
+      );
+      await Promise.all(writes);
+
       document.getElementById('notifyTitle').value = '';
       document.getElementById('notifyBody').value  = '';
-      showToast('📤 تم إرسال الإشعار بنجاح');
+      showToast(`📤 تم إرسال الإشعار لـ ${recipients.length} مستخدم`);
     } catch(e) { showToast('خطأ: ' + e.message, true); }
     showLoading(false);
   };
