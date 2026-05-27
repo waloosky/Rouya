@@ -560,11 +560,9 @@ onAuthStateChanged(auth, async (user) => {
   const data = snap.val();
   if (data.role !== 'teacher' && data.role !== 'admin') {
     await signOut(auth); window.location.href = 'index.html'; return;
-    if (data.status !== 'active') {
-  await signOut(auth);
-  window.location.href = 'index.html';
-  return;
-}
+  }
+  if (data.status !== 'active') {
+    await signOut(auth); window.location.href = 'index.html'; return;
   }
   currentUser = { ...data, uid: user.uid };
   document.getElementById('sidebarName').textContent = data.displayName || user.email;
@@ -816,17 +814,6 @@ window.editLesson = function(lessonId) {
   document.getElementById('lessonDesc').value  = lesson.description || '';
   document.getElementById('lessonSubject').value = lesson.subject || '';
   document.getElementById('lessonGrade').value   = lesson.grade || 'sixth_prep';  // ✅
-  document.getElementById('questionsContainer').innerHTML = '';
-  questionCount = 0;
-
-  if (lesson.questions) {
-    Object.entries(lesson.questions).forEach(([qid, q]) => {
-      addQuestion(q);
-    });
-  }
-  document.getElementById('lessonModal').classList.add('show');
-};
-  document.getElementById('lessonSubject').value = lesson.subject || '';
   document.getElementById('questionsContainer').innerHTML = '';
   questionCount = 0;
 
