@@ -384,14 +384,14 @@
         <div class="progress-track">
           <div class="progress-fill" id="detailProgressFill" style="width:0%"></div>
         </div>
-        <span class="progress-text" id="detailProgressText">0 / 5 مشاهدات</span>
+        <span class="progress-text" id="detailProgressText">0 / 3 مشاهدات</span>
       </div>
       <div class="attended-stamp" id="detailStamp">📋 تم احتساب حضورك لهذا الدرس</div>
     </div>
 
     <!-- زر الامتحان -->
     <button class="btn-exam" id="detailExamBtn" disabled>
-      شاهد 5 مرات لفتح الامتحان
+      شاهد 3 مرات لفتح الامتحان
     </button>
   </div>
 
@@ -642,7 +642,7 @@
     container.innerHTML = `<div class="lessons-list">${lessons.map(([id, l], i) => {
       const prog    = allProgress[id] || {};
       const views   = prog.view_count || 0;
-      const MAX     = 5;
+      const MAX     = 3;
       const done    = views >= MAX;
       const examined = prog.score !== undefined;
 
@@ -730,7 +730,7 @@
       if (!currentUID) return;
       const snap = await get(ref(db, `progress/${currentUID}/${lessonId}`));
       const cur  = snap.exists() ? (snap.val().view_count || 0) : 0;
-      if (cur < 5) {
+      if (cur < 3) {
         await update(ref(db, `progress/${currentUID}/${lessonId}`), {
           view_count: cur + 1,
           lastView:   Date.now()
@@ -743,7 +743,7 @@
   function updateDetailProgress(lessonId) {
     const prog  = allProgress[lessonId] || {};
     const views = prog.view_count || 0;
-    const MAX   = 5;
+    const MAX   = 3;
     const done  = views >= MAX;
     const pct   = Math.min((views / MAX) * 100, 100);
 
