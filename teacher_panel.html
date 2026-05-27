@@ -460,6 +460,12 @@
       <!-- ── LESSONS PANEL ── -->
       <div class="panel active" id="panel-lessons">
 
+        <!-- بطاقات المواد -->
+        <div class="section-header" style="margin-bottom:12px">
+          <div class="section-title">📚 المواد الدراسية</div>
+        </div>
+        <div class="subjects-grid" id="subjectsGrid" style="margin-bottom:20px"></div>
+
         <!-- Subject Filter -->
         <div class="filter-bar">
           <select class="filter-select" id="subjectFilter" onchange="filterLessons()">
@@ -576,6 +582,25 @@ function buildSubjectOptions() {
   lessonSubjectEl.innerHTML = SUBJECTS.map(s => `<option value="${s.id}">${s.icon} ${s.name}</option>`).join('');
   filterEl.innerHTML  = `<option value="all">جميع المواد</option>` + SUBJECTS.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
   rFilterEl.innerHTML = `<option value="all">جميع المواد</option>` + SUBJECTS.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+
+  renderSubjectCards();
+}
+
+function renderSubjectCards() {
+  const grid = document.getElementById('subjectsGrid');
+  if (!grid) return;
+  const counts = {};
+  Object.values(allLessons).forEach(l => {
+    if (l.teacherUid === (currentUser && currentUser.uid)) {
+      counts[l.subject] = (counts[l.subject] || 0) + 1;
+    }
+  });
+  grid.innerHTML = SUBJECTS.map(s => `
+    <div class="subject-card ${counts[s.id] ? '' : ''}" onclick="document.getElementById('subjectFilter').value='${s.id}';filterLessons()">
+      <span class="subject-icon">${s.icon}</span>
+      <div class="subject-name">${s.name}</div>
+      <div class="subject-count">${counts[s.id] || 0} درس</div>
+    </div>`).join('');
 }
 
 function loadData() {
@@ -585,6 +610,7 @@ function loadData() {
     renderLessons();
     buildLessonFilter();
     updateOverallStats();
+    renderSubjectCards();
   });
   // Load users
   onValue(ref(db, 'users'), (snap) => {
