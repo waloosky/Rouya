@@ -116,7 +116,7 @@
       <div class="fields">
         <div>
           <label class="field-label">نوع الحساب</label>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
             <div class="role-card" id="roleStudent" onclick="selectRole('student')" style="padding:14px;border:1.5px solid rgba(255,255,255,0.1);border-radius:12px;text-align:center;cursor:pointer;">
               <div>🎓</div>
               <span>طالب</span>
@@ -124,10 +124,6 @@
             <div class="role-card" id="roleTeacher" onclick="selectRole('teacher')" style="padding:14px;border:1.5px solid rgba(255,255,255,0.1);border-radius:12px;text-align:center;cursor:pointer;">
               <div>📚</div>
               <span>مدرس</span>
-            </div>
-            <div class="role-card" id="roleAdmin" onclick="selectRole('admin')" style="padding:14px;border:1.5px solid rgba(255,255,255,0.1);border-radius:12px;text-align:center;cursor:pointer;">
-              <div>🛡️</div>
-              <span>أدمن</span>
             </div>
           </div>
         </div>
@@ -175,7 +171,6 @@
 
   const STUDENT_CODE = "STUDENT2026";
   const TEACHER_CODE = "TEACHER2026";
-  const ADMIN_CODE   = "ADMIN2026";
 
   window.switchTab = function(tab) {
     const isLogin = tab === 'login';
@@ -191,9 +186,8 @@
     currentRole = role;
     document.getElementById('roleStudent').style.borderColor = role === 'student' ? '#00e5ff' : 'rgba(255,255,255,0.1)';
     document.getElementById('roleTeacher').style.borderColor = role === 'teacher' ? '#ffb300' : 'rgba(255,255,255,0.1)';
-    document.getElementById('roleAdmin').style.borderColor   = role === 'admin'   ? '#ff4444' : 'rgba(255,255,255,0.1)';
     document.getElementById('registerBtn').className = role === 'teacher' ? 'submit-btn teacher-btn' : 'submit-btn';
-    document.getElementById('gradeField').style.display = (role === 'teacher' || role === 'admin') ? 'none' : 'block';
+    document.getElementById('gradeField').style.display = role === 'teacher' ? 'none' : 'block';
   };
 
   function showMsg(text, type) {
@@ -230,6 +224,12 @@
     const snap = await get(ref(db, 'users/' + user.uid));
     if (!snap.exists()) return;
     const data = snap.val();
+
+    if (data.status === 'deleted') {
+      showMsg(isAr ? 'تم حذف هذا الحساب. يمكنك إنشاء حساب جديد.' : 'This account was deleted. You may register again.', 'error');
+      await signOut(auth);
+      return;
+    }
 
     if (data.status === 'pending') {
       showMsg(isAr ? 'حسابك قيد المراجعة. انتظر موافقة الأستاذ.' : 'Your account is pending approval.', 'warning');
@@ -268,12 +268,9 @@
 
     if (currentRole === 'student' && code !== STUDENT_CODE) return showMsg('❌ كود الطالب غير صحيح', 'error');
     if (currentRole === 'teacher' && code !== TEACHER_CODE) return showMsg('❌ كود المدرس غير صحيح', 'error');
-    if (currentRole === 'admin'   && code !== ADMIN_CODE)   return showMsg('❌ كود الأدمن غير صحيح', 'error');
 
     try {
       setLoading('registerBtn', true);
-      const cred = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(cred.user, { displayName: name });
 
       const userData = {
         displayName: name,
@@ -284,10 +281,37 @@
         createdAt: Date.now()
       };
 
-      await set(ref(db, 'users/' + cred.user.uid), userData);
+      let uid;
+
+      try {
+        // محاولة إنشاء حساب جديد
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(cred.user, { displayName: name });
+        uid = cred.user.uid;
+      } catch (createErr) {
+        if (createErr.code === 'auth/email-already-in-use') {
+          // الإيميل موجود في Auth → ربما حساب محذوف → نسجّل دخوله ونتحقق
+          const loginCred = await signInWithEmailAndPassword(auth, email, password);
+          const snap = await get(ref(db, 'users/' + loginCred.user.uid));
+          if (snap.exists() && snap.val().status !== 'deleted') {
+            // حساب نشط فعلاً → لا يُسمح بالتسجيل
+            await signOut(auth);
+            showMsg(isAr ? 'هذا البريد مسجل مسبقاً بحساب نشط.' : 'Email already in use by an active account.', 'error');
+            setLoading('registerBtn', false);
+            return;
+          }
+          await updateProfile(loginCred.user, { displayName: name });
+          uid = loginCred.user.uid;
+        } else {
+          throw createErr;
+        }
+      }
+
+      // كتابة / تحديث بيانات المستخدم في قاعدة البيانات
+      await set(ref(db, 'users/' + uid), userData);
       await signOut(auth);
 
-      showMsg(currentRole === 'admin' ? '✅ تم إنشاء حساب الأدمن. يمكنك تسجيل الدخول الآن.' : '✅ تم إنشاء الحساب. انتظر موافقة الأدمن للتفعيل.', 'success');
+      showMsg('✅ تم إنشاء الحساب. إذا كان الأدمن فسيتم تفعيله مباشرة بعد ضبط السجل.', 'success');
       ['regName', 'regEmail', 'regPassword', 'regCode'].forEach(id => document.getElementById(id).value = '');
     } catch (e) {
       showMsg(friendlyError(e.code), 'error');

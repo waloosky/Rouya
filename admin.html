@@ -770,7 +770,8 @@
   }
 
   function renderAll() {
-    const users    = Object.entries(allUsers).map(([uid, d]) => ({ uid, ...d }));
+    const users    = Object.entries(allUsers).map(([uid, d]) => ({ uid, ...d }))
+                          .filter(u => u.status !== 'deleted'); // استثناء المحذوفين
     const pending  = users.filter(u => u.status === 'pending');
     const students = users.filter(u => u.role === 'student' && u.status === 'active');
     const teachers = users.filter(u => (u.role === 'teacher' || u.role === 'admin') && u.status === 'active');
@@ -884,7 +885,12 @@
     if (!confirm('هل تريد رفض وحذف هذا الطلب؟')) return;
     showLoading(true);
     try {
-      await remove(ref(db, 'users/' + uid));
+      // نضع علامة "محذوف" بدلاً من الحذف الكامل
+      // لأن Firebase Auth يحتفظ بالحساب حتى بعد حذف بياناته
+      await update(ref(db, 'users/' + uid), {
+        status: 'deleted',
+        deletedAt: Date.now()
+      });
       showToast('🗑 تم الرفض والحذف');
     } catch(e) { showToast('خطأ: ' + e.message, true); }
     showLoading(false);
@@ -894,7 +900,12 @@
     if (!confirm('هل أنت متأكد من حذف هذا المستخدم؟')) return;
     showLoading(true);
     try {
-      await remove(ref(db, 'users/' + uid));
+      // نضع علامة "محذوف" بدلاً من الحذف الكامل
+      // لأن Firebase Auth يحتفظ بالحساب حتى بعد حذف بياناته
+      await update(ref(db, 'users/' + uid), {
+        status: 'deleted',
+        deletedAt: Date.now()
+      });
       showToast('🗑 تم الحذف');
     } catch(e) { showToast('خطأ: ' + e.message, true); }
     showLoading(false);

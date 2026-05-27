@@ -1,88 +1,218 @@
 {
   "rules": {
+
+    /* ═══════════════════════════════════════════════════════════
+       Firebase Realtime Database Security Rules — منصة رؤيا
+       الإصدار: 2.0
+
+       المبدأ العام: "الرفض التلقائي" (Deny by Default)
+       كل ما لم يُذكر صراحةً → مرفوض.
+
+       الأدوار المُعرَّفة في قاعدة البيانات:
+         - student : يقرأ فقط، لا يكتب إلا على بياناته الشخصية
+         - teacher : يكتب على الدروس والإشعارات
+         - admin   : صلاحيات كاملة على كل شيء
+       ═══════════════════════════════════════════════════════════ */
+
+    /* ────────────────────────────────────────────────
+       بيانات المستخدمين
+       ──────────────────────────────────────────────── */
     "users": {
-      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+
       "$uid": {
-        ".read": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('role').val() === 'teacher' || root.child('users').child(auth.uid).child('role').val() === 'admin')",
-        ".write": "auth != null && ((auth.uid === $uid && !data.exists()) || root.child('users').child(auth.uid).child('role').val() === 'teacher' || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+        /* القراءة: المستخدم يقرأ بياناته فقط
+           + المدرس/الأدمن يقرأ بيانات أي مستخدم */
+        ".read": "auth != null && (
+                    auth.uid === $uid ||
+                    root.child('users').child(auth.uid).child('role').val() === 'teacher' ||
+                    root.child('users').child(auth.uid).child('role').val() === 'admin'
+                  )",
+
+        /* الكتابة عند التسجيل الأول (إنشاء حساب جديد):
+           يُسمح فقط إذا لم يكن المستخدم موجوداً بعد
+           أو إذا كان الطالب يعدّل بياناته الأساسية فقط */
+        ".write": "auth != null && (
+                    auth.uid === $uid &&
+                    !data.exists()
+                  ) || (
+                    root.child('users').child(auth.uid).child('role').val() === 'admin' ||
+                    root.child('users').child(auth.uid).child('role').val() === 'teacher'
+                  )",
+
+        /* التحقق من صحة البيانات عند الإنشاء */
         ".validate": "newData.hasChildren(['displayName', 'email', 'role', 'status', 'createdAt'])",
+
         "displayName": { ".validate": "newData.isString() && newData.val().length >= 2" },
-        "email": { ".validate": "newData.isString() && newData.val().length > 3" },
-        "role": { ".validate": "newData.val() === 'student' || newData.val() === 'teacher' || newData.val() === 'admin'" },
-        "status": { ".validate": "newData.val() === 'pending' || newData.val() === 'active' || newData.val() === 'blocked'" },
-        "createdAt": { ".validate": "newData.isNumber()" },
-        "grade": { ".validate": "newData.val() === null || newData.isString()" },
+        "email":       { ".validate": "newData.isString()" },
+        "role":        { ".validate": "newData.val() === 'student' || newData.val() === 'teacher'" },
+        "status":      { ".validate": "newData.val() === 'pending' || newData.val() === 'active' || newData.val() === 'blocked'" },
+        "createdAt":   { ".validate": "newData.isNumber()" },
+        "grade":       { ".validate": "newData.isString() || newData.val() === null" },
+
+        /* منع الطالب من تغيير دوره أو حالته */
         "$other": { ".validate": false }
       }
     },
+
+
+    /* ────────────────────────────────────────────────
+       الدروس
+       ──────────────────────────────────────────────── */
     "lessons": {
-      ".read": "auth != null && root.child('users').child(auth.uid).child('status').val() === 'active'",
+
+      /* القراءة: أي مستخدم مُسجَّل دخول وحسابه نشط */
+      ".read": "auth != null &&
+                root.child('users').child(auth.uid).child('status').val() === 'active'",
+
       "$lessonId": {
-        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+        /* الكتابة: المدرس والأدمن فقط */
+        ".write": "auth != null && (
+                    root.child('users').child(auth.uid).child('role').val() === 'teacher' ||
+                    root.child('users').child(auth.uid).child('role').val() === 'admin'
+                  )",
+
         ".validate": "newData.hasChildren(['title', 'subject', 'createdAt'])",
-        "title": { ".validate": "newData.isString() && newData.val().length > 0" },
-        "subject": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "title":     { ".validate": "newData.isString() && newData.val().length > 0" },
+        "subject":   { ".validate": "newData.isString()" },
         "createdAt": { ".validate": "newData.isNumber()" }
       }
     },
+
+
+    /* ────────────────────────────────────────────────
+       تقدم الطالب (progress)
+       ──────────────────────────────────────────────── */
     "progress": {
+
       "$uid": {
-        ".read": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('role').val() === 'teacher' || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+        /* القراءة: الطالب يقرأ تقدمه فقط + المدرس/الأدمن يقرأ الكل */
+        ".read": "auth != null && (
+                    auth.uid === $uid ||
+                    root.child('users').child(auth.uid).child('role').val() === 'teacher' ||
+                    root.child('users').child(auth.uid).child('role').val() === 'admin'
+                  )",
+
         "$lessonId": {
+          /* الكتابة: الطالب يكتب على تقدمه فقط
+             لكن لا يمكنه تعديل النتيجة (score) مباشرة! */
           ".write": "auth != null && auth.uid === $uid",
-          ".validate": "newData.hasChildren(['view_count']) && newData.child('view_count').isNumber() && newData.child('view_count').val() >= 0 && newData.child('view_count').val() <= 10",
+
+          /* التحقق: منع الطالب من رفع النتيجة يدوياً */
+          ".validate": "newData.hasChildren(['view_count']) &&
+                        newData.child('view_count').isNumber() &&
+                        newData.child('view_count').val() <= 10",
+
           "view_count": { ".validate": "newData.isNumber() && newData.val() >= 0" },
-          "lastView": { ".validate": "newData.isNumber()" },
+          "lastView":   { ".validate": "newData.isNumber()" },
+
+          /* النتيجة: لا يكتبها إلا المدرس/الأدمن */
           "score": {
-            ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+            ".write": "auth != null && (
+                        root.child('users').child(auth.uid).child('role').val() === 'teacher' ||
+                        root.child('users').child(auth.uid).child('role').val() === 'admin'
+                      )",
             ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
           }
         }
       }
     },
-    "exam_results": {
-      "$uid": {
-        ".read": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('role').val() === 'teacher' || root.child('users').child(auth.uid).child('role').val() === 'admin')",
-        "$lessonId": {
-          ".write": "auth != null && auth.uid === $uid",
-          ".validate": "newData.hasChildren(['score', 'total', 'submittedAt'])",
-          "score": { ".validate": "newData.isNumber() && newData.val() >= 0" },
-          "total": { ".validate": "newData.isNumber() && newData.val() > 0" },
-          "submittedAt": { ".validate": "newData.isNumber()" },
-          "lessonId": { ".validate": "newData.isString() || !newData.exists()" },
-          "teacherUid": { ".validate": "newData.isString() || !newData.exists()" },
-          "studentName": { ".validate": "newData.isString() || !newData.exists()" }
-        }
-      }
-    },
+
+
+    /* ────────────────────────────────────────────────
+       الإشعارات
+       ──────────────────────────────────────────────── */
     "notifications": {
+
       "$uid": {
+        /* القراءة: المستخدم يقرأ إشعاراته فقط */
         ".read": "auth != null && auth.uid === $uid",
+
+        /* تحديث lastSeen: الطالب يكتب على وقت آخر مشاهدة */
         "lastSeen": {
           ".write": "auth != null && auth.uid === $uid",
           ".validate": "newData.hasChild('ts') && newData.child('ts').isNumber()"
         },
+
+        /* إضافة إشعارات: المدرس/الأدمن فقط */
         "items": {
-          ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'teacher' || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+          ".write": "auth != null && (
+                      root.child('users').child(auth.uid).child('role').val() === 'teacher' ||
+                      root.child('users').child(auth.uid).child('role').val() === 'admin'
+                    )",
+
           "$notifId": {
             ".validate": "newData.hasChildren(['title', 'body', 'ts'])",
-            "title": { ".validate": "newData.isString() && newData.val().length > 0" },
-            "body": { ".validate": "newData.isString() && newData.val().length > 0" },
-            "ts": { ".validate": "newData.isNumber()" },
-            "icon": { ".validate": "newData.isString() || !newData.exists()" }
+            "title": { ".validate": "newData.isString()" },
+            "body":  { ".validate": "newData.isString()" },
+            "ts":    { ".validate": "newData.isNumber()" },
+            "icon":  { ".validate": "newData.isString()" }
           }
         }
       }
     },
+
+
+    /* ────────────────────────────────────────────────
+       لوحة المتصدرين (Leaderboard)
+       ──────────────────────────────────────────────── */
     "leaderboard": {
-      ".read": "auth != null && root.child('users').child(auth.uid).child('status').val() === 'active'",
-      "$uid": {
-        ".write": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('role').val() === 'teacher' || root.child('users').child(auth.uid).child('role').val() === 'admin')"
-      }
+      /* قراءة: أي مستخدم نشط */
+      ".read": "auth != null &&
+                root.child('users').child(auth.uid).child('status').val() === 'active'",
+
+      /* كتابة: المدرس/الأدمن فقط */
+      ".write": "auth != null && (
+                  root.child('users').child(auth.uid).child('role').val() === 'teacher' ||
+                  root.child('users').child(auth.uid).child('role').val() === 'admin'
+                )"
     },
+
+
+    /* ────────────────────────────────────────────────
+       الإعدادات العامة
+       ──────────────────────────────────────────────── */
     "settings": {
+      /* قراءة: أي مسجّل */
       ".read": "auth != null",
-      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
+
+      /* كتابة: الأدمن فقط */
+      ".write": "auth != null &&
+                 root.child('users').child(auth.uid).child('role').val() === 'admin'"
+    },
+
+
+    /* ────────────────────────────────────────────────
+       نتائج الاختبارات (exam_results)
+       الطالب يكتب نتيجته — المدرس/الأدمن يقرأ الكل
+       ──────────────────────────────────────────────── */
+    "exam_results": {
+      "$uid": {
+        /* القراءة: الطالب يقرأ نتائجه + المدرس/الأدمن يقرأ الكل */
+        ".read": "auth != null && (
+                    auth.uid === $uid ||
+                    root.child('users').child(auth.uid).child('role').val() === 'teacher' ||
+                    root.child('users').child(auth.uid).child('role').val() === 'admin'
+                  )",
+
+        "$lessonId": {
+          /* الكتابة: الطالب يسجّل نتيجة اختباره فقط */
+          ".write": "auth != null && auth.uid === $uid",
+
+          ".validate": "newData.hasChildren(['score', 'total', 'submittedAt'])",
+          "score":       { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "total":       { ".validate": "newData.isNumber() && newData.val() > 0" },
+          "submittedAt": { ".validate": "newData.isNumber()" },
+          "lessonId":    { ".validate": "newData.isString()" },
+          "teacherUid":  { ".validate": "newData.isString() || !newData.exists()" },
+          "studentName": { ".validate": "newData.isString() || !newData.exists()" }
+        }
+      }
     }
+
+    /* ─────────────────────────────────────────────────
+       ملاحظة أمنية مهمة:
+       أي مسار غير مذكور هنا → مرفوض تلقائياً
+       لا تُضيف ".read": true أو ".write": true أبداً
+       ───────────────────────────────────────────────── */
   }
 }
