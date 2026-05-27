@@ -679,7 +679,7 @@
     if (!lesson) return;
 
     document.getElementById('detailLessonTitle').textContent = lesson.title;
-    document.getElementById('detailLessonDesc').textContent  = lesson.desc || '';
+    document.getElementById('detailLessonDesc').textContent  = lesson.description || lesson.desc || '';
 
     // عرض الفيديو
     const videoArea = document.getElementById('videoArea');
